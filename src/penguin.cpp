@@ -497,7 +497,6 @@ void *Map_And_Pair_Solexa(void *T)
 				}	
 				else if(MapQ1!= -1)//Alignments not empty..
 				{
-					//continue;
 					std::map<unsigned,Alignment> D,D_P;
 					BTemp_P.StringLength=Read_Length;
 					RTemp_P.Real_Len=Read_Length;
@@ -2664,84 +2663,92 @@ bool Find_Paired(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Ali
 		}
 	}
 
+	Alignment Head,Tail;	
+	Alignment Sub_Opt_Head,Sub_Opt_Tail;	
+	int Sub_Opt_Score=INT_MAX;
+	bool Unique=true;//unique best pair..
+
 	for(std::map<unsigned,Alignment>::iterator I=D.begin();I!=D.end() && Pairings_Index<MAX_PROPER_PAIRS;I++)
 	{
 		std::map<unsigned,Alignment>::iterator Nearest_Pair=D_P.lower_bound(I->first-(INSERTSIZE+2*STD+Extra_Bit));
 		while(Nearest_Pair!=D_P.end() && (abs(Nearest_Pair->first-I->first) < INSERTSIZE+2*STD+Extra_Bit))
 		{
+			int Paired_Score=(I->second).Score+(Nearest_Pair->second).Score;
 			if (Correct_Orientation(I->second,Nearest_Pair->second,Extra_Bit))
 			{
-				Pairings[Pairings_Index++]=I->second;
-				Pairings[Pairings_Index++]=Nearest_Pair->second;
-				if(Pairings_Index>=MAX_PROPER_PAIRS)
+
+				if(!Pairings_Index)
 				{
-					printf("MAX_PROPER_PAIRS limit exceeded..\n");
-					break;
+					Head=I->second;Tail=Nearest_Pair->second;
+				}
+				else if(Paired_Score >= (Head.Score+Tail.Score))
+				{
+					if(Paired_Score <= (Head.Score+Tail.Score)+10)
+					{
+						Unique=false;
+					}
+					else
+					{
+						Unique=true;
+					}
+					Sub_Opt_Score=Head.Score+Tail.Score;
+					Sub_Opt_Head=Head;Sub_Opt_Tail=Tail;
+					Head=I->second;Tail=Nearest_Pair->second;
+				}
+				Pairings_Index++;
+			}
+			else
+			{
+				if(Pairings_Index && Sub_Opt_Score==INT_MAX)//not the first hit..
+				{
+					Sub_Opt_Score=Head.Score+Tail.Score;
+					Sub_Opt_Head=Head;Sub_Opt_Tail=Tail;
+				}
+				else if(Paired_Score>Sub_Opt_Score)
+				{
+					Sub_Opt_Score=Head.Score+Tail.Score;
+					Sub_Opt_Head=Head;Sub_Opt_Tail=Tail;
 				}
 			}
 			Nearest_Pair++;
 		}
 	}
-	int Max_Score_Hit=1;
+
+	if(Sub_Opt_Score!=INT_MAX)
+	{
+		if(Head.Score<Sub_Opt_Head.Score)
+		{
+			Sub_Opt_Head.Score=Head.Score;
+		}
+		if(Tail.Score<Sub_Opt_Tail.Score)
+		{
+			Sub_Opt_Tail.Score=Tail.Score;
+		}
+	}
+
 	if(Pairings_Index)
 	{
-		Alignment Head,Tail;	
-		Head=Pairings[0];Tail=Pairings[1];
-		bool Unique=true;//unique best pair..
-		for(int i=2;i<Pairings_Index;i=i+2)
+		if(Pairings_Index>=MAX_PROPER_PAIRS)
 		{
-			/*int X1,X2,Y1,Y2;
-			if(SW_Compare)
-			{
-				X1=Pairings[i].SW_Score;X2=Pairings[i+1].SW_Score;Y1=Head.SW_Score;Y2=Tail.SW_Score;
-			}
-			else
-			{
-				X1=Pairings[i].Score;X2=Pairings[i+1].Score;Y1=Head.Score;Y2=Tail.Score;
-			}
-
-			if((X1+X2) >= (Y1+Y2))
-			{
-				if((X1+X2) <= (Y1+Y2)+10)
-				{
-					Unique=false;
-				}
-				else
-				{
-					Unique=true;
-				}
-				Head=Pairings[i];Tail=Pairings[i+1];
-			}*/
-			if((Pairings[i].Score+Pairings[i+1].Score) >= (Head.Score+Tail.Score))
-			{
-				if((Pairings[i].Score+Pairings[i+1].Score) <= (Head.Score+Tail.Score)+10)
-				{
-					Unique=false;
-				}
-				else
-				{
-					Unique=true;
-				}
-				Head=Pairings[i];Tail=Pairings[i+1];
-			}
+			A.push(Head);B.push(Tail);
+			A.push(Head);B.push(Tail);
+			return true;
+			//printf("MAX_PROPER_PAIRS limit exceeded..\n");
 		}
-
-		if(Pairings_Index)
+		if(Unique)
 		{
-			if(Unique)
+			A.push(Head);B.push(Tail);
+			if(!Sub_Opt_Score==INT_MAX)
 			{
-				A.push(Head);B.push(Tail);
-			}
-			else
-			{
-				A.push(Head);B.push(Tail);
-				A.push(Head);B.push(Tail);
+				A.push(Sub_Opt_Head);B.push(Sub_Opt_Tail);
 			}
 		}
 		else
-			return false;
-
-
+		{
+			assert(Sub_Opt_Score!=INT_MAX);
+			A.push(Head);B.push(Tail);
+			A.push(Sub_Opt_Head);B.push(Sub_Opt_Tail);
+		}
 	}
 	else
 	{
@@ -2966,3 +2973,4 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	H1_P.Status=UNMAPPED;
 	Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
 }
+//
