@@ -1,6 +1,7 @@
 //#define NDEBUG
 //Routines for pairing...  
 #define __MAIN_CODE__
+#include <algorithm>
 
 //{-----------------------------  INCLUDE FILES  -------------------------------------------------/ 
 #include <cstdio> 
@@ -84,7 +85,7 @@ void Show_Progress(unsigned Percentage);
 void Read_INI(char* Config_File,unsigned & MAXCOUNT,FMFILES & F,BATPARAMETERS & BP);
 void Get_Bases (unsigned Location,int StringLength,char* Org_String);
 void Pair_Reads(BWT* fwfmi,BWT* revfmi,RQINDEX & R,FILE* Data_File, In_File IN,unsigned MAXCOUNT,BATPARAMETERS BP,Pair* Pairs,unsigned Entries);
-void Get_Best_Alignment_Pair(Alignment & A,Alignment & B,READ & R,const int StringLength,BATREAD & Read,Hit_Info & H,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,bool Force_Indel,int & Clip_H,int & Clip_T,char* CIG,bool PRINT);
+void Get_Best_Alignment_Pair(Alignment & A,Alignment & B,READ & R,const int StringLength,BATREAD & Read,Hit_Info & H,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,bool Force_Indel,int & Clip_H,int & Clip_T,char* CIG,bool PRINT,bool DUMMY_FORCED);
 void Parse_Command_line(int argc, char* argv[],unsigned & MAXCOUNT,FMFILES & FMFiles,BATPARAMETERS & BP);
 int Head_Tail(BWT* revfmi,SARange* Head_Hits,SARange* Tail_Hits,int Insert,int MAXCOUNT,char & In_Large,RQINDEX & R,unsigned Entries,Pair* Pairs,int & Pairs_Index,int & HITS,int & Err,unsigned Conversion_Factor);
 void *Map_And_Pair_Solexa(void *T);
@@ -92,7 +93,7 @@ void Verbose(char *BWTFILE,char *OCCFILE,char *REVBWTINDEX,char *REVOCCFILE,char
 void Init(BWT* revfmi,In_File & IN,FMFILES F,RQINDEX R,BATPARAMETERS & BP,char Solid,char Npolicy,LEN & L);
 void  Paired_Extension(int Last_MisT,int Last_MisH,char* Fwd_Read,char *Revcomp_Read, RQINDEX & RQ,Pair* & Pairs,SARange* & MFH_Hit_Array,SARange* & MFT_Hit_Array,SARange* & MCH_Hit_Array,SARange* & MCT_Hit_Array,int StringLength,FILE* Single_File,READ & R,int & Err,unsigned Conversion_Factor,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,int Current_Score,int & Tot_SW_Scans);
 void Launch_Threads(int NTHREAD, void* (*Map_t)(void*),Thread_Arg T);
-bool Report_SW_Hits(const int Err,READ & R,FILE* Single_File,const int StringLength,BATREAD & Read,Hit_Info & Mismatch_Hit,int Quality_Score,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,bool Force_Indel,bool PRINT);
+bool Report_SW_Hits(const int Err,READ & R,FILE* Single_File,const int StringLength,BATREAD & Read,Hit_Info & Mismatch_Hit,int Quality_Score,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,bool Force_Indel,bool PRINT,bool DUMMY_FORCED=false);
 bool Get_Info(MEMX & MF,MEMX & MC,int STRINGLENGTH,Hit_Info & H,unsigned Conversion_Factor);
 bool Unique_Hits(int Plus_Hits,int Minus_Hits,SARange & P,SARange & M);
 bool Check_Subopt(int & Plus_Hits,int & Minus_Hits,int Top_Mis,int Subopt_Mis,READ & R, int StringLength,MEMX & MF,MEMX & MC,float & Top_Score,float & Top_BQScore,float & Sub_Score,float & Sub_BQScore, int & Quality_Score);
@@ -118,11 +119,12 @@ void Adjust_Alignments(std::priority_queue <Alignment,std::vector <Alignment>,Co
 void Pop_And_Realign(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & A,int Offset,READ & RTemp, BATREAD & BTemp);
 bool SW_List(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,int Offset,READ & RTemp, BATREAD & BTemp,bool & List_Exceeded,int & List_Size);
 bool Correct_Orientation(Alignment A,Alignment A_P,int Extra_Bit=0);
-bool Find_Paired(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & A,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & B,std::map<unsigned,Alignment> & D,std::map<unsigned,Alignment> & D_P,int Extra_Bit=0);
+bool Find_Paired(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & A,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & B,std::map<unsigned,Alignment> & D,std::map<unsigned,Alignment> & D_P,int Extra_Bit=0,int SW_Compare=0);
 bool Align_Difference(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,unsigned U);
 bool Rescue_Mate(unsigned Loc,char Sign,int StringLength,char* Current_Tag,char* Q,int Flank, int Shift, bool Dont_Push_To_Q,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,char* Cigar,int & Clip_H,int & Clip_T,int & Filter,bool Do_Filter);
 void Rescue_One_Side(std::map<unsigned,Alignment> & D,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,READ & RTemp_P,BATREAD & BTemp_P);
 void Rescue_One_Side_X(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,READ & RTemp_P,BATREAD & BTemp_P);
+void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,int Read_Length,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments_P,Hit_Info & H1,Hit_Info & H1_P,FILE* Single_File,int Quality_Score1,int Quality_Score1_P );
 //}-----------------------------  FUNCTION PRTOTYPES  -------------------------------------------------/*
 
 #undef DEBUG
@@ -448,6 +450,9 @@ void *Map_And_Pair_Solexa(void *T)
 						{
 							std::map<unsigned,Alignment> D,D_P;
 							Find_Paired(Alignments,Alignments_P,D,D_P);
+							Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
+							Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
+							continue;
 						}
 						else
 						{
@@ -460,67 +465,23 @@ void *Map_And_Pair_Solexa(void *T)
 								A1_P=Alignments_P.top();FreeQ(Alignments_P);Alignments_P.push(A1_P);
 							}
 
-						}
+							Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,false);
+							Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,false);
+							continue;
 
-						Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true);
-						Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true);
+						}
+						assert(false);
 						continue;
 					}
 					else
 					{
-						std::map<unsigned,Alignment> D,D_P;
-						BTemp_P.StringLength=Read_Length;
-						RTemp_P.Real_Len=Read_Length;
-						Process_Read_Basic(RTemp_P,BTemp_P);
-
-						BTemp.StringLength=Read_Length;
-						RTemp.Real_Len=Read_Length;
-						Process_Read_Basic(RTemp,BTemp);
-
-						if(!Find_Paired(Alignments,Alignments_P,D,D_P))
-						{
-							Rescue_One_Side(D,Alignments,Alignments_P,RTemp_P,BTemp_P);
-							Rescue_One_Side(D_P,Alignments_P,Alignments,RTemp,BTemp);
-							D.clear();D_P.clear();
-							assert(Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length));
-						}
-
-						H1.Status=UNMAPPED;
-						Adjust_Alignments(Alignments,0,RTemp,BTemp);
-						Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true);
-						H1_P.Status=UNMAPPED;
-						Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
-						Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true);
-
+						Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P);
 						continue;
 					}
 				}
 				else
 				{
-						std::map<unsigned,Alignment> D,D_P;
-						BTemp_P.StringLength=Read_Length;
-						RTemp_P.Real_Len=Read_Length;
-						Process_Read_Basic(RTemp_P,BTemp_P);
-
-						BTemp.StringLength=Read_Length;
-						RTemp.Real_Len=Read_Length;
-						Process_Read_Basic(RTemp,BTemp);
-
-						if(!Find_Paired(Alignments,Alignments_P,D,D_P))
-						{
-							Rescue_One_Side(D,Alignments,Alignments_P,RTemp_P,BTemp_P);
-							Rescue_One_Side(D_P,Alignments_P,Alignments,RTemp,BTemp);
-							D.clear();D_P.clear();
-							assert(Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length));
-						}
-
-						H1.Status=UNMAPPED;
-						Adjust_Alignments(Alignments,0,RTemp,BTemp);
-						Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true);
-						H1_P.Status=UNMAPPED;
-						Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
-						Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true);
-
+						Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P);
 						continue;
 				}
 			}
@@ -531,45 +492,12 @@ void *Map_And_Pair_Solexa(void *T)
 			{
 				if(MapQ1 != -1 && MapQ2!= -1)//both mapped, maybe multiply..
 				{
-					std::map<unsigned,Alignment> D,D_P;
-					BTemp_P.StringLength=Read_Length;
-					RTemp_P.Real_Len=Read_Length;
-					Process_Read_Basic(RTemp_P,BTemp_P);
-					Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
-
-					BTemp.StringLength=Read_Length;
-					RTemp.Real_Len=Read_Length;
-					Process_Read_Basic(RTemp,BTemp);
-					Adjust_Alignments(Alignments,0,RTemp,BTemp);
-
-					//if(!Find_Paired(Alignments,Alignments_P,D,D_P))
-					Find_Paired(Alignments,Alignments_P,D,D_P);
-					FreeQ(Alignments);FreeQ(Alignments_P);
-					//if(Alignments.size()!=1)//no pairs or multi hit..
-					{
-						Alignment B,A=Alignments.top(),C=Alignments_P.top();
-						Rescue_One_Side(D,Alignments,Alignments_P,RTemp_P,BTemp_P);
-						Rescue_One_Side(D_P,Alignments_P,Alignments,RTemp,BTemp);
-						D.clear();D_P.clear();
-						assert(Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length));
-						B=Alignments.top();
-						if(A.Loc!=B.Loc)
-						{
-							//continue;//TODO:try to find the best hit..
-						}
-					}
-
-					H1.Status=UNMAPPED;
-					//Adjust_Alignments(Alignments,0,RTemp,BTemp);
-					Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true);
-					H1_P.Status=UNMAPPED;
-					//Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
-					Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true);
-
+					Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P);
 					continue;
 				}	
 				else if(MapQ1!= -1)//Alignments not empty..
 				{
+					//continue;
 					std::map<unsigned,Alignment> D,D_P;
 					BTemp_P.StringLength=Read_Length;
 					RTemp_P.Real_Len=Read_Length;
@@ -584,15 +512,17 @@ void *Map_And_Pair_Solexa(void *T)
 
 					H1.Status=UNMAPPED;
 					Adjust_Alignments(Alignments,0,RTemp,BTemp);
-					Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true);
+					Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
 					H1_P.Status=UNMAPPED;
 					Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
-					Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true);
+					Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
 
 					continue;
 				}
 				else if(MapQ2!= -1)//Alignments not empty..
 				{
+					//continue;
+
 					std::map<unsigned,Alignment> D,D_P;
 					BTemp_P.StringLength=Read_Length;
 					RTemp_P.Real_Len=Read_Length;
@@ -602,15 +532,40 @@ void *Map_And_Pair_Solexa(void *T)
 					RTemp.Real_Len=Read_Length;
 					Process_Read_Basic(RTemp,BTemp);
 
+					bool Deb=false;
+					if (Deb)
+					{
+						int Count1=0;
+						std::map<unsigned,Alignment> D;
+						while (!Alignments_P.empty())
+						{
+							Alignment A=Alignments_P.top();Alignments_P.pop();
+							D[A.Loc]=A;
+						}
+						for(std::map<unsigned,Alignment>::iterator I=D.begin();I!=D.end();I++)
+						{
+							Count1++;
+							//fprintf(Single_File,"-----%u ------------\n",(I->second).Loc);
+							H1.Status=UNMAPPED;
+							Alignments_P.push(I->second);
+							Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments_P,Good_Alignments,0/*Force_Indel*/,true);
+							Alignments_P.pop();
+						}
+						for(std::map<unsigned,Alignment>::iterator I=D.begin();I!=D.end();I++)
+						{
+							Alignments_P.push(I->second);
+						}
+					}
+
 					Rescue_One_Side_X(Alignments_P,Alignments,RTemp,BTemp);
 					Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length);
 
 					H1.Status=UNMAPPED;
 					Adjust_Alignments(Alignments,0,RTemp,BTemp);
-					Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true);
+					Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
 					H1_P.Status=UNMAPPED;
 					Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
-					Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true);
+					Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
 
 					continue;
 
@@ -991,7 +946,7 @@ bool Report_Single_SW(const int Err,READ & R,FILE* Single_File,const int StringL
 	return true;
 }
 
-void Get_Best_Alignment_Pair(Alignment & A,Alignment & B,READ & R,const int StringLength,BATREAD & Read,Hit_Info & H,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,bool Force_Indel,int & Clip_H,int & Clip_T,char* CIG,bool PRINT)
+void Get_Best_Alignment_Pair(Alignment & A,Alignment & B,READ & R,const int StringLength,BATREAD & Read,Hit_Info & H,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,bool Force_Indel,int & Clip_H,int & Clip_T,char* CIG,bool PRINT,bool DUMMY_FORCED)
 {
 	int C=0;
 
@@ -1065,7 +1020,7 @@ void Get_Best_Alignment_Pair(Alignment & A,Alignment & B,READ & R,const int Stri
 		if(!Good_Alignments.empty())
 		{
 			B=Good_Alignments.top();Good_Alignments.pop();B.Score= -B.Score;
-			while(dist(A.Loc,B.Loc)<10)//std::max(10,(R.Real_Len-StringLength))) 
+			while(dist(A.Loc,B.Loc)<10 && !DUMMY_FORCED)//std::max(10,(R.Real_Len-StringLength))) 
 			{
 				if(Good_Alignments.empty())
 				{
@@ -1077,7 +1032,7 @@ void Get_Best_Alignment_Pair(Alignment & A,Alignment & B,READ & R,const int Stri
 					B=Good_Alignments.top();Good_Alignments.pop();B.Score= -B.Score;
 				}
 			}
-			if(dist(A.Loc,B.Loc)<10)//std::max(10,(R.Real_Len-StringLength))) 
+			if(dist(A.Loc,B.Loc)<10 && !DUMMY_FORCED)//std::max(10,(R.Real_Len-StringLength))) 
 				B.Score=INT_MAX; 
 		}
 		else 
@@ -1136,7 +1091,7 @@ int Calc_SW_Quality(Alignment A,READ & R,const int StringLength,BATREAD & Read,s
 	}
 
 }
-bool Report_SW_Hits(const int Err,READ & R,FILE* Single_File,const int StringLength,BATREAD & Read,Hit_Info & Mismatch_Hit,int Quality_Score,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,bool Force_Indel,bool PRINT)
+bool Report_SW_Hits(const int Err,READ & R,FILE* Single_File,const int StringLength,BATREAD & Read,Hit_Info & Mismatch_Hit,int Quality_Score,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,bool Force_Indel,bool PRINT,bool DUMMY_FORCED)
 {
 	int Alignment_Count=Alignments.size();
 	bool Print_Status=false;
@@ -1163,14 +1118,14 @@ bool Report_SW_Hits(const int Err,READ & R,FILE* Single_File,const int StringLen
 		{
 			if(!PRINT)
 			{
-				Get_Best_Alignment_Pair(A,B,R,StringLength,Read,H,Alignments,Good_Alignments,Force_Indel,Clip_H,Clip_T,CIG,PRINT);
+				Get_Best_Alignment_Pair(A,B,R,StringLength,Read,H,Alignments,Good_Alignments,Force_Indel,Clip_H,Clip_T,CIG,PRINT,DUMMY_FORCED);
 			       	return true;
 			}
 			if(!Report_Single_SW(Err,R,Single_File,StringLength,Read,Mismatch_Hit,Print_Status,Alignments,Good_Alignments,0,0,NULL)) return false;
 		}
 		else if (Alignment_Count)//Multiple SW hits..
 		{	
-			Get_Best_Alignment_Pair(A,B,R,StringLength,Read,H,Alignments,Good_Alignments,Force_Indel,Clip_H,Clip_T,CIG,PRINT);
+			Get_Best_Alignment_Pair(A,B,R,StringLength,Read,H,Alignments,Good_Alignments,Force_Indel,Clip_H,Clip_T,CIG,PRINT,DUMMY_FORCED);
 			if(!PRINT) return true;
 
 			if(Mismatch_Hit.Status!=SW_RECOVERED && Mismatch_Hit.Status!=UNMAPPED && A.Score>=Mismatch_Hit.Score)
@@ -2254,11 +2209,23 @@ bool Recover_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int Str
 		}
 		else
 		{
-			Good_Alignments.pop();
-			Alignment B=Good_Alignments.top();
-			Alignments.push(B);
-			Good_Alignments.push(A);//
-			A.Sub_Opt_Score= -B.Score;
+			if(PAIRED)
+			{
+				Good_Alignments.pop();
+				Alignments=Good_Alignments;
+				Alignment B=Good_Alignments.top();
+				//Alignments.push(B);
+				Good_Alignments.push(A);//
+				A.Sub_Opt_Score= -B.Score;
+			}
+			else
+			{
+				Good_Alignments.pop();
+				Alignment B=Good_Alignments.top();
+				Alignments.push(B);
+				Good_Alignments.push(A);//
+				A.Sub_Opt_Score= -B.Score;
+			}
 		}
 		Copy_A_to_H(A,H);
 		Alignments.push(A);
@@ -2658,19 +2625,43 @@ bool Correct_Orientation(Alignment A,Alignment A_P,int Extra_Bit)
 	return false;
 }
 
-const int MAX_PROPER_PAIRS=100;
-bool Find_Paired(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & A,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & B,std::map<unsigned,Alignment> & D,std::map<unsigned,Alignment> & D_P,int Extra_Bit)
+const int MAX_PROPER_PAIRS=1000;
+bool Find_Paired(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & A,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & B,std::map<unsigned,Alignment> & D,std::map<unsigned,Alignment> & D_P,int Extra_Bit,int SW_Compare)
 {
 	Alignment Pairings[MAX_PROPER_PAIRS+1];int Pairings_Index=0;
+	int Count1=0,Count2=0;
 	while(!A.empty())
 	{
+		Count1++;
 		Alignment Aln=A.top();A.pop();
-		D[Aln.Loc]=Aln;
+		std::map<unsigned,Alignment>::iterator I;
+		if((I=D.find(Aln.Loc))==D.end())
+		{
+			Count2++;
+			D[Aln.Loc]=Aln;
+		}
+		else if((I->second).Score < Aln.Score)
+		{
+			Count2++;
+			D[Aln.Loc]=Aln;
+		}
 	}
+	Count1=0,Count2=0;
 	while(!B.empty())
 	{
+		Count1++;
 		Alignment Aln=B.top();B.pop();
-		D_P[Aln.Loc]=Aln;
+		std::map<unsigned,Alignment>::iterator I;
+		if((I=D_P.find(Aln.Loc))==D_P.end())
+		{
+			Count2++;
+			D_P[Aln.Loc]=Aln;
+		}
+		else if((I->second).Score < Aln.Score)
+		{
+			Count2++;
+			D_P[Aln.Loc]=Aln;
+		}
 	}
 
 	for(std::map<unsigned,Alignment>::iterator I=D.begin();I!=D.end() && Pairings_Index<MAX_PROPER_PAIRS;I++)
@@ -2683,7 +2674,10 @@ bool Find_Paired(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Ali
 				Pairings[Pairings_Index++]=I->second;
 				Pairings[Pairings_Index++]=Nearest_Pair->second;
 				if(Pairings_Index>=MAX_PROPER_PAIRS)
+				{
+					printf("MAX_PROPER_PAIRS limit exceeded..\n");
 					break;
+				}
 			}
 			Nearest_Pair++;
 		}
@@ -2696,6 +2690,28 @@ bool Find_Paired(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Ali
 		bool Unique=true;//unique best pair..
 		for(int i=2;i<Pairings_Index;i=i+2)
 		{
+			/*int X1,X2,Y1,Y2;
+			if(SW_Compare)
+			{
+				X1=Pairings[i].SW_Score;X2=Pairings[i+1].SW_Score;Y1=Head.SW_Score;Y2=Tail.SW_Score;
+			}
+			else
+			{
+				X1=Pairings[i].Score;X2=Pairings[i+1].Score;Y1=Head.Score;Y2=Tail.Score;
+			}
+
+			if((X1+X2) >= (Y1+Y2))
+			{
+				if((X1+X2) <= (Y1+Y2)+10)
+				{
+					Unique=false;
+				}
+				else
+				{
+					Unique=true;
+				}
+				Head=Pairings[i];Tail=Pairings[i+1];
+			}*/
 			if((Pairings[i].Score+Pairings[i+1].Score) >= (Head.Score+Tail.Score))
 			{
 				if((Pairings[i].Score+Pairings[i+1].Score) <= (Head.Score+Tail.Score)+10)
@@ -2790,6 +2806,7 @@ bool Rescue_Mate(unsigned Loc,char Sign,int StringLength,char* Current_Tag,char*
 		A.Indel=Cig_Info.Indel_Count;
 		A.Sign=Sign;
 		A.Realigned=1;
+		Clip_H=A.Clip_H;Clip_T=A.Clip_T;
 		if(Do_Filter && BOOST && Aln->score1 >Filter) 
 		{
 			Filter=Aln->score1;
@@ -2822,9 +2839,17 @@ void Rescue_One_Side(std::map<unsigned,Alignment> & D,std::priority_queue <Align
 			int Tot_SW_Scans=0,Filter=ACC_SCORE,Err=0,Clip_H=0,Clip_T=0;
 			bool SW_Hits;
 
-			SW_Hits=Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Read_Length+4*STD,-INSERTSIZE-2*STD,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
+			SW_Hits=Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Read_Length+4*STD,-(INSERTSIZE-Read_Length)-2*STD,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
 			if(SW_Hits)
 			{
+				/*if(Clip_T)
+				{
+					Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Read_Length+4*STD+Read_Length/2,-INSERTSIZE-2*STD,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);//TODO: localise SW-rescue tighter..
+				}
+				else if(Clip_H)
+				{
+					Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Read_Length+4*STD+Read_Length/2,-INSERTSIZE-2*STD-Read_Length/2,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);//TODO: localise SW-rescue tighter..
+				}*/
 				Alignments.push(A1);
 			}
 
@@ -2834,9 +2859,17 @@ void Rescue_One_Side(std::map<unsigned,Alignment> & D,std::priority_queue <Align
 			int Tot_SW_Scans=0,Filter=ACC_SCORE,Err=0,Clip_H=0,Clip_T=0;
 			bool SW_Hits;
 
-			SW_Hits=Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Read_Length+4*STD,(INSERTSIZE-2*STD),false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
+			SW_Hits=Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Read_Length+4*STD,(INSERTSIZE-2*STD)-Read_Length,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
 			if(SW_Hits)
 			{
+				/*if(Clip_H)
+				{
+					Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Read_Length+4*STD+Read_Length/2,(INSERTSIZE-2*STD)-Read_Length/2,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
+				}
+				else if(Clip_T)
+				{
+					Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Read_Length+4*STD+Read_Length/2,(INSERTSIZE-2*STD),false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
+				}*/
 				Alignments.push(A1);
 			}
 
@@ -2863,13 +2896,15 @@ void Rescue_One_Side_X(std::priority_queue <Alignment,std::vector <Alignment>,Co
 		if(A1.Sign=='-')
 		{
 			int Tot_SW_Scans=0,Filter=ACC_SCORE,Err=0,Clip_H=0,Clip_T=0;
-			SW_Hits=Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Read_Length+4*STD,-INSERTSIZE-2*STD,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
+			//SW_Hits=Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Read_Length+4*STD,-INSERTSIZE-2*STD,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
+			SW_Hits=Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Read_Length+4*STD,-(INSERTSIZE-Read_Length)-2*STD,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
 
 		}
 		else
 		{
 			int Tot_SW_Scans=0,Filter=ACC_SCORE,Err=0,Clip_H=0,Clip_T=0;
-			SW_Hits=Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Read_Length+4*STD,(INSERTSIZE-2*STD),false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
+			//SW_Hits=Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Read_Length+4*STD,(INSERTSIZE-2*STD),false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
+			SW_Hits=Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Read_Length+4*STD,(INSERTSIZE-2*STD)-Read_Length,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
 		}
 		if(SW_Hits)
 		{
@@ -2878,4 +2913,56 @@ void Rescue_One_Side_X(std::priority_queue <Alignment,std::vector <Alignment>,Co
 
 		I++;
 	}
+}
+
+void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,int Read_Length,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments_P,Hit_Info & H1,Hit_Info & H1_P,FILE* Single_File,int Quality_Score1,int Quality_Score1_P )
+{	
+	std::map<unsigned,Alignment> D,D_P;
+	BTemp_P.StringLength=Read_Length;
+	RTemp_P.Real_Len=Read_Length;
+	Process_Read_Basic(RTemp_P,BTemp_P);
+	Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
+
+	BTemp.StringLength=Read_Length;
+	RTemp.Real_Len=Read_Length;
+	Process_Read_Basic(RTemp,BTemp);
+	Adjust_Alignments(Alignments,0,RTemp,BTemp);
+
+	Find_Paired(Alignments,Alignments_P,D,D_P);
+	FreeQ(Alignments);FreeQ(Alignments_P);
+
+	bool Deb=false;
+	if (Deb)
+	{
+		int Count1=0;
+		for(std::map<unsigned,Alignment>::iterator I=D.begin();I!=D.end();I++)
+		{
+			Count1++;
+			//fprintf(Single_File,"-----%u ------------\n",(I->second).Loc);
+			H1.Status=UNMAPPED;
+			Alignments.push(I->second);
+			Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0,true);
+			Alignments.pop();
+		}
+		Count1=0;
+		for(std::map<unsigned,Alignment>::iterator I=D_P.begin();I!=D_P.end();I++)
+		{
+			Count1++;
+			//fprintf(Single_File,"-----%u ------------\n",(I->second).Loc);
+			H1_P.Status=UNMAPPED;
+			Alignments_P.push(I->second);
+			Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0,true);
+			Alignments_P.pop();
+		}
+	}
+	
+	Rescue_One_Side(D,Alignments,Alignments_P,RTemp_P,BTemp_P);
+	Rescue_One_Side(D_P,Alignments_P,Alignments,RTemp,BTemp);
+	D.clear();D_P.clear();
+	assert(Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length));
+
+	H1.Status=UNMAPPED;
+	Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
+	H1_P.Status=UNMAPPED;
+	Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
 }
