@@ -1115,12 +1115,33 @@ bool Report_SW_Hits(const int Err,READ & R,FILE* Single_File,const int StringLen
 
 		if(Alignment_Count==1)//Smith waterman got a unique hit..
 		{
-			if(!PRINT)
+			if(DUMMY_FORCED)
 			{
-				Get_Best_Alignment_Pair(A,B,R,StringLength,Read,H,Alignments,Good_Alignments,Force_Indel,Clip_H,Clip_T,CIG,PRINT,DUMMY_FORCED);
-			       	return true;
+				Alignment A=Alignments.top();A.Score=-A.Score;
+				A.Sub_Opt_Score=H.Sub_Opt_Score=A.Score+21;
+				strcpy(CIG,A.Cigar);Clip_T=A.Clip_T;Clip_H=A.Clip_H;
+
+				int SW_Quality_Score=Calc_SW_Quality(A,R,StringLength,Read,Alignments,Good_Alignments);
+				H.Org_Loc=A.Loc;H.Loc = A.Loc;Location_To_Genome(H.Loc,Ann);H.Chr=Ann.Name;H.Sign=A.Sign;H.Mismatch=A.Mismatch;H.Indel=A.Indel;
+				H.Score=A.Score;H.QScore=A.QScore;H.SW_Sub_Opt_Score=A.SW_Score-20;
+				if(Err>1) Flag=4; else if (H.Sign=='+') Flag=0; else Flag=16; 
+				if(TOP_TEN) if (H.Sign=='+') Flag=0; else Flag=16; 
+
+				if(Flag!=4||TOP_TEN) 
+				{
+					H.Status=Mismatch_Hit.Status=MULTI_HIT;
+					Cigar_Check_And_Print(H,Read,StringLength,Single_File,R,true,SW_Quality_Score,A,Clip_H,Clip_T,CIG);Print_Status=true;
+				}
 			}
-			if(!Report_Single_SW(Err,R,Single_File,StringLength,Read,Mismatch_Hit,Print_Status,Alignments,Good_Alignments,0,0,NULL)) return false;
+			else
+			{
+				if(!PRINT)
+				{
+					Get_Best_Alignment_Pair(A,B,R,StringLength,Read,H,Alignments,Good_Alignments,Force_Indel,Clip_H,Clip_T,CIG,PRINT,DUMMY_FORCED);
+					return true;
+				}
+				if(!Report_Single_SW(Err,R,Single_File,StringLength,Read,Mismatch_Hit,Print_Status,Alignments,Good_Alignments,0,0,NULL)) return false;
+			}
 		}
 		else if (Alignment_Count)//Multiple SW hits..
 		{	
@@ -2666,6 +2687,7 @@ bool Find_Paired(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Ali
 	Alignment Head,Tail;	
 	Alignment Sub_Opt_Head,Sub_Opt_Tail;	
 	int Sub_Opt_Score=INT_MAX;
+	int Max_H_Score,Max_T_Score;
 	bool Unique=true;//unique best pair..
 
 	for(std::map<unsigned,Alignment>::iterator I=D.begin();I!=D.end() && Pairings_Index<MAX_PROPER_PAIRS;I++)
@@ -2674,12 +2696,22 @@ bool Find_Paired(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Ali
 		while(Nearest_Pair!=D_P.end() && (abs(Nearest_Pair->first-I->first) < INSERTSIZE+2*STD+Extra_Bit))
 		{
 			int Paired_Score=(I->second).Score+(Nearest_Pair->second).Score;
+			if(Max_H_Score<(I->second).Score)
+			{
+				Max_H_Score=(I->second).Score;
+			}
+			if(Max_T_Score<(Nearest_Pair->second).Score)
+			{
+				Max_T_Score=(Nearest_Pair->second).Score;
+			}
+
 			if (Correct_Orientation(I->second,Nearest_Pair->second,Extra_Bit))
 			{
 
 				if(!Pairings_Index)
 				{
 					Head=I->second;Tail=Nearest_Pair->second;
+					Max_H_Score=Head.Score;Max_T_Score=Tail.Score;
 				}
 				else if(Paired_Score >= (Head.Score+Tail.Score))
 				{
@@ -2716,13 +2748,15 @@ bool Find_Paired(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Ali
 
 	if(Sub_Opt_Score!=INT_MAX)
 	{
-		if(Head.Score<Sub_Opt_Head.Score)
+		if(Head.Score<Max_H_Score)//Sub_Opt_Head.Score)
 		{
 			Sub_Opt_Head.Score=Head.Score;
+			Sub_Opt_Tail.Score=Tail.Score;
 		}
-		if(Tail.Score<Sub_Opt_Tail.Score)
+		if(Tail.Score<Max_T_Score)//Sub_Opt_Tail.Score)
 		{
 			Sub_Opt_Tail.Score=Tail.Score;
+			Sub_Opt_Head.Score=Head.Score;
 		}
 	}
 
