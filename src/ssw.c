@@ -15,6 +15,7 @@
 #include <string.h>
 #include <math.h>
 #include "ssw.h"
+#include "assert.h"
 
 #ifdef __GNUC__
 #define LIKELY(x) __builtin_expect((x),1)
@@ -618,6 +619,7 @@ cigar* banded_sw (const int8_t* ref,
 				e1 = e_b[u] > 0 ? e_b[u] : 0;
 				f1 = f > 0 ? f : 0;
 				temp1 = e1 > f1 ? e1 : f1;
+				//assert(read[i]>=0 && read[i]<4);
 				temp2 = h_b[d] + mat[ref[j] * n + read[i]];
 				h_c[u] = temp1 > temp2 ? temp1 : temp2;
 		

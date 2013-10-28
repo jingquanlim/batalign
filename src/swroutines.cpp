@@ -386,6 +386,11 @@ void ssw_cigar_processQ(s_align* a,Cigar_Info & C,char* Ref,int Ref_Off,char* Pa
 		HClip_Resc=true;
 		for(int i=0;i<Clip_H;i++)
 		{
+			if(*Ref>4 || *Ref<0 || *Pattern>=4 || *Pattern<0)
+			{
+				Cig_Err=true;
+				break;
+			}
 			assert(*Ref<4 && *Ref>=0);
 			assert(*Pattern<4 && *Pattern>=0);
 			if(*Ref!=*Pattern)
@@ -443,6 +448,11 @@ void ssw_cigar_processQ(s_align* a,Cigar_Info & C,char* Ref,int Ref_Off,char* Pa
 			if(Cigar) *Cigar_Ptr='M';
 			for(int i=0;i<length;i++)
 			{
+				if(*Ref>4 || *Ref<0 || *Pattern>=4 || *Pattern<0)
+				{
+					Cig_Err=true;
+					break;
+				}
 				assert(*Ref<4 && *Ref>=0);
 				assert(*Pattern<4 && *Pattern>=0);
 				if(*Ref!=*Pattern)
@@ -523,6 +533,11 @@ void ssw_cigar_processQ(s_align* a,Cigar_Info & C,char* Ref,int Ref_Off,char* Pa
 		TClip_Resc=true;
 		for(int i=0;i<Clip_T;i++)
 		{
+			if(*Ref>4 || *Ref<0 || *Pattern>=4 || *Pattern<0)
+			{
+				Cig_Err=true;
+				break;
+			}
 			assert(*Ref<4 && *Ref>=0);
 			assert(*Pattern<4 && *Pattern>=0);
 			if(*Ref!=*Pattern)
