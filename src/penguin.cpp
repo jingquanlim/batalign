@@ -500,7 +500,10 @@ void *Map_And_Pair_Solexa(void *T)
 				}	
 				else if(MapQ1!= -1)//Alignments not empty..
 				{
-					continue;
+					if(Alignments.empty())
+					{
+						continue;
+					}
 					std::map<unsigned,Alignment> D,D_P;
 					BTemp_P.StringLength=Read_Length;
 					RTemp_P.Real_Len=Read_Length;
@@ -510,11 +513,26 @@ void *Map_And_Pair_Solexa(void *T)
 					RTemp.Real_Len=Read_Length;
 					Process_Read_Basic(RTemp,BTemp);
 
+					Adjust_Alignments(Alignments,0,RTemp_P,BTemp_P);
+					ALIGNMENT_Q T=Alignments;
+					A1=T.top();
 					Rescue_One_Side_X(Alignments,Alignments_P,RTemp_P,BTemp_P);
 					Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length);
 
+					Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
+
+					if(A1.Score > B1.Score+B1_P.Score)
+					{
+						FreeQ(Alignments);FreeQ(Alignments_P);
+						Alignments.push(A1_P);
+						if(MapQ2==0)
+						{
+							Alignments=T;
+						}
+					}
+
+
 					H1.Status=UNMAPPED;
-					Adjust_Alignments(Alignments,0,RTemp,BTemp);
 					Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
 					H1_P.Status=UNMAPPED;
 					Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
@@ -524,7 +542,10 @@ void *Map_And_Pair_Solexa(void *T)
 				}
 				else if(MapQ2!= -1)//Alignments not empty..
 				{
-					continue;
+					if(Alignments_P.empty())
+					{
+						continue;
+					}
 
 					std::map<unsigned,Alignment> D,D_P;
 					BTemp_P.StringLength=Read_Length;
@@ -535,39 +556,28 @@ void *Map_And_Pair_Solexa(void *T)
 					RTemp.Real_Len=Read_Length;
 					Process_Read_Basic(RTemp,BTemp);
 
-					bool Deb=false;
-					if (Deb)
-					{
-						int Count1=0;
-						std::map<unsigned,Alignment> D;
-						while (!Alignments_P.empty())
-						{
-							Alignment A=Alignments_P.top();Alignments_P.pop();
-							D[A.Loc]=A;
-						}
-						for(std::map<unsigned,Alignment>::iterator I=D.begin();I!=D.end();I++)
-						{
-							Count1++;
-							//fprintf(Single_File,"-----%u ------------\n",(I->second).Loc);
-							H1.Status=UNMAPPED;
-							Alignments_P.push(I->second);
-							Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments_P,Good_Alignments,0/*Force_Indel*/,true);
-							Alignments_P.pop();
-						}
-						for(std::map<unsigned,Alignment>::iterator I=D.begin();I!=D.end();I++)
-						{
-							Alignments_P.push(I->second);
-						}
-					}
-
+					Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
+					ALIGNMENT_Q T_P=Alignments_P;
+					A1_P=T_P.top();
 					Rescue_One_Side_X(Alignments_P,Alignments,RTemp,BTemp);
 					Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length);
+
+					Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
+
+					if(A1_P.Score > B1.Score+B1_P.Score)
+					{
+						FreeQ(Alignments);FreeQ(Alignments_P);
+						Alignments_P.push(A1_P);
+						if(MapQ2==0)
+						{
+							Alignments_P=T_P;
+						}
+					}
 
 					H1.Status=UNMAPPED;
 					Adjust_Alignments(Alignments,0,RTemp,BTemp);
 					Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
 					H1_P.Status=UNMAPPED;
-					Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
 					Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
 
 					continue;
