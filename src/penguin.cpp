@@ -3068,7 +3068,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		if(A1.Loc !=UINT_MAX)
 		{
 			Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
-			if(A1.Score > B1.Score+B1_P.Score)
+			if(A1.Score > B1.Score+10)//B1_P.Score)
 			{
 				FreeQ(Alignments);FreeQ(Alignments_P);
 				Alignments.push(A1);
@@ -3081,7 +3081,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		if(A1_P.Loc !=UINT_MAX)
 		{
 			Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
-			if(A1_P.Score > B1.Score+B1_P.Score)
+			if(A1_P.Score > B1.Score+10)//B1_P.Score)
 			{
 				FreeQ(Alignments);FreeQ(Alignments_P);
 				Alignments_P.push(A1_P);
