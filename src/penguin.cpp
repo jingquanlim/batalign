@@ -478,30 +478,31 @@ void *Map_And_Pair_Solexa(void *T)
 					}
 					else
 					{
-						Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MapQ1,MapQ2);
+						Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MapQ1,MapQ1_P);
 						continue;
 					}
 				}
 				else
 				{
-						Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MapQ1,MapQ2);
+						Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MapQ1,MapQ1_P);
 						continue;
 				}
 			}
-			if(MapQ1 == -1 && MapQ2== -1)//Both unmapped
+			if(MapQ1 == -1 && MapQ1_P== -1)//Both unmapped
 			{
 			}
 			else
 			{
-				if(MapQ1 != -1 && MapQ2!= -1)//both mapped, maybe multiply..
+				if(MapQ1 != -1 && MapQ1_P!= -1)//both mapped, maybe multiply..
 				{
-					Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MapQ1,MapQ2);
+					Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MapQ1,MapQ1_P);
 					continue;
 				}	
 				else if(MapQ1!= -1)//Alignments not empty..
 				{
 					if(Alignments.empty())
 					{
+						assert(false);
 						continue;
 					}
 					std::map<unsigned,Alignment> D,D_P;
@@ -513,7 +514,7 @@ void *Map_And_Pair_Solexa(void *T)
 					RTemp.Real_Len=Read_Length;
 					Process_Read_Basic(RTemp,BTemp);
 
-					Adjust_Alignments(Alignments,0,RTemp_P,BTemp_P);
+					Adjust_Alignments(Alignments,0,RTemp,BTemp);
 					ALIGNMENT_Q T=Alignments;
 					A1=T.top();
 					Rescue_One_Side_X(Alignments,Alignments_P,RTemp_P,BTemp_P);
@@ -521,10 +522,10 @@ void *Map_And_Pair_Solexa(void *T)
 
 					Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
 
-					if(A1.Score > B1.Score+B1_P.Score)
+					if(A1.Score > B1.Score+10)
 					{
 						FreeQ(Alignments);FreeQ(Alignments_P);
-						Alignments.push(A1_P);
+						Alignments.push(A1);
 						if(MapQ2==0)
 						{
 							Alignments=T;
@@ -540,10 +541,11 @@ void *Map_And_Pair_Solexa(void *T)
 
 					continue;
 				}
-				else if(MapQ2!= -1)//Alignments not empty..
+				else if(MapQ1_P!= -1)//Alignments not empty..
 				{
 					if(Alignments_P.empty())
 					{
+						assert(false);
 						continue;
 					}
 
@@ -564,7 +566,7 @@ void *Map_And_Pair_Solexa(void *T)
 
 					Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
 
-					if(A1_P.Score > B1.Score+B1_P.Score)
+					if(A1_P.Score > B1_P.Score+10)
 					{
 						FreeQ(Alignments);FreeQ(Alignments_P);
 						Alignments_P.push(A1_P);
