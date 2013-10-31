@@ -535,7 +535,10 @@ void *Map_And_Pair_Solexa(void *T)
 
 					H1.Status=UNMAPPED;
 					Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
-					H1_P.Status=UNMAPPED;
+					if(Alignments_P.empty())
+						H1_P.Status=UNMAPPED;
+					else
+						H1_P.Status=PAIRED_SW;
 					Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
 					Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
 
@@ -577,6 +580,10 @@ void *Map_And_Pair_Solexa(void *T)
 					}
 
 					H1.Status=UNMAPPED;
+					if(Alignments.empty())
+						H1.Status=UNMAPPED;
+					else
+						H1.Status=PAIRED_SW;
 					Adjust_Alignments(Alignments,0,RTemp,BTemp);
 					Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
 					H1_P.Status=UNMAPPED;
@@ -1145,7 +1152,10 @@ bool Report_SW_Hits(const int Err,READ & R,FILE* Single_File,const int StringLen
 
 				if(Flag!=4||TOP_TEN) 
 				{
-					H.Status=Mismatch_Hit.Status=MULTI_HIT;
+					if(Mismatch_Hit.Status==PAIRED_SW)
+						H.Status=Mismatch_Hit.Status;
+					else
+						H.Status=Mismatch_Hit.Status=MULTI_HIT;
 					Cigar_Check_And_Print(H,Read,StringLength,Single_File,R,true,SW_Quality_Score,A,Clip_H,Clip_T,CIG);Print_Status=true;
 				}
 			}
@@ -1164,7 +1174,7 @@ bool Report_SW_Hits(const int Err,READ & R,FILE* Single_File,const int StringLen
 			Get_Best_Alignment_Pair(A,B,R,StringLength,Read,H,Alignments,Good_Alignments,Force_Indel,Clip_H,Clip_T,CIG,PRINT,DUMMY_FORCED);
 			if(!PRINT) return true;
 
-			if(Mismatch_Hit.Status!=SW_RECOVERED && Mismatch_Hit.Status!=UNMAPPED && A.Score>=Mismatch_Hit.Score)
+			if(Mismatch_Hit.Status!=SW_RECOVERED && Mismatch_Hit.Status!=UNMAPPED && A.Score>=Mismatch_Hit.Score && Mismatch_Hit.Status!=PAIRED_SW)
 			{
 				assert(false);
 				Print_Status=Report_Mismatch_Hits(R,Single_File,StringLength,Mismatch_Hit,30);
@@ -2870,6 +2880,7 @@ bool Rescue_Mate(unsigned Loc,char Sign,int StringLength,char* Current_Tag,char*
 		}
 		if(!Dont_Push_To_Q)
 		{
+			A.Rescued=true;
 			Good_Alignments.push(A);
 		}
 	}
@@ -2891,6 +2902,7 @@ void Rescue_One_Side(std::map<unsigned,Alignment> & D,std::priority_queue <Align
 	while(I!=D.end())
 	{
 		Alignment A1=I->second;
+		A1.Rescued=false;
 		if(A1.Sign=='-')
 		{
 			int Tot_SW_Scans=0,Filter=ACC_SCORE,Err=0,Clip_H=0,Clip_T=0;
@@ -2991,6 +3003,8 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 
 	Find_Paired(Alignments,Alignments_P,D,D_P);
 	FreeQ(Alignments);FreeQ(Alignments_P);
+	H1.Status=UNMAPPED;
+	H1_P.Status=UNMAPPED;
 
 	if(A1.Loc!=UINT_MAX)
 	{
@@ -3037,68 +3051,28 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	assert(Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length));
 
 	
-	if(A1.Loc !=UINT_MAX && A1_P.Loc!=UINT_MAX)
+	Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
+	if(B1.Rescued || B1_P.Rescued)
 	{
-		Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
-		if(A1.Score+A1_P.Score > B1.Score+B1_P.Score)
-		{
-			FreeQ(Alignments);FreeQ(Alignments_P);
-			Alignments.push(A1);Alignments_P.push(A1_P);
-			if(A1.Score+A1_P.Score < B1.Score+B1_P.Score+10 || MapQ1==0 || MapQ2==0)
-			{
-				Alignments=T;
-				Alignments_P=T_P;
-			}
-			/*else
-			{
-				if(MapQ1==0)
-				{
-					Alignments.push(A1);
-				}
-				if(MapQ2==0)
-				{
-					Alignments_P.push(A1_P);
-				}
-			}*/
-			//Alignments=T;
-			//Alignments_P=T_P;
+		H1.Status=PAIRED_SW;
+		H1_P.Status=PAIRED_SW;
+	}
 
+	if(A1.Score+A1_P.Score > B1.Score+B1_P.Score)
+	{
+		H1.Status=UNMAPPED;H1_P.Status=UNMAPPED;
+		FreeQ(Alignments);FreeQ(Alignments_P);
+		Alignments.push(A1);Alignments_P.push(A1_P);
+		if(A1.Score+A1_P.Score < B1.Score+B1_P.Score+10 || MapQ1==0 || MapQ2==0)
+		{
+			Alignments=T;Alignments_P=T_P;
 		}
 	}
-	else
-	{
-		if(A1.Loc !=UINT_MAX)
-		{
-			Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
-			if(A1.Score > B1.Score+10)//B1_P.Score)
-			{
-				FreeQ(Alignments);FreeQ(Alignments_P);
-				Alignments.push(A1);
-				if(MapQ1==0)
-				{
-					Alignments=T;
-				}
-			}
-		}	
-		if(A1_P.Loc !=UINT_MAX)
-		{
-			Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
-			if(A1_P.Score > B1.Score+10)//B1_P.Score)
-			{
-				FreeQ(Alignments);FreeQ(Alignments_P);
-				Alignments_P.push(A1_P);
-				if(MapQ2==0)
-				{
-					Alignments_P=T_P;
-				}
-			}
-		}	
-	}
 	
+		H1.Status=PAIRED_SW;
+		H1_P.Status=PAIRED_SW;
 
-	H1.Status=UNMAPPED;
 	Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
-	H1_P.Status=UNMAPPED;
 	Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
 }
 //

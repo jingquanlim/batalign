@@ -516,6 +516,7 @@ struct Alignment
 	char Realigned;
 	char Cigar[MAX_SIGLEN+1];
 	int Clip_H,Clip_T;
+	bool Rescued;
 };
 
 
