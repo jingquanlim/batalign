@@ -96,7 +96,7 @@ void Init(BWT* revfmi,In_File & IN,FMFILES F,RQINDEX R,BATPARAMETERS & BP,char S
 void  Paired_Extension(int Last_MisT,int Last_MisH,char* Fwd_Read,char *Revcomp_Read, RQINDEX & RQ,Pair* & Pairs,SARange* & MFH_Hit_Array,SARange* & MFT_Hit_Array,SARange* & MCH_Hit_Array,SARange* & MCT_Hit_Array,int StringLength,FILE* Single_File,READ & R,int & Err,unsigned Conversion_Factor,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,int Current_Score,int & Tot_SW_Scans);
 void Launch_Threads(int NTHREAD, void* (*Map_t)(void*),Thread_Arg T);
 bool Report_SW_Hits(const int Err,READ & R,FILE* Single_File,const int StringLength,BATREAD & Read,Hit_Info & Mismatch_Hit,int Quality_Score,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,bool Force_Indel,bool PRINT,bool DUMMY_FORCED=false);
-bool Get_Info(MEMX & MF,MEMX & MC,int STRINGLENGTH,Hit_Info & H,unsigned Conversion_Factor);
+bool Get_Info(MEMX & MF,MEMX & MC,int STRINGLENGTH,Hit_Info & H,unsigned Conversion_Factor,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,READ & R);
 bool Unique_Hits(int Plus_Hits,int Minus_Hits,SARange & P,SARange & M);
 bool Check_Subopt(int & Plus_Hits,int & Minus_Hits,int Top_Mis,int Subopt_Mis,READ & R, int StringLength,MEMX & MF,MEMX & MC,float & Top_Score,float & Top_BQScore,float & Sub_Score,float & Sub_BQScore, int & Quality_Score);
 Alignment Realign(Hit_Info &  H,BATREAD & Read,int StringLength,const READ & R,bool Dont_Push_To_Q,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments);
@@ -535,10 +535,10 @@ void *Map_And_Pair_Solexa(void *T)
 
 					H1.Status=UNMAPPED;
 					Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
-					if(Alignments_P.empty())
+					//if(Alignments_P.empty())
 						H1_P.Status=UNMAPPED;
-					else
-						H1_P.Status=PAIRED_SW;
+					//else
+					//	H1_P.Status=PAIRED_SW;
 					Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
 					Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
 
@@ -580,10 +580,10 @@ void *Map_And_Pair_Solexa(void *T)
 					}
 
 					H1.Status=UNMAPPED;
-					if(Alignments.empty())
+					//if(Alignments.empty())
 						H1.Status=UNMAPPED;
-					else
-						H1.Status=PAIRED_SW;
+					//else
+					//	H1.Status=PAIRED_SW;
 					Adjust_Alignments(Alignments,0,RTemp,BTemp);
 					Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
 					H1_P.Status=UNMAPPED;
@@ -1486,11 +1486,12 @@ void FreeQ(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment
 const int FHSIZE=10;//00;
 const int FHSKIP=500;
 
-void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hit_*  Hits_,int & First_Hit_Ptr,unsigned Conversion_Factor)
+void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hit_*  Hits_,int & First_Hit_Ptr,unsigned Conversion_Factor,READ & R,ALIGNMENT_Q & Alignments)
 {
 	static int Last_Resize=FHSIZE;
 	unsigned Loc;
 	Ann_Info A;
+	Alignment Aln;
 	int Rand_Hit=1;
 	for(int i=0;Hits<HITS_IN_SAM && i<Count-1 && First_Hit_Ptr==0 && First_Hit_Ptr<= FHSIZE;i++)
 	{
@@ -1498,7 +1499,27 @@ void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hi
 		int j=0;
 		if (S.Start==S.End) 
 		{
-			Loc = S.Start;
+			char Org_String[ORGSTRINGLENGTH];
+			char Bin_Read[R.Real_Len];
+			Loc = S.Start;Aln.Loc=Loc;
+
+			Aln.BQScore=Aln.Score=Aln.Mismatch=Aln.QScore=Aln.Clip_H=Aln.Clip_T=0;
+			assert(Loc>0);
+			Get_Bases(Loc+1,R.Real_Len,Org_String);
+			if(Sign=='+')
+			{
+				Read2Bin(Bin_Read,R.Tag_Copy,R.Real_Len);
+				Aln.Sign='+';
+			}
+			else
+			{
+				Read2RevCBin(Bin_Read,R.Tag_Copy,R.Real_Len);
+				Aln.Sign='-';
+			}
+			Mismatch_Scan_With_Score(Org_String,Bin_Read,R.Quality,R.Real_Len,100,0,Aln);sprintf(Aln.Cigar,"%dM",R.Real_Len);
+			Alignments.push(Aln);
+			assert(Aln.Mismatch<=5 && Aln.Mismatch>=0);
+			
 			Hits_[First_Hit_Ptr].Loc=Loc;
 			Hits_[First_Hit_Ptr++].Sign=Sign;
 			if ( First_Hit_Ptr == Last_Resize)//Too many hits..
@@ -1518,7 +1539,27 @@ void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hi
 			assert (S.Start);
 			while (Hits<HITS_IN_SAM && j<=(S.End-S.Start) && First_Hit_Ptr==0 && First_Hit_Ptr<= FHSIZE)
 			{
-				Loc = Conversion_Factor-BWTSaValue(revfmi,S.Start+j);
+				Loc = Conversion_Factor-BWTSaValue(revfmi,S.Start+j);Aln.Loc=Loc;
+
+				char Org_String[ORGSTRINGLENGTH];
+				char Bin_Read[R.Real_Len];
+				Aln.BQScore=Aln.Score=Aln.Mismatch=Aln.QScore=Aln.Clip_H=Aln.Clip_T=0;
+				assert(Loc>0);
+				Get_Bases(Loc+1,R.Real_Len,Org_String);
+				if(Sign=='+')
+				{
+					Read2Bin(Bin_Read,R.Tag_Copy,R.Real_Len);
+					Aln.Sign='+';
+				}
+				else
+				{
+					Read2RevCBin(Bin_Read,R.Tag_Copy,R.Real_Len);
+					Aln.Sign='-';
+				}
+				Mismatch_Scan_With_Score(Org_String,Bin_Read,R.Quality,R.Real_Len,100,0,Aln);sprintf(Aln.Cigar,"%dM",R.Real_Len);
+				Alignments.push(Aln);
+				assert(Aln.Mismatch<=5 && Aln.Mismatch>=0);
+
 				Hits_[First_Hit_Ptr].Loc=Loc;//+1;
 				Hits_[First_Hit_Ptr++].Sign=Sign;
 				if ( First_Hit_Ptr == Last_Resize)//Too many hits..
@@ -1538,7 +1579,7 @@ void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hi
 	}
 }
 
-bool Get_Info(MEMX & MF,MEMX & MC,int STRINGLENGTH,Hit_Info & H,unsigned Conversion_Factor)
+bool Get_Info(MEMX & MF,MEMX & MC,int STRINGLENGTH,Hit_Info & H,unsigned Conversion_Factor,ALIGNMENT_Q & Alignments,ALIGNMENT_Q & Good_Alignments,READ & R)
 {
 	int MFC=MF.Hit_Array_Ptr;
 	int MCC=MC.Hit_Array_Ptr;
@@ -1554,12 +1595,12 @@ bool Get_Info(MEMX & MF,MEMX & MC,int STRINGLENGTH,Hit_Info & H,unsigned Convers
 	int Hits=0;
 	if(MFC)
 	{
-		Print_SA(MF.Hit_Array,MFC,Hits,'+',STRINGLENGTH,First_Hits,First_Hit_Ptr,Conversion_Factor);
+		Print_SA(MF.Hit_Array,MFC,Hits,'+',STRINGLENGTH,First_Hits,First_Hit_Ptr,Conversion_Factor,R,Alignments);
 	}
 	assert (Hits<=HITS_IN_SAM);
 	if(MCC)
 	{
-		Print_SA(MC.Hit_Array,MCC,Hits,'-',STRINGLENGTH,First_Hits,First_Hit_Ptr,Conversion_Factor);
+		Print_SA(MC.Hit_Array,MCC,Hits,'-',STRINGLENGTH,First_Hits,First_Hit_Ptr,Conversion_Factor,R,Alignments);
 	}
 
 	if (First_Hit_Ptr)
@@ -1575,6 +1616,7 @@ bool Get_Info(MEMX & MF,MEMX & MC,int STRINGLENGTH,Hit_Info & H,unsigned Convers
 		}
 		*H.MH=0;
 	}
+	Good_Alignments=Alignments;
 	H.Hits=Hits;
 	return (H.Loc);
 }
@@ -1794,7 +1836,7 @@ bool Do_Mismatch_Scan(MEMX & MF,MEMX & MC,LEN & L,BWT* fwfmi,BWT* revfmi,int Sta
 				}
 				else
 				{
-				Get_Info(MF,MC,L.STRINGLENGTH,H,Conversion_Factor);//obtain hit details in H;
+				Get_Info(MF,MC,L.STRINGLENGTH,H,Conversion_Factor,Alignments,Good_Alignments,R);//obtain hit details in H;
 				Unique='U';Multi_Hit[0]=0;
 				if(Close_Hits)
 					H.Status=UNIQUEHIT;
@@ -1810,7 +1852,7 @@ bool Do_Mismatch_Scan(MEMX & MF,MEMX & MC,LEN & L,BWT* fwfmi,BWT* revfmi,int Sta
 					Last_Mis=H.Mismatch;Top_Score=H.Score;Top_BQScore=H.BQScore;
 					return true;
 				}
-				Get_Info(MF,MC,L.STRINGLENGTH,H,Conversion_Factor);//obtain hit details in H;
+				Get_Info(MF,MC,L.STRINGLENGTH,H,Conversion_Factor,Alignments,Good_Alignments,R);//obtain hit details in H;
 				Last_Mis=H.Mismatch;
 				H.Sub_Opt_Hit=H.Loc;H.Status=MULTI_HIT;
 				Quality_Score=0;
@@ -1833,7 +1875,7 @@ bool Do_Mismatch_Scan(MEMX & MF,MEMX & MC,LEN & L,BWT* fwfmi,BWT* revfmi,int Sta
 				}
 				else
 				{
-					Get_Info(MF,MC,L.STRINGLENGTH,H,Conversion_Factor);//obtain hit details in H;
+					Get_Info(MF,MC,L.STRINGLENGTH,H,Conversion_Factor,Alignments,Good_Alignments,R);//obtain hit details in H;
 					Unique='U';Multi_Hit[0]=0;
 					H.Mismatch=Last_Mis;H.Status=MULTI_HIT;
 					H.Score= Top_Score;
@@ -1849,7 +1891,7 @@ bool Do_Mismatch_Scan(MEMX & MF,MEMX & MC,LEN & L,BWT* fwfmi,BWT* revfmi,int Sta
 				}
 				else 
 				{
-					Get_Info(MF,MC,L.STRINGLENGTH,H,Conversion_Factor);//obtain hit details in H;
+					Get_Info(MF,MC,L.STRINGLENGTH,H,Conversion_Factor,Alignments,Good_Alignments,R);//obtain hit details in H;
 					Last_Mis=H.Mismatch;
 					H.Sub_Opt_Hit=H.Loc;H.Status=MULTI_HIT;
 				}
@@ -3052,25 +3094,17 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 
 	
 	Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
-	if(B1.Rescued || B1_P.Rescued)
-	{
-		H1.Status=PAIRED_SW;
-		H1_P.Status=PAIRED_SW;
-	}
-
 	if(A1.Score+A1_P.Score > B1.Score+B1_P.Score)
 	{
-		H1.Status=UNMAPPED;H1_P.Status=UNMAPPED;
 		FreeQ(Alignments);FreeQ(Alignments_P);
 		Alignments.push(A1);Alignments_P.push(A1_P);
 		if(A1.Score+A1_P.Score < B1.Score+B1_P.Score+10 || MapQ1==0 || MapQ2==0)
 		{
-			Alignments=T;Alignments_P=T_P;
+			Alignments=T;
+			Alignments_P=T_P;
 		}
 	}
 	
-		H1.Status=PAIRED_SW;
-		H1_P.Status=PAIRED_SW;
 
 	Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
 	Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);

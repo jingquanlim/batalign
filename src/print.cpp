@@ -232,11 +232,11 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 	const int QUAL_START=60,Q_GAP=10;
 	//int BOPEN=gap_open,BEXT=gap_extension;// BOPEN=6,BEXT=3,MATCH_BONUS=0;//2;
 	//int BOPEN=gap_open,BEXT=gap_extension;// BOPEN=6,BEXT=3,MATCH_BONUS=0;//2;
-	if(H.Status==PAIRED_SW)
+	/*if(H.Status==PAIRED_SW)
 	{
 		Quality_Score=5;
 	}
-	else if(H.Status==SW_RECOVERED)
+	else*/ if(H.Status==SW_RECOVERED || H.Status==PAIRED_SW)
 	{
 		int Sub_Opt_Score=A.Sub_Opt_Score;
 		int MapQ=H.BQScore;
