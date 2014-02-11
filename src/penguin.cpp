@@ -112,7 +112,7 @@ void Mode_Parameters(BATPARAMETERS BP);
 void Set_Force_Indel(bool & Force_Indel,int Last_Mis,Hit_Info & H,int Avg_Q);
 int Calculate_Average_Quality(READ & R);
 void Set_Affinity();
-Alignment RealignFast(Hit_Info &  H,BATREAD & Read,int StringLength, READ & R,int OFF,int Filter,bool Do_Filter);
+Alignment RealignFast(Hit_Info &  H,int StringLength, READ & R,int OFF,int Filter,bool Do_Filter);
 Alignment RealignFastMinus(Hit_Info &  H,BATREAD & Read,int StringLength, READ & R,int OFF,int Filter,bool Do_Filter);
 void FreeQ(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & t );
 bool Report_Single(READ & R,FILE* Single_File,const int StringLength,BATREAD & Read,bool & Print_Status,int Clip_H,int Clip_T,Alignment & A);
@@ -129,6 +129,7 @@ void Rescue_One_Side_X(std::priority_queue <Alignment,std::vector <Alignment>,Co
 void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,int Read_Length,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments_P,Hit_Info & H1,Hit_Info & H1_P,FILE* Single_File,int Quality_Score1,int Quality_Score1_P,Alignment & A1,Alignment & A1_P,int MapQ1,int MapQ2);
 void Proper_Pair(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,int Read_Length,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments_P,Hit_Info & H1,Hit_Info & H1_P,FILE* Single_File,int Quality_Score1,int Quality_Score1_P,Alignment & A1,Alignment & A1_P,MEMX & MF,MEMX & MC);
 void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,int Read_Length,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments_P,Hit_Info & H1,Hit_Info & H1_P,FILE* Single_File,int Quality_Score1,int Quality_Score1_P,Alignment & A1,int MapQ2);
+void Remove_Dup_Top(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,int Gap);
 //}-----------------------------  FUNCTION PRTOTYPES  -------------------------------------------------/*
 
 #undef DEBUG
@@ -398,7 +399,7 @@ void *Map_And_Pair_Solexa(void *T)
 	while (Read_Tag(Head_File.Input_File,Tail_File.Input_File,Head_File.FILETYPE,R,M))
 	{
 //Read Head start ..
-		//RECOVER_N=0;
+		RECOVER_N=0;
 		int SEG_SIZE=75;
 		int SHIFT_SEG_SIZE=(2*SEG_SIZE>Read_Length)? Read_Length-SEG_SIZE-1:SEG_SIZE;
 		int Hits_Printed=0;
@@ -818,7 +819,7 @@ bool Report_Single_SW(const int Err,READ & R,FILE* Single_File,const int StringL
 			if(H.Sign=='+')
 			{
 				Hit_Info H2=H;
-				Alignment A=RealignFast(H2,Read,StringLength,R,0,0,true);
+				Alignment A=RealignFast(H2,StringLength,R,0,0,true);
 				if(A.Score!=INT_MAX)
 				{
 					Do_Smith_Waterman=false;
@@ -893,7 +894,7 @@ void Get_Best_Alignment_Pair(Alignment & A,Alignment & B,READ & R,const int Stri
 			if(H.Sign=='+')
 			{
 				Hit_Info H2=H;
-				A=RealignFast(H2,Read,R.Real_Len,R,0,0,true);
+				A=RealignFast(H2,R.Real_Len,R,0,0,true);
 				if(A.Score!=INT_MAX)
 				{
 					Do_Smith_Waterman=false;
@@ -1811,7 +1812,7 @@ bool Do_Mismatch_Scan(MEMX & MF,MEMX & MC,LEN & L,BWT* fwfmi,BWT* revfmi,int Sta
 	return true;
 }
 
-Alignment RealignFast(Hit_Info &  H,BATREAD & Read,int StringLength, READ & R,int OFF,int Filter,bool Do_Filter)
+Alignment RealignFast(Hit_Info &  H,int StringLength, READ & R,int OFF,int Filter,bool Do_Filter)
 {
 	Alignment A;
 	if(!FASTSW)
@@ -2025,7 +2026,7 @@ bool Extend_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int Stri
 				H.Loc =H.Org_Loc= Loc;
 				H.Sign='+';
 				Hit_Info H2=H;
-				A=RealignFast(H2,BR,StringLength,R,INT_MAX,Filter,true);
+				A=RealignFast(H2,StringLength,R,INT_MAX,Filter,true);
 				if(A.Score==INT_MAX)
 				{
 					RealignX(H,BR,StringLength,R,false,Good_Alignments,NULL,Clip_H,Clip_T,Filter,true);
@@ -2141,7 +2142,7 @@ bool Recover_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int Str
 				H.Sign='+';
 				Hit_Info H2=H;
 				Alignment A;
-				A=RealignFast(H2,BR,StringLength,R,INT_MAX,Filter,true);
+				A=RealignFast(H2,StringLength,R,INT_MAX,Filter,true);
 				if(A.Score==INT_MAX)
 				{
 					RealignX(H,BR,StringLength,R,false,Good_Alignments,NULL,Clip_H,Clip_T,Filter,true);
@@ -2459,11 +2460,56 @@ void Map_One_Seg(READ & R,BATREAD & B,unsigned & Conversion_Factor,MEMX & MF,MEM
 			{
 				Max_MM_GAP_Adjust=Max_MM_GAP/2;
 				Err=Do_Indel(MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L.STRINGLENGTH,Pairs,Single_File,R,Alignments,H);
-				if(Alignments.empty() && (Last_Mis<0) && (Inter_MM<Max_MM))//No hits so far..
+				//if(Alignments.empty() && (Last_Mis<0) && (Inter_MM<Max_MM))//No hits so far..
+				/*if(Alignments.empty())//No hits so far..
 				{
-					assert(Last_Mis!=Inter_MM);
-					Do_Mismatch_Scan(MF,MC,L,fwfmi,revfmi,Inter_MM+1,Max_MM,Last_Mis,Head_Top_Count,H,Quality_Score,R,B,Mishit_File,Single_File,Conversion_Factor,Alignments,Good_Alignments);
-				}
+					if((Last_Mis<0) && (Inter_MM<Max_MM))
+					{
+						assert(Last_Mis!=Inter_MM);
+						Do_Mismatch_Scan(MF,MC,L,fwfmi,revfmi,Inter_MM+1,Max_MM,Last_Mis,Head_Top_Count,H,Quality_Score,R,B,Mishit_File,Single_File,Conversion_Factor,Alignments,Good_Alignments);
+					}
+					else
+					{
+						if(Alignments.empty())
+						{
+							for(int i=0;MFH.Hit_Array[i].Start;i++)
+							{
+								int StringLength=MFH.L.STRINGLENGTH;
+								SARange SA=MFH.Hit_Array[i];
+								assert(SA.End-SA.Start>=0);
+								Alignment A;
+								for (int j=0;j<=(SA.End-SA.Start);j++)
+								{
+									int Clip_H,Clip_T,Filter;
+									unsigned Loc=SA2Loc(SA,j,Conversion_Factor);
+									H.Loc =H.Org_Loc= Loc;
+									H.Sign='+';
+									Hit_Info H2=H;
+									A=RealignFast(H2,StringLength,R,INT_MAX,0,true);
+									if(A.Score==INT_MAX)
+									{
+										RealignX(H,B,StringLength,R,false,Good_Alignments,NULL,Clip_H,Clip_T,Filter,true);
+									}
+									else
+									{
+										assert(A.Score<=0);
+										A.Realigned=1;A.Clip_T=A.Clip_H=0;
+										Good_Alignments.push(A);
+									}
+								}
+							}
+							if(!Good_Alignments.empty())
+							{
+								Alignment A=Good_Alignments.top();
+								//assert(Good_Alignments.size()==1);//there is a unique best alignment
+								Copy_A_to_H(A,H);
+								Alignments.push(A);
+							}
+
+						}
+
+					}
+				}*/
 			}
 			if(!PRINT && !Good_Alignments.empty())
 			{
@@ -2794,6 +2840,13 @@ bool Rescue_Mate(unsigned Loc,char Sign,int StringLength,char* Current_Tag,char*
 		Quality=Q;
 
 	s_profile* p = ssw_init((int8_t*)Current_Tag, StringLength, mata, n, 1);
+	if(Shift<0)
+	{
+		if(Loc+Shift+Flank>Loc)
+		{
+			Flank-=(Flank+Shift);
+		}
+	}
 	Get_Bases(Loc+Shift,Flank,Org_String);
 	Aln=mengyao_ssw_core(Org_String,StringLength, Current_Tag,Flank,Filter,0/*DP*/, p);
 	if(Aln->score1 >= Filter)
@@ -2849,14 +2902,6 @@ void Rescue_One_Side(std::map<unsigned,Alignment> & D,std::priority_queue <Align
 			SW_Hits=Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Read_Length+4*STD,-(INSERTSIZE-Read_Length)-2*STD,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
 			if(SW_Hits)
 			{
-				/*if(Clip_T)
-				{
-					Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Read_Length+4*STD+Read_Length/2,-INSERTSIZE-2*STD,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);//TODO: localise SW-rescue tighter..
-				}
-				else if(Clip_H)
-				{
-					Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Read_Length+4*STD+Read_Length/2,-INSERTSIZE-2*STD-Read_Length/2,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);//TODO: localise SW-rescue tighter..
-				}*/
 				Alignments.push(A1);
 			}
 
@@ -2869,14 +2914,6 @@ void Rescue_One_Side(std::map<unsigned,Alignment> & D,std::priority_queue <Align
 			SW_Hits=Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Read_Length+4*STD,(INSERTSIZE-2*STD)-Read_Length,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
 			if(SW_Hits)
 			{
-				/*if(Clip_H)
-				{
-					Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Read_Length+4*STD+Read_Length/2,(INSERTSIZE-2*STD)-Read_Length/2,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
-				}
-				else if(Clip_T)
-				{
-					Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Read_Length+4*STD+Read_Length/2,(INSERTSIZE-2*STD),false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
-				}*/
 				Alignments.push(A1);
 			}
 
@@ -2903,14 +2940,12 @@ void Rescue_One_Side_X(std::priority_queue <Alignment,std::vector <Alignment>,Co
 		if(A1.Sign=='-')
 		{
 			int Tot_SW_Scans=0,Filter=ACC_SCORE,Err=0,Clip_H=0,Clip_T=0;
-			//SW_Hits=Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Read_Length+4*STD,-INSERTSIZE-2*STD,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
 			SW_Hits=Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Read_Length+4*STD,-(INSERTSIZE-Read_Length)-2*STD,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
 
 		}
 		else
 		{
 			int Tot_SW_Scans=0,Filter=ACC_SCORE,Err=0,Clip_H=0,Clip_T=0;
-			//SW_Hits=Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Read_Length+4*STD,(INSERTSIZE-2*STD),false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
 			SW_Hits=Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Read_Length+4*STD,(INSERTSIZE-2*STD)-Read_Length,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
 		}
 		if(SW_Hits)
@@ -2996,7 +3031,9 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		Alignments.push(A1);Alignments_P.push(A1_P);
 		if(A1.Score+A1_P.Score > B1.Score+B1_P.Score+10 || MapQ1==0 || MapQ2==0)
 		{
+			Remove_Dup_Top(T,Read_Length);
 			Alignments=T;
+			Remove_Dup_Top(T_P,Read_Length);
 			Alignments_P=T_P;
 		}
 	}
@@ -3100,4 +3137,21 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
 	Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
 
+}
+
+void Remove_Dup_Top(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,int Gap)
+{
+	if(Alignments.size()==1)
+	{
+		return;
+	}
+	Alignment Top_Aln=Alignments.top();
+	Alignments.pop();
+	Alignment Sub_Aln=Alignments.top();
+	while(!Alignments.empty() && (dist(Sub_Aln.Loc,Top_Aln.Loc)< Gap))
+	{
+		Alignments.pop();
+		Sub_Aln=Alignments.top();
+	}
+	Alignments.push(Top_Aln);
 }
