@@ -2840,13 +2840,13 @@ bool Rescue_Mate(unsigned Loc,char Sign,int StringLength,char* Current_Tag,char*
 		Quality=Q;
 
 	s_profile* p = ssw_init((int8_t*)Current_Tag, StringLength, mata, n, 1);
-	if(Shift<0)
+	/*if(Shift<0)
 	{
 		if(Loc+Shift+Flank>Loc)
 		{
 			Flank-=(Flank+Shift);
 		}
-	}
+	}*/
 	Get_Bases(Loc+Shift,Flank,Org_String);
 	Aln=mengyao_ssw_core(Org_String,StringLength, Current_Tag,Flank,Filter,0/*DP*/, p);
 	if(Aln->score1 >= Filter)
@@ -2857,6 +2857,12 @@ bool Rescue_Mate(unsigned Loc,char Sign,int StringLength,char* Current_Tag,char*
 		A.SW_Score=Aln->score1;
 		ssw_cigar_processQ(Aln,Cig_Info,Org_String,Aln->ref_begin1,Current_Tag,Aln->read_begin1,StringLength,Quality,A.Cigar,A.Clip_H,A.Clip_T);
 		A.Loc=Loc+Shift+Aln->ref_begin1;//+Offset;
+		if((Shift<0) && (A.Loc>Loc))//Wrong pairing..
+		{
+			return false;
+		}
+		assert(!(Shift>0 && A.Loc<Loc));//Wrong pairing..
+
 		A.Score= -Cig_Info.Score;
 		A.QScore=Cig_Info.QScore;
 		A.BQScore=Cig_Info.BQScore;
@@ -2894,30 +2900,32 @@ void Rescue_One_Side(std::map<unsigned,Alignment> & D,std::priority_queue <Align
 	{
 		Alignment A1=I->second;
 		A1.Rescued=false;
+		bool SW_Hits;
 		if(A1.Sign=='-')
 		{
 			int Tot_SW_Scans=0,Filter=ACC_SCORE,Err=0,Clip_H=0,Clip_T=0;
-			bool SW_Hits;
-
-			SW_Hits=Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Read_Length+4*STD,-(INSERTSIZE-Read_Length)-2*STD,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
-			if(SW_Hits)
+			int Shift= -INSERTSIZE+Read_Length-2*STD;
+			int Flank=Read_Length+4*STD;
+			if(INSERTSIZE <= 2*STD)
 			{
-				Alignments.push(A1);
+				Flank=INSERTSIZE+2*STD-1;
 			}
+			SW_Hits=Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Flank,Shift,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
 
 		}
 		else
 		{
+			int Flank=Read_Length+4*STD;
+			int Shift=(INSERTSIZE-2*STD)-Read_Length;
+			if(Shift<0) Shift=0;
 			int Tot_SW_Scans=0,Filter=ACC_SCORE,Err=0,Clip_H=0,Clip_T=0;
-			bool SW_Hits;
-
-			SW_Hits=Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Read_Length+4*STD,(INSERTSIZE-2*STD)-Read_Length,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
-			if(SW_Hits)
-			{
-				Alignments.push(A1);
-			}
-
+			SW_Hits=Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Flank,Shift,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
 		}
+		if(SW_Hits)
+		{
+			Alignments.push(A1);
+		}
+
 		I++;
 	}
 }
@@ -2940,13 +2948,24 @@ void Rescue_One_Side_X(std::priority_queue <Alignment,std::vector <Alignment>,Co
 		if(A1.Sign=='-')
 		{
 			int Tot_SW_Scans=0,Filter=ACC_SCORE,Err=0,Clip_H=0,Clip_T=0;
-			SW_Hits=Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Read_Length+4*STD,-(INSERTSIZE-Read_Length)-2*STD,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
+			//int Shift= -(INSERTSIZE-Read_Length)-2*STD;
+			int Shift= -INSERTSIZE+Read_Length-2*STD;
+			int Flank=Read_Length+4*STD;
+			if(INSERTSIZE <= 2*STD)
+			{
+				Flank=INSERTSIZE+2*STD-1;
+			}
+			SW_Hits=Rescue_Mate(A1.Loc,'+',Read_Length,BTemp_P.Forward,RTemp_P.Quality,Flank,Shift,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
 
 		}
 		else
 		{
+			int Flank=Read_Length+4*STD;
+			//int Shift=(INSERTSIZE-2*STD)-Read_Length;
+			int Shift=(INSERTSIZE-2*STD)-Read_Length;
+			if(Shift<0) Shift=0;
 			int Tot_SW_Scans=0,Filter=ACC_SCORE,Err=0,Clip_H=0,Clip_T=0;
-			SW_Hits=Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Read_Length+4*STD,(INSERTSIZE-2*STD)-Read_Length,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
+			SW_Hits=Rescue_Mate(A1.Loc,'-',Read_Length,BTemp_P.Complement,RTemp_P.Quality,Flank,Shift,false,Alignments_P,NULL,Clip_H,Clip_T,Filter,false);
 		}
 		if(SW_Hits)
 		{
@@ -3021,20 +3040,30 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	Rescue_One_Side(D,Alignments,Alignments_P,RTemp_P,BTemp_P);
 	Rescue_One_Side(D_P,Alignments_P,Alignments,RTemp,BTemp);
 	D.clear();D_P.clear();
-	assert(Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length));
-
-	
-	Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
+	Alignment B1,B1_P;
+	if(!Alignments.empty() && !Alignments_P.empty())
+	{
+		assert(Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length));
+		B1=Alignments.top(),B1_P=Alignments_P.top();
+	}
+	else
+	{
+		B1.Score=0;B1_P.Score=INT_MIN;
+		B1.Loc=A1.Loc+Read_Length+100;B1_P.Score=A1_P.Loc+Read_Length+100;
+	}
 	if(A1.Score+A1_P.Score > B1.Score+B1_P.Score)
 	{
-		FreeQ(Alignments);FreeQ(Alignments_P);
-		Alignments.push(A1);Alignments_P.push(A1_P);
-		if(A1.Score+A1_P.Score > B1.Score+B1_P.Score+10 || MapQ1==0 || MapQ2==0)
+		if(abs(A1.Loc-B1.Loc)>Read_Length && abs(A1_P.Loc-B1_P.Loc)>Read_Length)
 		{
-			Remove_Dup_Top(T,Read_Length);
-			Alignments=T;
-			Remove_Dup_Top(T_P,Read_Length);
-			Alignments_P=T_P;
+			FreeQ(Alignments);FreeQ(Alignments_P);
+			Alignments.push(A1);Alignments_P.push(A1_P);
+			if(A1.Score+A1_P.Score > B1.Score+B1_P.Score+10 || MapQ1==0 || MapQ2==0)
+			{
+				Remove_Dup_Top(T,Read_Length);
+				Alignments=T;
+				Remove_Dup_Top(T_P,Read_Length);
+				Alignments_P=T_P;
+			}
 		}
 	}
 	else
