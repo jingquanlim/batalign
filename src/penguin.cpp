@@ -456,10 +456,14 @@ void *Map_And_Pair_Solexa(void *T)
 			}
 
 		}
+		if(R.NCount>NCOUNT || M.NCount>NCOUNT)
+		{
+			continue;
+		}
 
 		for(int i=0;i<=SEG_SIZE;i++)
 		{
-			assert(R.Tag_Copy[i+SHIFT_SEG_SIZE]>='A' && R.Tag_Copy[i+SHIFT_SEG_SIZE]<='t');
+			assert((R.Tag_Copy[i+SHIFT_SEG_SIZE]>='A' && R.Tag_Copy[i+SHIFT_SEG_SIZE]<='t'));
 			R.Tag_Copy[i]=R.Tag_Copy[i+SHIFT_SEG_SIZE];R.Quality[i]=R.Quality[i+SHIFT_SEG_SIZE];
 			M.Tag_Copy[i]=M.Tag_Copy[i+SHIFT_SEG_SIZE];M.Quality[i]=M.Quality[i+SHIFT_SEG_SIZE];
 		}
@@ -3054,7 +3058,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	}
 	if(A1.Score+A1_P.Score > B1.Score+B1_P.Score) //Hit is a bit lousy..
 	{
-		if(abs(A1.Loc-B1.Loc)>Read_Length && abs(A1_P.Loc-B1_P.Loc)>Read_Length)
+		if(abs(A1.Loc-B1.Loc)>Read_Length && abs(A1_P.Loc-B1_P.Loc)>Read_Length)// One rescue is near a top hit..
 		{
 			FreeQ(Alignments);FreeQ(Alignments_P);
 			Alignments.push(A1);Alignments_P.push(A1_P);
