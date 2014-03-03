@@ -54,6 +54,7 @@ int INSERT=5;
 int DELETE=5;
 int INSERTSIZE=500;//INT_MAX;
 int STD=50;//INT_MAX;
+int SW_THRESHOLD=290;
 const int ScaleQ[]={0,1.5,1.75,2,3,4};
 extern const Alignment Default_Alignment={0};
 const int ORGSTRINGLENGTH=2200; 
@@ -3051,7 +3052,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		B1.Score=0;B1_P.Score=INT_MIN;
 		B1.Loc=A1.Loc+Read_Length+100;B1_P.Score=A1_P.Loc+Read_Length+100;
 	}
-	if(A1.Score+A1_P.Score > B1.Score+B1_P.Score)
+	if(A1.Score+A1_P.Score > B1.Score+B1_P.Score) //Hit is a bit lousy..
 	{
 		if(abs(A1.Loc-B1.Loc)>Read_Length && abs(A1_P.Loc-B1_P.Loc)>Read_Length)
 		{
@@ -3063,6 +3064,21 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 				Alignments=T;
 				Remove_Dup_Top(T_P,Read_Length);
 				Alignments_P=T_P;
+			}
+		}
+		else
+		{
+			if(B1_P.SW_Score<SW_THRESHOLD)
+			{
+				Alignments_P.pop();
+				B1_P.SW_Score=SW_THRESHOLD+1;
+				Alignments_P.push(B1_P);
+			}
+			if(B1.SW_Score<SW_THRESHOLD)
+			{
+				Alignments.pop();
+				B1.SW_Score=SW_THRESHOLD+1;
+				Alignments.push(B1);
 			}
 		}
 	}
@@ -3164,6 +3180,16 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	//else
 	//	H1_P.Status=PAIRED_SW;
 	Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
+	if(!Alignments_P.empty())
+	{
+		B1_P=Alignments_P.top();
+		if(B1_P.SW_Score<SW_THRESHOLD && abs(B1_P.Loc-B1.Loc)<Read_Length)
+		{
+			Alignments_P.pop();
+			B1_P.SW_Score=SW_THRESHOLD+1;
+			Alignments_P.push(B1_P);
+		}
+	}
 	Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
 
 }

@@ -9,6 +9,7 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count);
 extern int Top_Penalty;
 extern int JUMP;
 extern int SCOREGAP;
+extern int SW_THRESHOLD;
 
 int Find_Cigar(char* Cigar,Hit_Info & H,char* Current_Tag,int StringLength,READ & R,int & Clip_H,int & Clip_T)
 {
@@ -181,7 +182,8 @@ void Print_Sam(FILE* Single_File,READ & R,Hit_Info & H,int StringLength,int Qual
 		Quality_Score=Calc_MapQ(H,A,Clip_H+Clip_T);
 		if(Quality_Score==1)
 		{
-			if(A.SW_Score < 290)
+			//if(A.SW_Score < 290)
+			if(A.SW_Score < SW_THRESHOLD)
 				Quality_Score=0;
 		}
 	}
