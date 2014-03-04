@@ -3247,5 +3247,12 @@ bool Output_Pair(Alignment A1,Alignment A1_P,Alignment B1,Alignment B1_P,int Rea
 			return true;
 		}
 	}
+	else
+	{
+		if(B1.SW_Score> CUTOFF && B1_P.SW_Score>CUTOFF)
+		{
+			return true;
+		}
+	}
 	return false;
 }
