@@ -46,6 +46,7 @@ extern "C"
 //}-----------------------------  INCLUDE FILES  -------------------------------------------------/
 int TOP_TEN=0;
 int SW_SIMILARITY_FOR_RESCUE=60;
+int LENGTH_CUTOFF=0;
 int BOOST=0;
 int Dummy_Int=0;
 int CUT_MAX_SWALIGN=200;
@@ -3219,24 +3220,29 @@ void Remove_Dup_Top(std::priority_queue <Alignment,std::vector <Alignment>,Comp_
 
 bool Output_Pair(Alignment A1,Alignment A1_P,Alignment B1,Alignment B1_P,int Read_Length)
 {
+	int CUTOFF=int(SW_SIMILARITY_FOR_RESCUE*Read_Length*match/100);
+	if(LENGTH_CUTOFF)
+	{
+		CUTOFF=LENGTH_CUTOFF*match;
+	}
 	if(abs(A1.Loc-B1.Loc)<Read_Length)// && abs(A1_P.Loc-B1_P.Loc)>Read_Length)
 	{
-		if(B1_P.SW_Score> int(SW_SIMILARITY_FOR_RESCUE*Read_Length*match/100))
+		if(B1_P.SW_Score> CUTOFF)
 		{
 			return true;
 		}
-		if(A1_P.SW_Score< int(SW_SIMILARITY_FOR_RESCUE*Read_Length*match/100))
+		if(A1_P.SW_Score< CUTOFF)
 		{
 			return true;
 		}
 	}
 	if(abs(A1_P.Loc-B1_P.Loc)<Read_Length)// && abs(A1_P.Loc-B1_P.Loc)>Read_Length)
 	{
-		if(B1.SW_Score> int(SW_SIMILARITY_FOR_RESCUE*Read_Length*match/100))
+		if(B1.SW_Score> CUTOFF)
 		{
 			return true;
 		}
-		if(A1.SW_Score< int(SW_SIMILARITY_FOR_RESCUE*Read_Length*match/100))
+		if(A1.SW_Score< CUTOFF)
 		{
 			return true;
 		}

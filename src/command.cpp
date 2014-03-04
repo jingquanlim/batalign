@@ -4,6 +4,7 @@
 #include "common.h"
 #include "global.h"
 //{---------------------------- Command Line  -------------------------------------------------
+extern int LENGTH_CUTOFF;
 extern int SW_SIMILARITY_FOR_RESCUE;
 extern int INSERTSIZE;
 extern int STD;
@@ -54,6 +55,7 @@ option Long_Options[]=
 {"scoregap",1,NULL,26},
 {"debugsegs",0,NULL,27},
 {"concthreshold",1,NULL,28},
+{"lengthcutoff",1,NULL,29},
 {"help",0,NULL,'h'},
 {"output",1,NULL,'o'},
 {"genome",1,NULL,'g'},
@@ -143,6 +145,7 @@ void Parse_Command_line(int argc, char* argv[],unsigned & MAXCOUNT,FMFILES & F,B
 " --threads | <integer> \t\t Launch <integer> threads..\n"
 " --splitout \t\t split output of each thread..\n"
 " --concthreshold \t\t Threshold [1-100] to determine switch between conc/disc.Lower will be more aggro towards concordance..\n"
+" --lengthcutoff \t\t number of matching bases to switch between conc/disc.Lower will be more aggro towards concordance..\n"
 ;
 	BP.INDELSIZE=8;BP.SCANMODE=SENSITIVE;MAX_SW=INT_MAX;
 	char* Name;int Last_Dash;char* Genome_Name;
@@ -284,6 +287,9 @@ void Parse_Command_line(int argc, char* argv[],unsigned & MAXCOUNT,FMFILES & F,B
 				break;
 			case 28://concthreshold
 				SW_SIMILARITY_FOR_RESCUE=atoi(optarg);
+				break;
+			case 29://lengthcutoff
+				LENGTH_CUTOFF=atoi(optarg);
 				break;
 			case 'j':
 				REJECT_FILE=optarg;
