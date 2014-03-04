@@ -79,6 +79,7 @@ typedef std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> A
 //{-----------------------------  FUNCTION PRTOTYPES  -------------------------------------------------/*
 unsigned uabs(unsigned A,unsigned B);
 bool Do_Mismatch_Scan(MEMX & MF,MEMX & MC,LEN & L,BWT* fwfmi,BWT* revfmi,int Start_Mis,int End_Mis,int & Last_Mis,int & Head_Top_Count,Hit_Info & H,int & Quality_Score,READ & R,BATREAD & B,FILE* Mishit_File,FILE* Single_File,unsigned Conversion_Factor,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments);
+bool Output_Pair(Alignment A1,Alignment A1_P,Alignment B1,Alignment B1_P,int Read_Length);
 //void Extend_Left(int Plus_Hits,int Minus_Hits,BWT* revfmi,MEMX & MFL,MEMX & MCL,char* Temp_Current_Tag,int StringLength,int & Err, READ & R,int Mis_In_Anchor,FILE* Single_File,int Current_Score,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments );
 //void Extend_Right(int Plus_Hits,int Minus_Hits,BWT* revfmi,MEMX & MFL,MEMX & MCL,char* Temp_Current_Tag,int StringLength,int & Err, READ & R,int Mis_In_Anchor,FILE* Single_File,int Current_Score,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments );
 void Extend_Right(int Plus_Hits,int Minus_Hits,BWT* revfmi,MEMX & MFL,MEMX & MCL,char* Temp_Current_Tag,int StringLength,int & Err, READ & R,int Mis_In_Anchor,FILE* Single_File,int Current_Score,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,int & Tot_SW_Scans,int & Filter );
@@ -3058,7 +3059,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	}
 	if(A1.Score+A1_P.Score > B1.Score+B1_P.Score) //Hit is a bit lousy..
 	{
-		if(abs(A1.Loc-B1.Loc)>Read_Length && abs(A1_P.Loc-B1_P.Loc)>Read_Length)// One rescue is near a top hit..
+		if(!Output_Pair(A1,A1_P,B1,B1_P,Read_Length))// One rescue is near a top hit..
 		{
 			FreeQ(Alignments);FreeQ(Alignments_P);
 			Alignments.push(A1);Alignments_P.push(A1_P);
@@ -3213,4 +3214,31 @@ void Remove_Dup_Top(std::priority_queue <Alignment,std::vector <Alignment>,Comp_
 		Sub_Aln=Alignments.top();
 	}
 	Alignments.push(Top_Aln);
+}
+
+bool Output_Pair(Alignment A1,Alignment A1_P,Alignment B1,Alignment B1_P,int Read_Length)
+{
+	if(abs(A1.Loc-B1.Loc)<Read_Length)// && abs(A1_P.Loc-B1_P.Loc)>Read_Length)
+	{
+		if(B1_P.SW_Score> int(6*Read_Length*match/10))
+		{
+			return true;
+		}
+		if(A1_P.SW_Score< int(6*Read_Length*match/10))
+		{
+			return true;
+		}
+	}
+	if(abs(A1_P.Loc-B1_P.Loc)<Read_Length)// && abs(A1_P.Loc-B1_P.Loc)>Read_Length)
+	{
+		if(B1.SW_Score> int(6*Read_Length*match/10))
+		{
+			return true;
+		}
+		if(A1.SW_Score< int(6*Read_Length*match/10))
+		{
+			return true;
+		}
+	}
+	return false;
 }
