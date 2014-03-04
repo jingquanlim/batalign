@@ -45,6 +45,7 @@ extern "C"
 
 //}-----------------------------  INCLUDE FILES  -------------------------------------------------/
 int TOP_TEN=0;
+int SW_SIMILARITY_FOR_RESCUE=60;
 int BOOST=0;
 int Dummy_Int=0;
 int CUT_MAX_SWALIGN=200;
@@ -3220,22 +3221,22 @@ bool Output_Pair(Alignment A1,Alignment A1_P,Alignment B1,Alignment B1_P,int Rea
 {
 	if(abs(A1.Loc-B1.Loc)<Read_Length)// && abs(A1_P.Loc-B1_P.Loc)>Read_Length)
 	{
-		if(B1_P.SW_Score> int(6*Read_Length*match/10))
+		if(B1_P.SW_Score> int(SW_SIMILARITY_FOR_RESCUE*Read_Length*match/100))
 		{
 			return true;
 		}
-		if(A1_P.SW_Score< int(6*Read_Length*match/10))
+		if(A1_P.SW_Score< int(SW_SIMILARITY_FOR_RESCUE*Read_Length*match/100))
 		{
 			return true;
 		}
 	}
 	if(abs(A1_P.Loc-B1_P.Loc)<Read_Length)// && abs(A1_P.Loc-B1_P.Loc)>Read_Length)
 	{
-		if(B1.SW_Score> int(6*Read_Length*match/10))
+		if(B1.SW_Score> int(SW_SIMILARITY_FOR_RESCUE*Read_Length*match/100))
 		{
 			return true;
 		}
-		if(A1.SW_Score< int(6*Read_Length*match/10))
+		if(A1.SW_Score< int(SW_SIMILARITY_FOR_RESCUE*Read_Length*match/100))
 		{
 			return true;
 		}

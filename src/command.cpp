@@ -4,6 +4,7 @@
 #include "common.h"
 #include "global.h"
 //{---------------------------- Command Line  -------------------------------------------------
+extern int SW_SIMILARITY_FOR_RESCUE;
 extern int INSERTSIZE;
 extern int STD;
 extern int Inter_MM;
@@ -52,6 +53,7 @@ option Long_Options[]=
 {"listdepth",1,NULL,25},
 {"scoregap",1,NULL,26},
 {"debugsegs",0,NULL,27},
+{"concthreshold",1,NULL,28},
 {"help",0,NULL,'h'},
 {"output",1,NULL,'o'},
 {"genome",1,NULL,'g'},
@@ -140,6 +142,7 @@ void Parse_Command_line(int argc, char* argv[],unsigned & MAXCOUNT,FMFILES & F,B
 " --swlimit | <integer> \t\t try at most <integer> sw extensions ..\n"
 " --threads | <integer> \t\t Launch <integer> threads..\n"
 " --splitout \t\t split output of each thread..\n"
+" --concthreshold \t\t Threshold [1-100] to determine switch between conc/disc.Lower will be more aggro towards concordance..\n"
 ;
 	BP.INDELSIZE=8;BP.SCANMODE=SENSITIVE;MAX_SW=INT_MAX;
 	char* Name;int Last_Dash;char* Genome_Name;
@@ -278,6 +281,9 @@ void Parse_Command_line(int argc, char* argv[],unsigned & MAXCOUNT,FMFILES & F,B
 				break;
 			case 27://debugsegs
 				DEBUG_SEGS=true;
+				break;
+			case 28://concthreshold
+				SW_SIMILARITY_FOR_RESCUE=atoi(optarg);
 				break;
 			case 'j':
 				REJECT_FILE=optarg;
