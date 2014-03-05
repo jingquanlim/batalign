@@ -398,6 +398,7 @@ void *Map_And_Pair_Solexa(void *T)
 	INPUT_FILE_TYPE=Head_File.FILETYPE;
 	MAX_SW_sav=MAX_SW;
 	int Read_Length=Head_File.TAG_COPY_LEN;
+	SW_THRESHOLD=80*Read_Length*match/100;
 //}--------------------------- INIT STUF ---------------------------------------
 
 	while (Read_Tag(Head_File.Input_File,Tail_File.Input_File,Head_File.FILETYPE,R,M))

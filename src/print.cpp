@@ -185,6 +185,8 @@ void Print_Sam(FILE* Single_File,READ & R,Hit_Info & H,int StringLength,int Qual
 			//if(A.SW_Score < 290)
 			if(A.SW_Score < SW_THRESHOLD)
 				Quality_Score=0;
+			if(R.NCount >std::max(NCOUNT,int(5*StringLength/100)))
+				Quality_Score=0;
 		}
 	}
 
