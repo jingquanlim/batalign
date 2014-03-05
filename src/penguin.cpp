@@ -3190,6 +3190,7 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	if(!Alignments_P.empty())
 	{
 		B1_P=Alignments_P.top();
+
 		if(B1_P.SW_Score<SW_THRESHOLD && abs(B1_P.Loc-B1.Loc)<Read_Length)
 		{
 			Alignments_P.pop();
