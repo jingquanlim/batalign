@@ -3065,32 +3065,51 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	}
 	if(A1.Score+A1_P.Score > B1.Score+B1_P.Score) //Hit is a bit lousy..
 	{
+		bool Throw_Pair=false;
 		if(!Output_Pair(A1,A1_P,B1,B1_P,Read_Length))// One rescue is near a top hit..
 		{
 			FreeQ(Alignments);FreeQ(Alignments_P);
 			Alignments.push(A1);Alignments_P.push(A1_P);
 			if(A1.Score+A1_P.Score > B1.Score+B1_P.Score+10 || MapQ1==0 || MapQ2==0)
 			{
-				Remove_Dup_Top(T,Read_Length);
-				Alignments=T;
-				Remove_Dup_Top(T_P,Read_Length);
-				Alignments_P=T_P;
+				Throw_Pair=true;
 			}
 		}
 		else
 		{
 			if(B1_P.SW_Score<SW_THRESHOLD)
 			{
-				Alignments_P.pop();
-				B1_P.SW_Score=SW_THRESHOLD+1;
-				Alignments_P.push(B1_P);
+				if(B1_P.Mismatch>int(1*Read_Length/10))
+				{
+					Throw_Pair=true;
+				}
+				else
+				{
+					Alignments_P.pop();
+					B1_P.SW_Score=SW_THRESHOLD+1;
+					Alignments_P.push(B1_P);
+				}
 			}
 			if(B1.SW_Score<SW_THRESHOLD)
 			{
-				Alignments.pop();
-				B1.SW_Score=SW_THRESHOLD+1;
-				Alignments.push(B1);
+				if(B1.Mismatch>int(1*Read_Length/10))
+				{
+					Throw_Pair=true;
+				}
+				else
+				{
+					Alignments.pop();
+					B1.SW_Score=SW_THRESHOLD+1;
+					Alignments.push(B1);
+				}
 			}
+		}
+		if(Throw_Pair)
+		{
+			Remove_Dup_Top(T,Read_Length);
+			Alignments=T;
+			Remove_Dup_Top(T_P,Read_Length);
+			Alignments_P=T_P;
 		}
 	}
 	else
