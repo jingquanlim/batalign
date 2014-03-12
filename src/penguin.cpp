@@ -3165,6 +3165,13 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	Process_Read_Basic(RTemp,BTemp);
 
 	Adjust_Alignments(Alignments,0,RTemp,BTemp);
+	if(RTemp_P.NCount>int(15*Read_Length/100))//Too many N's, dont try rescue..
+	{
+		H1.Status=UNMAPPED;
+		Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
+		return;
+	}
+
 	ALIGNMENT_Q T=Alignments;
 	A1=T.top();
 	Rescue_One_Side_X(Alignments,Alignments_P,RTemp_P,BTemp_P);
