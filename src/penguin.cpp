@@ -1,5 +1,6 @@
 //#define NDEBUG
 //Routines for pairing...  
+//TODO: can we change Get_Basic_MapQ to realign all? 
 #define __MAIN_CODE__
 #include <algorithm>
 
@@ -2994,12 +2995,14 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	RTemp_P.Real_Len=Read_Length;
 	Process_Read_Basic(RTemp_P,BTemp_P);
 	Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
+	A1_P=Alignments_P.top();
 	T_P=Alignments_P;
 
 	BTemp.StringLength=Read_Length;
 	RTemp.Real_Len=Read_Length;
 	Process_Read_Basic(RTemp,BTemp);
 	Adjust_Alignments(Alignments,0,RTemp,BTemp);
+	A1=Alignments.top();
 	T=Alignments;
 
 	Find_Paired(Alignments,Alignments_P,D,D_P);
@@ -3007,7 +3010,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	H1.Status=UNMAPPED;
 	H1_P.Status=UNMAPPED;
 
-	if(A1.Loc!=UINT_MAX)
+	/*if(A1.Loc!=UINT_MAX)
 	{
 		Alignments.push(A1);
 		Adjust_Alignments(Alignments,0,RTemp,BTemp);
@@ -3019,7 +3022,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
 		A1_P=Alignments_P.top();
 		Alignments_P.pop();
-	}
+	}*/
 
 	bool Deb=false;
 	if (Deb)
