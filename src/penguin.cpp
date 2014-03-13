@@ -111,7 +111,7 @@ bool Remove_Duplicates_And_Filter_Top_Hits(Hit_Info *Hit_List,int & Hit_Count,in
 float Calc_Top_Score(MEMX & MF,MEMX & MC,float & Top_BQ,int Top_Mis,int StringLength,int Plus_Hits,int Minus_Hits,READ & R);
 bool Recover_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int StringLength,MEMX & MF,MEMX & MC,int & Quality_Score,unsigned Conversion_Factor,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Hit_Info & H);
 bool Extend_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int StringLength,MEMX & MF,MEMX & MC,int & Quality_Score,unsigned Conversion_Factor,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Hit_Info & H);
-void Map_One_Seg(READ & R,BATREAD & B,unsigned & Conversion_Factor,MEMX & MF,MEMX & MC,MEMX & MFLH,MEMX & MCLH,MEMX & MFLT,MEMX & MCLT,MEMX & MFH,MEMX & MCH,MEMX & MFT,MEMX & MCT,LEN & L,LEN & L_Main,LEN & L_Half,LEN & L_Third,unsigned & Actual_Tag,FILE* Single_File,FILE* Mishit_File,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Pair* & Pairs,bool PRINT,Hit_Info & H,int & Quality_Score,int Segment_Length,int SEG_SIZE);
+void Map_One_Seg(READ & R,BATREAD & B,unsigned & Conversion_Factor,MEMX & MF,MEMX & MC,MEMX & MFLH,MEMX & MCLH,MEMX & MFLT,MEMX & MCLT,MEMX & MFH,MEMX & MCH,MEMX & MFT,MEMX & MCT,LEN & L,LEN & L_Main,LEN & L_Half,LEN & L_Third,unsigned & Actual_Tag,FILE* Single_File,FILE* Mishit_File,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Pair* & Pairs,bool PRINT,Hit_Info & H,int & Quality_Score,int Segment_Length,int SEG_SIZE,int SHIFT_SEG_SIZE);
 unsigned SA2Loc(SARange S,int Pos,unsigned Conversion_Factor);
 void Mode_Parameters(BATPARAMETERS BP);
 void Set_Force_Indel(bool & Force_Indel,int Last_Mis,Hit_Info & H,int Avg_Q);
@@ -135,6 +135,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 void Proper_Pair(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,int Read_Length,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments_P,Hit_Info & H1,Hit_Info & H1_P,FILE* Single_File,int Quality_Score1,int Quality_Score1_P,Alignment & A1,Alignment & A1_P,MEMX & MF,MEMX & MC);
 void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,int Read_Length,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments_P,Hit_Info & H1,Hit_Info & H1_P,FILE* Single_File,int Quality_Score1,int Quality_Score1_P,Alignment & A1,int MapQ2);
 void Remove_Dup_Top(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,int Gap);
+void Fix_Offset(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & A,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & T,int Offset);
 //}-----------------------------  FUNCTION PRTOTYPES  -------------------------------------------------/*
 
 #undef DEBUG
@@ -274,7 +275,9 @@ void *Map_And_Pair_Solexa(void *T)
 	std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> Good_Alignments_End;
 
 	std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> Alignments_P;
+	std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> Alignments_Mid_P;
 	std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> Good_Alignments_P;
+	std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> Good_Alignments_Mid_P;
 
 	Pair* Pairs;
 	FILE* Output_File;
@@ -429,14 +432,14 @@ void *Map_And_Pair_Solexa(void *T)
 		A1.Loc=A1_P.Loc=UINT_MAX;
 		Hit_Info H1,H2,H3;int Quality_Score1,Quality_Score2,Quality_Score3;
 		READ RTemp=R;BATREAD BTemp=B;
-		Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments,Good_Alignments,Pairs,false,H1,Quality_Score1,0,SEG_SIZE);
+		Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments,Good_Alignments,Pairs,false,H1,Quality_Score1,0,SEG_SIZE,0);
 		Get_Basic_MapQ(Good_Alignments,A1,A2,MapQ1);
 
 		if(PAIRED)
 		{
 			Hit_Info H1_P,H2_P,H3_P;int Quality_Score1_P,Quality_Score2_P,Quality_Score3_P;
 			READ RTemp_P=M;BATREAD BTemp_P=B;
-			Map_One_Seg(M,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_P,Good_Alignments_P,Pairs,false,H1_P,Quality_Score1_P,0,SEG_SIZE);
+			Map_One_Seg(M,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_P,Good_Alignments_P,Pairs,false,H1_P,Quality_Score1_P,0,SEG_SIZE,0);
 			Get_Basic_MapQ(Good_Alignments_P,A1_P,A2_P,MapQ1_P);
 
 			if(!(MapQ1 == -1 && MapQ1_P== -1))//if at least one end mapped 
@@ -444,8 +447,9 @@ void *Map_And_Pair_Solexa(void *T)
 				if((MapQ1>0 && MapQ1_P>0) && (A1.Sign!=A1_P.Sign) && (Correct_Orientation(A1,A1_P)))//Proper pairing...
 				{
 					Proper_Pair(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MF,MC);
+					continue;
 				}
-				else if(MapQ1 != -1 && MapQ1_P!= -1)//both mapped, maybe multiply or discordantly..
+				/*else if(MapQ1 != -1 && MapQ1_P!= -1)//both mapped, maybe multiply or discordantly..
 				{
 					Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MapQ1,MapQ1_P);
 				}	
@@ -457,33 +461,28 @@ void *Map_And_Pair_Solexa(void *T)
 				{
 					Mate_Rescue(RTemp_P,RTemp,BTemp_P,BTemp,Read_Length,Alignments_P,Alignments,Good_Alignments_P,Good_Alignments,H1_P,H1,Single_File,Quality_Score1_P,Quality_Score1,A1_P,MapQ1);
 				}
-				continue;
+				continue;*/
 			}
 
 		}
-		if(R.NCount>NCOUNT || M.NCount>NCOUNT)
+		/*if(R.NCount>NCOUNT || M.NCount>NCOUNT)
 		{
 			continue;
-		}
-
-		for(int i=0;i<=SEG_SIZE;i++)
-		{
-			assert((R.Tag_Copy[i+SHIFT_SEG_SIZE]>='A' && R.Tag_Copy[i+SHIFT_SEG_SIZE]<='t'));
-			R.Tag_Copy[i]=R.Tag_Copy[i+SHIFT_SEG_SIZE];R.Quality[i]=R.Quality[i+SHIFT_SEG_SIZE];
-			M.Tag_Copy[i]=M.Tag_Copy[i+SHIFT_SEG_SIZE];M.Quality[i]=M.Quality[i+SHIFT_SEG_SIZE];
-		}
+		}*/
 
 		A1.Loc=A1_P.Loc=UINT_MAX;
 		RTemp=R;BTemp=B;
-		Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments,Good_Alignments,Pairs,false,H1,Quality_Score1,0,SEG_SIZE);
+		Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid,Good_Alignments_Mid,Pairs,false,H1,Quality_Score1,0,SEG_SIZE,SHIFT_SEG_SIZE);
 		Get_Basic_MapQ(Good_Alignments,A1,A2,MapQ1);
+		Fix_Offset(Alignments_Mid,Alignments,SHIFT_SEG_SIZE);
 
 		if(PAIRED)
 		{
 			Hit_Info H1_P,H2_P,H3_P;int Quality_Score1_P,Quality_Score2_P,Quality_Score3_P;
 			READ RTemp_P=M;BATREAD BTemp_P=B;
-			Map_One_Seg(M,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_P,Good_Alignments_P,Pairs,false,H1_P,Quality_Score1_P,0,SEG_SIZE);
+			Map_One_Seg(M,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid_P,Good_Alignments_Mid_P,Pairs,false,H1_P,Quality_Score1_P,0,SEG_SIZE,SHIFT_SEG_SIZE);
 			Get_Basic_MapQ(Good_Alignments_P,A1_P,A2_P,MapQ1_P);
+			Fix_Offset(Alignments_Mid_P,Alignments_P,SHIFT_SEG_SIZE);
 
 			if(!(MapQ1 == -1 && MapQ1_P== -1))//if at least one end mapped 
 			{
@@ -510,7 +509,7 @@ void *Map_And_Pair_Solexa(void *T)
 
 		continue;
 
-		Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid,Good_Alignments_Mid,Pairs,false,H2,Quality_Score2,0,SEG_SIZE);
+		Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid,Good_Alignments_Mid,Pairs,false,H2,Quality_Score2,0,SEG_SIZE,SHIFT_SEG_SIZE);
 		Get_Basic_MapQ(Good_Alignments_Mid,B1,B2,MapQ2);
 
 		BTemp.StringLength=Read_Length;
@@ -539,7 +538,7 @@ void *Map_And_Pair_Solexa(void *T)
 		if(Read_Length>3*SEG_SIZE)//3rd segment..
 		{
 
-			Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_End,Good_Alignments_End,Pairs,false,H3,Quality_Score3,0,SEG_SIZE);
+			Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_End,Good_Alignments_End,Pairs,false,H3,Quality_Score3,0,SEG_SIZE,SHIFT_SEG_SIZE);
 			Get_Basic_MapQ(Good_Alignments_End,C1,C2,MapQ3);
 
 			if(MapQ3>0)
@@ -2389,13 +2388,19 @@ bool Report_Single(READ & R,FILE* Single_File,const int StringLength,BATREAD & R
 	}
 }
 
-void Map_One_Seg(READ & R,BATREAD & B,unsigned & Conversion_Factor,MEMX & MF,MEMX & MC,MEMX & MFLH,MEMX & MCLH,MEMX & MFLT,MEMX & MCLT,MEMX & MFH,MEMX & MCH,MEMX & MFT,MEMX & MCT,LEN & L,LEN & L_Main,LEN & L_Half,LEN & L_Third,unsigned & Actual_Tag,FILE* Single_File,FILE* Mishit_File,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Pair* & Pairs,bool PRINT,Hit_Info & H,int & Quality_Score,int Segment_Length,int SEG_SIZE)
+void Map_One_Seg(READ & R,BATREAD & B,unsigned & Conversion_Factor,MEMX & MF,MEMX & MC,MEMX & MFLH,MEMX & MCLH,MEMX & MFLT,MEMX & MCLT,MEMX & MFH,MEMX & MCH,MEMX & MFT,MEMX & MCT,LEN & L,LEN & L_Main,LEN & L_Half,LEN & L_Third,unsigned & Actual_Tag,FILE* Single_File,FILE* Mishit_File,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Pair* & Pairs,bool PRINT,Hit_Info & H,int & Quality_Score,int Segment_Length,int SEG_SIZE,int SHIFT_SEG_SIZE)
 	
 {
 		READ RTemp=R;BATREAD BTemp=B;
 		char T_EOS=R.Tag_Copy[SEG_SIZE+1],T_EOQ=R.Quality[SEG_SIZE+1];
 		if(SEG_SIZE)
 		{
+			for(int i=0;i<=SHIFT_SEG_SIZE;i++)
+			{
+				assert((R.Tag_Copy[i+SHIFT_SEG_SIZE]>='A' && R.Tag_Copy[i+SHIFT_SEG_SIZE]<='t'));
+				R.Tag_Copy[i]=R.Tag_Copy[i+SHIFT_SEG_SIZE];R.Quality[i]=R.Quality[i+SHIFT_SEG_SIZE];
+			}
+
 			R.Tag_Copy[SEG_SIZE+1]=0;
 		}
 
@@ -2404,7 +2409,6 @@ void Map_One_Seg(READ & R,BATREAD & B,unsigned & Conversion_Factor,MEMX & MF,MEM
 		if(Segment_Length)
 			R.Real_Len=Segment_Length;
 		int Avg_Q=std::min(13,Calculate_Average_Quality(R));
-		//int Avg_Q=Calculate_Average_Quality(R);
 		Conversion_Factor=revfmi->textLength-L.STRINGLENGTH;
 		IN.Positive_Head=R.Tag_Copy;
 		R.Tag_Number=1;R.Read_Number=Actual_Tag;
@@ -2440,7 +2444,6 @@ void Map_One_Seg(READ & R,BATREAD & B,unsigned & Conversion_Factor,MEMX & MF,MEM
 		FreeQ(Good_Alignments);
 		if (R.NCount > NCOUNT) 
 		{
-			//Print_Blank_Line(Single_File,R);
 			R.Tag_Copy[SEG_SIZE+1]=T_EOS;R.Quality[SEG_SIZE+1]=T_EOQ;
 			R=RTemp=R;B=BTemp;
 			return;
@@ -2459,8 +2462,6 @@ void Map_One_Seg(READ & R,BATREAD & B,unsigned & Conversion_Factor,MEMX & MF,MEM
 			bool Force_Indel=false;
 			Set_Force_Indel(Force_Indel,Last_Mis,H,Avg_Q);
 			int Err=0;
-			//if(Last_Mis>=Inter_MM-1 && TESTMODE)  Last_Mis=Inter_MM;
-			//if(H.Indel || H.Score >=gap_extension+gap_open)  Force_Indel=true;
 			if(MODE>=SENSITIVE)
 			{
 				if(H.Score >=gap_extensionP+gap_openP && Last_Mis!=Inter_MM)  Force_Indel=true;
@@ -2470,56 +2471,6 @@ void Map_One_Seg(READ & R,BATREAD & B,unsigned & Conversion_Factor,MEMX & MF,MEM
 			{
 				Max_MM_GAP_Adjust=Max_MM_GAP/2;
 				Err=Do_Indel(MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L.STRINGLENGTH,Pairs,Single_File,R,Alignments,H);
-				//if(Alignments.empty() && (Last_Mis<0) && (Inter_MM<Max_MM))//No hits so far..
-				/*if(Alignments.empty())//No hits so far..
-				{
-					if((Last_Mis<0) && (Inter_MM<Max_MM))
-					{
-						assert(Last_Mis!=Inter_MM);
-						Do_Mismatch_Scan(MF,MC,L,fwfmi,revfmi,Inter_MM+1,Max_MM,Last_Mis,Head_Top_Count,H,Quality_Score,R,B,Mishit_File,Single_File,Conversion_Factor,Alignments,Good_Alignments);
-					}
-					else
-					{
-						if(Alignments.empty())
-						{
-							for(int i=0;MFH.Hit_Array[i].Start;i++)
-							{
-								int StringLength=MFH.L.STRINGLENGTH;
-								SARange SA=MFH.Hit_Array[i];
-								assert(SA.End-SA.Start>=0);
-								Alignment A;
-								for (int j=0;j<=(SA.End-SA.Start);j++)
-								{
-									int Clip_H,Clip_T,Filter;
-									unsigned Loc=SA2Loc(SA,j,Conversion_Factor);
-									H.Loc =H.Org_Loc= Loc;
-									H.Sign='+';
-									Hit_Info H2=H;
-									A=RealignFast(H2,StringLength,R,INT_MAX,0,true);
-									if(A.Score==INT_MAX)
-									{
-										RealignX(H,B,StringLength,R,false,Good_Alignments,NULL,Clip_H,Clip_T,Filter,true);
-									}
-									else
-									{
-										assert(A.Score<=0);
-										A.Realigned=1;A.Clip_T=A.Clip_H=0;
-										Good_Alignments.push(A);
-									}
-								}
-							}
-							if(!Good_Alignments.empty())
-							{
-								Alignment A=Good_Alignments.top();
-								//assert(Good_Alignments.size()==1);//there is a unique best alignment
-								Copy_A_to_H(A,H);
-								Alignments.push(A);
-							}
-
-						}
-
-					}
-				}*/
 			}
 			if(!PRINT && !Good_Alignments.empty())
 			{
@@ -3066,7 +3017,11 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	if(A1.Score+A1_P.Score > B1.Score+B1_P.Score) //Hit is a bit lousy..
 	{
 		bool Throw_Pair=false;
-		if(!Output_Pair(A1,A1_P,B1,B1_P,Read_Length))// One rescue is near a top hit..
+		if(!(*B1_P.Cigar && *B1.Cigar))
+		{
+				Throw_Pair=true;
+		}
+		else if(!Output_Pair(A1,A1_P,B1,B1_P,Read_Length))// One rescue is near a top hit..
 		{
 			FreeQ(Alignments);FreeQ(Alignments_P);
 			Alignments.push(A1);Alignments_P.push(A1_P);
@@ -3077,7 +3032,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		}
 		else
 		{
-			if(B1_P.SW_Score<SW_THRESHOLD)
+			if(B1_P.SW_Score<SW_THRESHOLD || *B1_P.Cigar)
 			{
 				if(B1_P.Mismatch>int(1*Read_Length/10))
 				{
@@ -3090,7 +3045,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 					Alignments_P.push(B1_P);
 				}
 			}
-			if(B1.SW_Score<SW_THRESHOLD)
+			if(B1.SW_Score<SW_THRESHOLD || *B1.Cigar)
 			{
 				if(B1.Mismatch>int(1*Read_Length/10))
 				{
@@ -3186,6 +3141,7 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	Adjust_Alignments(Alignments,0,RTemp,BTemp);
 	if(RTemp_P.NCount>int(15*Read_Length/100))//Too many N's, dont try rescue..
 	{
+		Remove_Dup_Top(Alignments,Read_Length);
 		H1.Status=UNMAPPED;
 		Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
 		return;
@@ -3211,6 +3167,7 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 
 
 	H1.Status=UNMAPPED;
+	Remove_Dup_Top(Alignments,Read_Length);
 	Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
 	//if(Alignments_P.empty())
 	H1_P.Status=UNMAPPED;
@@ -3228,6 +3185,7 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 			Alignments_P.push(B1_P);
 		}
 	}
+	Remove_Dup_Top(Alignments,Read_Length);
 	Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
 
 }
@@ -3286,4 +3244,18 @@ bool Output_Pair(Alignment A1,Alignment A1_P,Alignment B1,Alignment B1_P,int Rea
 		}
 	}
 	return false;
+}
+
+//TODO: Put this into mismatch finder..
+void Fix_Offset(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & A,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & T,int Offset)
+{
+	while(!A.empty())
+	{
+		Alignment Aln=A.top();A.pop();
+		Aln.Loc-=Offset;
+		if(Aln.Loc>=0)
+		{
+			T.push(Aln);
+		}
+	}
 }
