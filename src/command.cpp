@@ -4,6 +4,7 @@
 #include "common.h"
 #include "global.h"
 //{---------------------------- Command Line  -------------------------------------------------
+extern int DEB;
 extern int LENGTH_CUTOFF;
 extern int SW_SIMILARITY_FOR_RESCUE;
 extern int INSERTSIZE;
@@ -53,7 +54,7 @@ option Long_Options[]=
 {"tophits",1,NULL,24},
 {"listdepth",1,NULL,25},
 {"scoregap",1,NULL,26},
-{"debugsegs",0,NULL,27},
+{"debug",0,NULL,27},
 {"concthreshold",1,NULL,28},
 {"lengthcutoff",1,NULL,29},
 {"help",0,NULL,'h'},
@@ -284,6 +285,7 @@ void Parse_Command_line(int argc, char* argv[],unsigned & MAXCOUNT,FMFILES & F,B
 				break;
 			case 27://debugsegs
 				DEBUG_SEGS=true;
+				DEB=true;
 				break;
 			case 28://concthreshold
 				SW_SIMILARITY_FOR_RESCUE=atoi(optarg);

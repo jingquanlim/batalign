@@ -66,6 +66,7 @@ bool PAIRED=FALSE;
 //extern const int QUALITYSCALEFACTOR=33;
 
 bool FASTDECODE=false;
+bool DEB=false;
 bool FASTSW=true;
 bool DEBUG_SEGS=false;
 int QUALITYCONVERSIONFACTOR=33;
@@ -135,7 +136,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 void Proper_Pair(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,int Read_Length,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments_P,Hit_Info & H1,Hit_Info & H1_P,FILE* Single_File,int Quality_Score1,int Quality_Score1_P,Alignment & A1,Alignment & A1_P,MEMX & MF,MEMX & MC);
 void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,int Read_Length,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments_P,Hit_Info & H1,Hit_Info & H1_P,FILE* Single_File,int Quality_Score1,int Quality_Score1_P,Alignment & A1,int MapQ2);
 void Remove_Dup_Top(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,int Gap);
-void Fix_Offset(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & A,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & T,int Offset);
+void Fix_Offset(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & A,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & T,int Offset,int Neg_Off);
 //}-----------------------------  FUNCTION PRTOTYPES  -------------------------------------------------/*
 
 #undef DEBUG
@@ -474,7 +475,8 @@ void *Map_And_Pair_Solexa(void *T)
 		RTemp=R;BTemp=B;
 		Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid,Good_Alignments_Mid,Pairs,false,H1,Quality_Score1,0,SEG_SIZE,SHIFT_SEG_SIZE);
 		Get_Basic_MapQ(Good_Alignments,A1,A2,MapQ1);
-		Fix_Offset(Alignments_Mid,Alignments,SHIFT_SEG_SIZE);
+		int NEG_SHIFT=SEG_SIZE+1;
+		Fix_Offset(Alignments_Mid,Alignments,SHIFT_SEG_SIZE,NEG_SHIFT);
 
 		if(PAIRED)
 		{
@@ -482,7 +484,7 @@ void *Map_And_Pair_Solexa(void *T)
 			READ RTemp_P=M;BATREAD BTemp_P=B;
 			Map_One_Seg(M,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid_P,Good_Alignments_Mid_P,Pairs,false,H1_P,Quality_Score1_P,0,SEG_SIZE,SHIFT_SEG_SIZE);
 			Get_Basic_MapQ(Good_Alignments_P,A1_P,A2_P,MapQ1_P);
-			Fix_Offset(Alignments_Mid_P,Alignments_P,SHIFT_SEG_SIZE);
+			Fix_Offset(Alignments_Mid_P,Alignments_P,SHIFT_SEG_SIZE,NEG_SHIFT);
 
 			if(!(MapQ1 == -1 && MapQ1_P== -1))//if at least one end mapped 
 			{
@@ -2975,7 +2977,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		Alignments_P.pop();
 	}*/
 
-	bool Deb=false;
+	bool Deb=DEB;
 	if (Deb)
 	{
 		int Count1=0;
@@ -3034,7 +3036,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		{
 			if(B1_P.SW_Score<SW_THRESHOLD || *B1_P.Cigar)
 			{
-				if(B1_P.Mismatch>int(1*Read_Length/10))
+				if(B1_P.Mismatch+2*B1_P.Indel>int(1*Read_Length/10))
 				{
 					Throw_Pair=true;
 				}
@@ -3047,7 +3049,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 			}
 			if(B1.SW_Score<SW_THRESHOLD || *B1.Cigar)
 			{
-				if(B1.Mismatch>int(1*Read_Length/10))
+				if(B1.Mismatch+2*B1_P.Indel>int(1*Read_Length/10))
 				{
 					Throw_Pair=true;
 				}
@@ -3247,12 +3249,15 @@ bool Output_Pair(Alignment A1,Alignment A1_P,Alignment B1,Alignment B1_P,int Rea
 }
 
 //TODO: Put this into mismatch finder..
-void Fix_Offset(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & A,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & T,int Offset)
+void Fix_Offset(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & A,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & T,int Offset,int Neg_Off)
 {
 	while(!A.empty())
 	{
 		Alignment Aln=A.top();A.pop();
-		Aln.Loc-=Offset;
+		if(Aln.Sign == '+')
+			Aln.Loc-=Offset;
+		else
+			Aln.Loc+=Neg_Off;
 		if(Aln.Loc>=0)
 		{
 			T.push(Aln);
