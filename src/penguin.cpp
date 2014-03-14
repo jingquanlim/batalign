@@ -3036,7 +3036,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		{
 			if(B1_P.SW_Score<SW_THRESHOLD || *B1_P.Cigar)
 			{
-				if(B1_P.Mismatch+2*B1_P.Indel>int(1*Read_Length/10))
+				if(B1_P.Mismatch+2*B1_P.Indel>std::min(15,int(1*Read_Length/10)))
 				{
 					Throw_Pair=true;
 				}
@@ -3049,7 +3049,7 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 			}
 			if(B1.SW_Score<SW_THRESHOLD || *B1.Cigar)
 			{
-				if(B1.Mismatch+2*B1_P.Indel>int(1*Read_Length/10))
+				if(B1.Mismatch+2*B1_P.Indel>std::min(15,int(1*Read_Length/10)))
 				{
 					Throw_Pair=true;
 				}
@@ -3257,7 +3257,10 @@ void Fix_Offset(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alig
 		if(Aln.Sign == '+')
 			Aln.Loc-=Offset;
 		else
+		{
+			assert(Aln.Sign == '-');
 			Aln.Loc+=Neg_Off;
+		}
 		if(Aln.Loc>=0)
 		{
 			T.push(Aln);
