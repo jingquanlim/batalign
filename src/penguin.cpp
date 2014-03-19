@@ -443,14 +443,14 @@ void *Map_And_Pair_Solexa(void *T)
 			Map_One_Seg(M,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_P,Good_Alignments_P,Pairs,false,H1_P,Quality_Score1_P,0,SEG_SIZE,0);
 			Get_Basic_MapQ(Good_Alignments_P,A1_P,A2_P,MapQ1_P);
 
-			if(!(MapQ1 == -1 && MapQ1_P== -1))//if at least one end mapped 
+			/*if(!(MapQ1 == -1 && MapQ1_P== -1))//if at least one end mapped 
 			{
 				if((MapQ1>0 && MapQ1_P>0) && (A1.Sign!=A1_P.Sign) && (Correct_Orientation(A1,A1_P)))//Proper pairing...
 				{
 					Proper_Pair(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MF,MC);
 					continue;
 				}
-				/*else if(MapQ1 != -1 && MapQ1_P!= -1)//both mapped, maybe multiply or discordantly..
+				else if(MapQ1 != -1 && MapQ1_P!= -1)//both mapped, maybe multiply or discordantly..
 				{
 					Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MapQ1,MapQ1_P);
 				}	
@@ -462,8 +462,8 @@ void *Map_And_Pair_Solexa(void *T)
 				{
 					Mate_Rescue(RTemp_P,RTemp,BTemp_P,BTemp,Read_Length,Alignments_P,Alignments,Good_Alignments_P,Good_Alignments,H1_P,H1,Single_File,Quality_Score1_P,Quality_Score1,A1_P,MapQ1);
 				}
-				continue;*/
-			}
+				continue;
+			}*/
 
 		}
 		/*if(R.NCount>NCOUNT || M.NCount>NCOUNT)
@@ -474,7 +474,7 @@ void *Map_And_Pair_Solexa(void *T)
 		A1.Loc=A1_P.Loc=UINT_MAX;
 		RTemp=R;BTemp=B;
 		Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid,Good_Alignments_Mid,Pairs,false,H1,Quality_Score1,0,SEG_SIZE,SHIFT_SEG_SIZE);
-		Get_Basic_MapQ(Good_Alignments,A1,A2,MapQ1);
+		Get_Basic_MapQ(Good_Alignments_Mid,A1,A2,MapQ1);
 		int NEG_SHIFT=SEG_SIZE+1;
 		Fix_Offset(Alignments_Mid,Alignments,SHIFT_SEG_SIZE,NEG_SHIFT);
 
@@ -483,7 +483,7 @@ void *Map_And_Pair_Solexa(void *T)
 			Hit_Info H1_P,H2_P,H3_P;int Quality_Score1_P,Quality_Score2_P,Quality_Score3_P;
 			READ RTemp_P=M;BATREAD BTemp_P=B;
 			Map_One_Seg(M,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid_P,Good_Alignments_Mid_P,Pairs,false,H1_P,Quality_Score1_P,0,SEG_SIZE,SHIFT_SEG_SIZE);
-			Get_Basic_MapQ(Good_Alignments_P,A1_P,A2_P,MapQ1_P);
+			Get_Basic_MapQ(Good_Alignments_Mid_P,A1_P,A2_P,MapQ1_P);
 			Fix_Offset(Alignments_Mid_P,Alignments_P,SHIFT_SEG_SIZE,NEG_SHIFT);
 
 			if(!(MapQ1 == -1 && MapQ1_P== -1))//if at least one end mapped 
@@ -2397,7 +2397,8 @@ void Map_One_Seg(READ & R,BATREAD & B,unsigned & Conversion_Factor,MEMX & MF,MEM
 		char T_EOS=R.Tag_Copy[SEG_SIZE+1],T_EOQ=R.Quality[SEG_SIZE+1];
 		if(SEG_SIZE)
 		{
-			for(int i=0;i<=SHIFT_SEG_SIZE;i++)
+			//for(int i=0;i<=SHIFT_SEG_SIZE;i++)
+			for(int i=0;i<=SEG_SIZE;i++)
 			{
 				assert((R.Tag_Copy[i+SHIFT_SEG_SIZE]>='A' && R.Tag_Copy[i+SHIFT_SEG_SIZE]<='t'));
 				R.Tag_Copy[i]=R.Tag_Copy[i+SHIFT_SEG_SIZE];R.Quality[i]=R.Quality[i+SHIFT_SEG_SIZE];
