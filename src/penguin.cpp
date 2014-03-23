@@ -475,7 +475,7 @@ void *Map_And_Pair_Solexa(void *T)
 		RTemp=R;BTemp=B;
 		Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid,Good_Alignments_Mid,Pairs,false,H1,Quality_Score1,0,SEG_SIZE,SHIFT_SEG_SIZE);
 		Get_Basic_MapQ(Good_Alignments_Mid,A1,A2,MapQ1);
-		int NEG_SHIFT=SEG_SIZE+1;
+		int NEG_SHIFT=Read_Length-(SEG_SIZE+SHIFT_SEG_SIZE);
 		Fix_Offset(Alignments_Mid,Alignments,SHIFT_SEG_SIZE,NEG_SHIFT);
 
 		if(PAIRED)
