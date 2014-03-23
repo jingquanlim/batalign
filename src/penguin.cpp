@@ -443,14 +443,14 @@ void *Map_And_Pair_Solexa(void *T)
 			Map_One_Seg(M,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_P,Good_Alignments_P,Pairs,false,H1_P,Quality_Score1_P,0,SEG_SIZE,0);
 			Get_Basic_MapQ(Good_Alignments_P,A1_P,A2_P,MapQ1_P);
 
-			/*if(!(MapQ1 == -1 && MapQ1_P== -1))//if at least one end mapped 
+			if(!(MapQ1 == -1 && MapQ1_P== -1))//if at least one end mapped 
 			{
 				if((MapQ1>0 && MapQ1_P>0) && (A1.Sign!=A1_P.Sign) && (Correct_Orientation(A1,A1_P)))//Proper pairing...
 				{
 					Proper_Pair(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MF,MC);
 					continue;
 				}
-				else if(MapQ1 != -1 && MapQ1_P!= -1)//both mapped, maybe multiply or discordantly..
+				/*else if(MapQ1 != -1 && MapQ1_P!= -1)//both mapped, maybe multiply or discordantly..
 				{
 					Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MapQ1,MapQ1_P);
 				}	
@@ -462,8 +462,8 @@ void *Map_And_Pair_Solexa(void *T)
 				{
 					Mate_Rescue(RTemp_P,RTemp,BTemp_P,BTemp,Read_Length,Alignments_P,Alignments,Good_Alignments_P,Good_Alignments,H1_P,H1,Single_File,Quality_Score1_P,Quality_Score1,A1_P,MapQ1);
 				}
-				continue;
-			}*/
+				continue;*/
+			}
 
 		}
 		/*if(R.NCount>NCOUNT || M.NCount>NCOUNT)
