@@ -475,17 +475,22 @@ void *Map_And_Pair_Solexa(void *T)
 		A1.Loc=A1_P.Loc=UINT_MAX;
 		RTemp=R;BTemp=B;
 		Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid,Good_Alignments_Mid,Pairs,false,H1,Quality_Score1,0,SEG_SIZE,SHIFT_SEG_SIZE);
-		Get_Basic_MapQ(Good_Alignments_Mid,A1,MapQ1);
 		int NEG_SHIFT=Read_Length-(SEG_SIZE+SHIFT_SEG_SIZE);
 		Fix_Offset(Alignments_Mid,Alignments,SHIFT_SEG_SIZE,NEG_SHIFT);
+		Fix_Offset(Good_Alignments_Mid,Good_Alignments,SHIFT_SEG_SIZE,NEG_SHIFT);
+		Get_Basic_MapQ(Good_Alignments,A1,MapQ1);
+		//Get_Basic_MapQ(Good_Alignments_Mid,A1,MapQ1);
 
 		if(PAIRED)
 		{
 			Hit_Info H1_P,H2_P,H3_P;int Quality_Score1_P,Quality_Score2_P,Quality_Score3_P;
 			READ RTemp_P=M;BATREAD BTemp_P=B;
 			Map_One_Seg(M,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid_P,Good_Alignments_Mid_P,Pairs,false,H1_P,Quality_Score1_P,0,SEG_SIZE,SHIFT_SEG_SIZE);
-			Get_Basic_MapQ(Good_Alignments_Mid_P,A1_P,MapQ1_P);
 			Fix_Offset(Alignments_Mid_P,Alignments_P,SHIFT_SEG_SIZE,NEG_SHIFT);
+
+			Fix_Offset(Good_Alignments_Mid_P,Good_Alignments_P,SHIFT_SEG_SIZE,NEG_SHIFT);
+			Get_Basic_MapQ(Good_Alignments_P,A1_P,MapQ1_P);
+			//Get_Basic_MapQ(Good_Alignments_Mid_P,A1_P,MapQ1_P);
 
 			if(!(MapQ1 == -1 && MapQ1_P== -1))//if at least one end mapped 
 			{
