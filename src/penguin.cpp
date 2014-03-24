@@ -122,7 +122,8 @@ Alignment RealignFast(Hit_Info &  H,int StringLength, READ & R,int OFF,int Filte
 Alignment RealignFastMinus(Hit_Info &  H,BATREAD & Read,int StringLength, READ & R,int OFF,int Filter,bool Do_Filter);
 void FreeQ(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & t );
 bool Report_Single(READ & R,FILE* Single_File,const int StringLength,BATREAD & Read,bool & Print_Status,int Clip_H,int Clip_T,Alignment & A);
-void Get_Basic_MapQ(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Alignment & C1, Alignment & C2,int & MapQ);
+//void Get_Basic_MapQ(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Alignment & C1, Alignment & C2,int & MapQ);
+void Get_Basic_MapQ(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Alignment & C1, int & MapQ);
 void Adjust_Alignments(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,int Offset,READ & RTemp, BATREAD & BTemp);
 void Pop_And_Realign(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & A,int Offset,READ & RTemp, BATREAD & BTemp);
 bool SW_List(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,int Offset,READ & RTemp, BATREAD & BTemp,bool & List_Exceeded,int & List_Size);
@@ -425,8 +426,8 @@ void *Map_And_Pair_Solexa(void *T)
 			Show_Progress(Current_Pos*100/Head_File.File_Size);
 		}
 
-		Alignment A1,A2,B1,B2,C1,C2;
-		Alignment A1_P,A2_P,C1_P,C2_P;
+		Alignment A1,B1,C1;
+		Alignment A1_P,C1_P,C2_P;
 		int MapQ1=1,MapQ2=1,MapQ3=1;
 		int MapQ1_P=1,MapQ2_P=1,MapQ3_P=1;
 
@@ -434,14 +435,14 @@ void *Map_And_Pair_Solexa(void *T)
 		Hit_Info H1,H2,H3;int Quality_Score1,Quality_Score2,Quality_Score3;
 		READ RTemp=R;BATREAD BTemp=B;
 		Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments,Good_Alignments,Pairs,false,H1,Quality_Score1,0,SEG_SIZE,0);
-		Get_Basic_MapQ(Good_Alignments,A1,A2,MapQ1);
+		Get_Basic_MapQ(Good_Alignments,A1,MapQ1);
 
 		if(PAIRED)
 		{
 			Hit_Info H1_P,H2_P,H3_P;int Quality_Score1_P,Quality_Score2_P,Quality_Score3_P;
 			READ RTemp_P=M;BATREAD BTemp_P=B;
 			Map_One_Seg(M,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_P,Good_Alignments_P,Pairs,false,H1_P,Quality_Score1_P,0,SEG_SIZE,0);
-			Get_Basic_MapQ(Good_Alignments_P,A1_P,A2_P,MapQ1_P);
+			Get_Basic_MapQ(Good_Alignments_P,A1_P,MapQ1_P);
 
 			if(!(MapQ1 == -1 && MapQ1_P== -1))//if at least one end mapped 
 			{
@@ -474,7 +475,7 @@ void *Map_And_Pair_Solexa(void *T)
 		A1.Loc=A1_P.Loc=UINT_MAX;
 		RTemp=R;BTemp=B;
 		Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid,Good_Alignments_Mid,Pairs,false,H1,Quality_Score1,0,SEG_SIZE,SHIFT_SEG_SIZE);
-		Get_Basic_MapQ(Good_Alignments_Mid,A1,A2,MapQ1);
+		Get_Basic_MapQ(Good_Alignments_Mid,A1,MapQ1);
 		int NEG_SHIFT=Read_Length-(SEG_SIZE+SHIFT_SEG_SIZE);
 		Fix_Offset(Alignments_Mid,Alignments,SHIFT_SEG_SIZE,NEG_SHIFT);
 
@@ -483,7 +484,7 @@ void *Map_And_Pair_Solexa(void *T)
 			Hit_Info H1_P,H2_P,H3_P;int Quality_Score1_P,Quality_Score2_P,Quality_Score3_P;
 			READ RTemp_P=M;BATREAD BTemp_P=B;
 			Map_One_Seg(M,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid_P,Good_Alignments_Mid_P,Pairs,false,H1_P,Quality_Score1_P,0,SEG_SIZE,SHIFT_SEG_SIZE);
-			Get_Basic_MapQ(Good_Alignments_Mid_P,A1_P,A2_P,MapQ1_P);
+			Get_Basic_MapQ(Good_Alignments_Mid_P,A1_P,MapQ1_P);
 			Fix_Offset(Alignments_Mid_P,Alignments_P,SHIFT_SEG_SIZE,NEG_SHIFT);
 
 			if(!(MapQ1 == -1 && MapQ1_P== -1))//if at least one end mapped 
@@ -517,7 +518,7 @@ void *Map_And_Pair_Solexa(void *T)
 		continue;
 
 		Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid,Good_Alignments_Mid,Pairs,false,H2,Quality_Score2,0,SEG_SIZE,SHIFT_SEG_SIZE);
-		Get_Basic_MapQ(Good_Alignments_Mid,B1,B2,MapQ2);
+		Get_Basic_MapQ(Good_Alignments_Mid,B1,MapQ2);
 
 		BTemp.StringLength=Read_Length;
 		RTemp.Real_Len=Read_Length;
@@ -546,7 +547,7 @@ void *Map_And_Pair_Solexa(void *T)
 		{
 
 			Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_End,Good_Alignments_End,Pairs,false,H3,Quality_Score3,0,SEG_SIZE,SHIFT_SEG_SIZE);
-			Get_Basic_MapQ(Good_Alignments_End,C1,C2,MapQ3);
+			Get_Basic_MapQ(Good_Alignments_End,C1,MapQ3);
 
 			if(MapQ3>0)
 			{
@@ -2501,7 +2502,7 @@ void Map_One_Seg(READ & R,BATREAD & B,unsigned & Conversion_Factor,MEMX & MF,MEM
 		R=RTemp=R;B=BTemp;
 }
 
-void Get_Basic_MapQ(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Alignment & C1, Alignment & C2,int & MapQ)
+void Get_Basic_MapQ(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Alignment & C1, int & MapQ)
 {
 	MapQ=1;
 	if(!Good_Alignments.empty())
@@ -2510,12 +2511,12 @@ void Get_Basic_MapQ(std::priority_queue <Alignment,std::vector <Alignment>,Comp_
 		Good_Alignments.pop();
 		if(!Good_Alignments.empty())
 		{
-			C2=Good_Alignments.top();C2.Score= -C2.Score;
+			Alignment C2=Good_Alignments.top();C2.Score= -C2.Score;
 			if(abs(C1.Score-C2.Score)<=10)
 				MapQ=0;
 		}
-		else
-			MapQ=abs(C1.Score-C2.Score)+1;
+		//else
+		//	MapQ=abs(C1.Score-C2.Score)+1;
 		Good_Alignments.push(C1);
 	}
 	else
@@ -2666,7 +2667,7 @@ bool Find_Paired(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Ali
 	Alignment Head,Tail;	
 	Alignment Sub_Opt_Head,Sub_Opt_Tail;	
 	int Sub_Opt_Score=INT_MAX;
-	int Max_H_Score,Max_T_Score;
+	int Max_H_Score=INT_MIN,Max_T_Score=INT_MIN;
 	bool Unique=true;//unique best pair..
 
 	for(std::map<unsigned,Alignment>::iterator I=D.begin();I!=D.end() && Pairings_Index<MAX_PROPER_PAIRS;I++)
@@ -3159,7 +3160,7 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	A1=T.top();
 	Rescue_One_Side_X(Alignments,Alignments_P,RTemp_P,BTemp_P);
 	Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length);
-	if(!(Alignments_P.empty() && Alignments.empty()))//Rescue done..
+	if(!Alignments_P.empty() && !Alignments.empty())//Rescue done..
 	{
 		Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
 
@@ -3173,10 +3174,10 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		H1.Status=UNMAPPED;
 		Remove_Dup_Top(Alignments,Read_Length);
 		Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
-		H1_P.Status=UNMAPPED;
-		Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
 		if(!Alignments_P.empty())
 		{
+			H1_P.Status=UNMAPPED;
+			Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
 			B1_P=Alignments_P.top();
 
 			if(B1_P.SW_Score<SW_THRESHOLD && abs(B1_P.Loc-B1.Loc)<Read_Length)
@@ -3185,9 +3186,13 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 				B1_P.SW_Score=SW_THRESHOLD+1;
 				Alignments_P.push(B1_P);
 			}
+			Remove_Dup_Top(Alignments_P,Read_Length);
+			Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
 		}
-		Remove_Dup_Top(Alignments,Read_Length);
-		Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
+		else
+		{
+			Print_Unmapped(Single_File,RTemp_P,0,0);
+		}
 	}
 	else
 	{
@@ -3204,6 +3209,7 @@ void Remove_Dup_Top(std::priority_queue <Alignment,std::vector <Alignment>,Comp_
 	{
 		return;
 	}
+	assert(!Alignments.empty());
 	Alignment Top_Aln=Alignments.top();
 	Alignments.pop();
 	Alignment Sub_Aln=Alignments.top();
