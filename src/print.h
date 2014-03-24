@@ -14,4 +14,5 @@ void Print_Blank_Line(FILE* Single_File,READ & R);
 void Read2Bin(char* Dest,char* Source,int StringLength);
 void Read2RevCBin(char* Dest,char* Source,int StringLength);
 void Reverse_Tag(char* Dest,const READ & R,int StringLength);
+void Print_Unmapped(FILE* Single_File,READ & R,unsigned Paired,unsigned HT);
 #endif

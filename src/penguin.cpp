@@ -506,6 +506,11 @@ void *Map_And_Pair_Solexa(void *T)
 				}
 				continue;
 			}
+			else
+			{
+				Print_Unmapped(Single_File,RTemp,1,64);
+				Print_Unmapped(Single_File,RTemp_P,1,128);
+			}
 
 		}
 
@@ -3154,42 +3159,42 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	A1=T.top();
 	Rescue_One_Side_X(Alignments,Alignments_P,RTemp_P,BTemp_P);
 	Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length);
-
-	Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
-
-	if(A1.Score > B1.Score+10)
+	if(!(Alignments_P.empty() && Alignments.empty()))//Rescue done..
 	{
-		FreeQ(Alignments);FreeQ(Alignments_P);
-		Alignments.push(A1);
-		/*if(MapQ2==0)
+		Alignment B1=Alignments.top(),B1_P=Alignments_P.top();
+
+		if(A1.Score > B1.Score+10)
 		{
-			assert(false);
-			Alignments=T;
-		}*/
-	}
-
-
-	H1.Status=UNMAPPED;
-	Remove_Dup_Top(Alignments,Read_Length);
-	Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
-	//if(Alignments_P.empty())
-	H1_P.Status=UNMAPPED;
-	//else
-	//	H1_P.Status=PAIRED_SW;
-	Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
-	if(!Alignments_P.empty())
-	{
-		B1_P=Alignments_P.top();
-
-		if(B1_P.SW_Score<SW_THRESHOLD && abs(B1_P.Loc-B1.Loc)<Read_Length)
-		{
-			Alignments_P.pop();
-			B1_P.SW_Score=SW_THRESHOLD+1;
-			Alignments_P.push(B1_P);
+			FreeQ(Alignments);FreeQ(Alignments_P);
+			Alignments.push(A1);
 		}
+
+
+		H1.Status=UNMAPPED;
+		Remove_Dup_Top(Alignments,Read_Length);
+		Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
+		H1_P.Status=UNMAPPED;
+		Adjust_Alignments(Alignments_P,0,RTemp_P,BTemp_P);
+		if(!Alignments_P.empty())
+		{
+			B1_P=Alignments_P.top();
+
+			if(B1_P.SW_Score<SW_THRESHOLD && abs(B1_P.Loc-B1.Loc)<Read_Length)
+			{
+				Alignments_P.pop();
+				B1_P.SW_Score=SW_THRESHOLD+1;
+				Alignments_P.push(B1_P);
+			}
+		}
+		Remove_Dup_Top(Alignments,Read_Length);
+		Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
 	}
-	Remove_Dup_Top(Alignments,Read_Length);
-	Report_SW_Hits(0,RTemp_P,Single_File,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
+	else
+	{
+		Remove_Dup_Top(T,Read_Length);H1.Status=UNMAPPED;
+		Report_SW_Hits(0,RTemp,Single_File,Read_Length,BTemp,H1,Quality_Score1,T,Good_Alignments,0/*Force_Indel*/,true,true);
+		Print_Unmapped(Single_File,RTemp_P,0,0);
+	}
 
 }
 
