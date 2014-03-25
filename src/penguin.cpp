@@ -451,19 +451,22 @@ void *Map_And_Pair_Solexa(void *T)
 					Proper_Pair(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MF,MC);
 					continue;
 				}
-				/*else if(MapQ1 != -1 && MapQ1_P!= -1)//both mapped, maybe multiply or discordantly..
+				if(Read_Length - SEG_SIZE < 5)//cannot partition another reasonable seg..
 				{
-					Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MapQ1,MapQ1_P);
-				}	
-				else if(MapQ1!= -1)//Oneside mapped..
-				{
-					Mate_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,MapQ1);
+					if(MapQ1 != -1 && MapQ1_P!= -1)//both mapped, maybe multiply or discordantly..
+					{
+						Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MapQ1,MapQ1_P);
+					}	
+					else if(MapQ1!= -1)//Oneside mapped..
+					{
+						Mate_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,MapQ1);
+					}
+					else if(MapQ1_P!= -1)//Alignments not empty..
+					{
+						Mate_Rescue(RTemp_P,RTemp,BTemp_P,BTemp,Read_Length,Alignments_P,Alignments,Good_Alignments_P,Good_Alignments,H1_P,H1,Single_File,Quality_Score1_P,Quality_Score1,A1_P,MapQ1);
+					}
+					continue;
 				}
-				else if(MapQ1_P!= -1)//Alignments not empty..
-				{
-					Mate_Rescue(RTemp_P,RTemp,BTemp_P,BTemp,Read_Length,Alignments_P,Alignments,Good_Alignments_P,Good_Alignments,H1_P,H1,Single_File,Quality_Score1_P,Quality_Score1,A1_P,MapQ1);
-				}
-				continue;*/
 			}
 
 		}
@@ -475,7 +478,8 @@ void *Map_And_Pair_Solexa(void *T)
 		A1.Loc=A1_P.Loc=UINT_MAX;
 		RTemp=R;BTemp=B;
 		Map_One_Seg(R,B,Conversion_Factor,MF,MC,MFLH,MCLH,MFLT,MCLT,MFH,MCH,MFT,MCT,L,L_Main,L_Half,L_Third,Actual_Tag,Single_File,Mishit_File,Alignments_Mid,Good_Alignments_Mid,Pairs,false,H1,Quality_Score1,0,SEG_SIZE,SHIFT_SEG_SIZE);
-		int NEG_SHIFT=Read_Length-(SEG_SIZE+SHIFT_SEG_SIZE);
+		//int NEG_SHIFT=Read_Length-(SEG_SIZE+SHIFT_SEG_SIZE);
+		int NEG_SHIFT=SHIFT_SEG_SIZE;
 		Fix_Offset(Alignments_Mid,Alignments,SHIFT_SEG_SIZE,NEG_SHIFT);
 		Fix_Offset(Good_Alignments_Mid,Good_Alignments,SHIFT_SEG_SIZE,NEG_SHIFT);
 		Get_Basic_MapQ(Good_Alignments,A1,MapQ1);
