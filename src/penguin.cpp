@@ -146,8 +146,9 @@ void Proper_Pair(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,int Read_Length,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments_P,Hit_Info & H1,Hit_Info & H1_P,FILE* Single_File,int Quality_Score1,int Quality_Score1_P,Alignment & A1,int MapQ2);
 void Remove_Dup_Top(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,int Gap);
 void Fix_Offset(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & A,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & T,int Offset,int Neg_Off);
-void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & R2,unsigned Proper_Pair);
+void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & R2);
 int Get_Skip(std::string & S);
+bool Check_Proper_Pair(int S1,int S2,unsigned Loc1, unsigned Loc2,int Extra_Bit);
 //}-----------------------------  FUNCTION PRTOTYPES  -------------------------------------------------/*
 
 #undef DEBUG
@@ -530,8 +531,8 @@ void *Map_And_Pair_Solexa(void *T)
 			}
 			else
 			{
-				Print_Unmapped(Single_File,RTemp,1,64);
-				Print_Unmapped(Single_File,RTemp_P,1,128);
+				Print_Unmapped(Single_File,RTemp,false,1,64);
+				Print_Unmapped(Single_File,RTemp_P,false,1,128);
 			}
 
 		}
@@ -2958,24 +2959,12 @@ void Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 			Alignments_P=T_P;
 		}
 	}
-	else
-	{
-		/*if(B1.Score+B1_P.Score < A1.Score+A1_P.Score+10)// || MapQ1==0 || MapQ2==0)
-		{
-			Alignments=T;
-			Alignments_P=T_P;
-			Alignments.push(B1);
-			Alignments_P.push(B1_P);
-		}*/
-	}
-	
 
 	Final_Hit Head_Hit,Mate_Hit;
 	Report_SW_Hits(0,RTemp,Head_Hit,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
 	Report_SW_Hits(0,RTemp_P,Mate_Hit,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
+	Print_Pair(Single_File,Head_Hit,Mate_Hit,RTemp,RTemp_P);
 }
-//
-
 
 void Proper_Pair(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,int Read_Length,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments_P,Hit_Info & H1,Hit_Info & H1_P,FILE* Single_File,int Quality_Score1,int Quality_Score1_P,Alignment & A1,Alignment & A1_P,MEMX & MF,MEMX & MC)
 {
@@ -3015,6 +3004,7 @@ void Proper_Pair(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	Final_Hit Head_Hit,Mate_Hit;
 	Report_SW_Hits(0,RTemp,Head_Hit,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,flag);
 	Report_SW_Hits(0,RTemp_P,Mate_Hit,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,flag);
+	Print_Pair(Single_File,Head_Hit,Mate_Hit,RTemp,RTemp_P);
 }
 
 void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,int Read_Length,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments_P,Hit_Info & H1,Hit_Info & H1_P,FILE* Single_File,int Quality_Score1,int Quality_Score1_P,Alignment & A1,int MapQ2)
@@ -3039,6 +3029,7 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		Remove_Dup_Top(Alignments,Read_Length);
 		H1.Status=UNMAPPED;
 		Report_SW_Hits(0,RTemp,Head_Hit,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
+		Mate_Hit.Loc=INT_MAX;Print_Pair(Single_File,Head_Hit,Mate_Hit,RTemp,RTemp_P);
 		return;
 	}
 
@@ -3074,18 +3065,18 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 			}
 			Remove_Dup_Top(Alignments_P,Read_Length);
 			Report_SW_Hits(0,RTemp_P,Mate_Hit,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
-			Print_Pair(Single_File,Head_Hit,Mate_Hit,RTemp,RTemp_P,PROPER_PAIR);
+			Print_Pair(Single_File,Head_Hit,Mate_Hit,RTemp,RTemp_P);
 		}
 		else
 		{
-			Print_Unmapped(Single_File,RTemp_P,0,0);
+			Mate_Hit.Loc=INT_MAX;Print_Pair(Single_File,Head_Hit,Mate_Hit,RTemp,RTemp_P);
 		}
 	}
 	else
 	{
 		Remove_Dup_Top(T,Read_Length);H1.Status=UNMAPPED;
 		Report_SW_Hits(0,RTemp,Head_Hit,Read_Length,BTemp,H1,Quality_Score1,T,Good_Alignments,0/*Force_Indel*/,true,true);
-		Print_Unmapped(Single_File,RTemp_P,0,0);
+		Mate_Hit.Loc=INT_MAX;Print_Pair(Single_File,Head_Hit,Mate_Hit,RTemp,RTemp_P);
 	}
 
 }
@@ -3167,11 +3158,12 @@ void Fix_Offset(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alig
 	}
 }
 
-void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & R2,unsigned Proper_Pair)
+void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & R2)
 {
 
 	bool Bad_Hit=false;
 	int Insert_Size;
+	unsigned Proper_Pair=0;
 	if (H.Loc != INT_MAX && T.Loc != INT_MAX)
 	{
 		Ann_Info Ann1,Ann2;
@@ -3202,7 +3194,13 @@ void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & 
 			if(!(T.Flag & 16))//5335 orientation?
 			{
 				if(Same_Chrome)
+				{
 					Insert_Size= -(H.Loc-T.Loc+T.Skip);
+					if(Check_Proper_Pair('-','+',H.Loc,T.Loc,0/*R1.Real_Len*/))
+					{
+						Proper_Pair=PROPER_PAIR;
+					}
+				}
 			}
 			else
 			{
@@ -3215,13 +3213,69 @@ void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & 
 			{
 				H.Flag|=MATE_MINUS;
 				if(Same_Chrome)
+				{
 					Insert_Size=-H.Loc+T.Loc+T.Skip;
+					if(Check_Proper_Pair('+','-',H.Loc,T.Loc,0/*R1.Real_Len*/))
+					{
+						Proper_Pair=PROPER_PAIR;
+					}
+				}
 			}
 		}
 		H.Flag|=Proper_Pair;T.Flag|=Proper_Pair;
 
 		fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R1.Description+1,H.Flag,Ann1.Name,H.Loc,H.Quality_Score,H.CIG.c_str(),(Same_Chrome? "=":Ann2.Name),T.Loc,Insert_Size,H.Tag.c_str(),H.Qual.c_str(),H.Mismatch,H.Score,H.Sub_Opt_Score,H.QScore,H.SW_Score,H.SW_Sub_Opt_Score);
-		fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R1.Description+1,T.Flag,Ann2.Name,T.Loc,T.Quality_Score,T.CIG.c_str(),(Same_Chrome? "=":Ann1.Name),H.Loc,-Insert_Size,T.Tag.c_str(),T.Qual.c_str(),T.Mismatch,T.Score,T.Sub_Opt_Score,T.QScore,T.SW_Score,T.SW_Sub_Opt_Score);
+		fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R2.Description+1,T.Flag,Ann2.Name,T.Loc,T.Quality_Score,T.CIG.c_str(),(Same_Chrome? "=":Ann1.Name),H.Loc,-Insert_Size,T.Tag.c_str(),T.Qual.c_str(),T.Mismatch,T.Score,T.Sub_Opt_Score,T.QScore,T.SW_Score,T.SW_Sub_Opt_Score);
+	}
+	else
+	{
+		if (H.Loc == INT_MAX)
+		{
+			assert(T.Loc!=INT_MAX);
+
+			Ann_Info Ann2;
+			Location_To_Genome(T.Loc,Ann2);
+			T.Flag|=R2.Tag_Number;T.Flag|=PE_SEQ;
+			T.Skip=Get_Skip(T.CIG);
+			if (T.Loc+T.Skip > Ann2.Size) 
+			{
+				Bad_Hit=true;
+				T.Flag |= 4;
+			}
+			T.Flag|=MATE_UNMAPPED;
+			H.Flag=4;H.Flag|=PE_SEQ;H.Flag|=R1.Tag_Number;
+			if(T.Flag & 16) H.Flag|=MATE_MINUS;
+			R1.Tag_Copy[R1.Real_Len]=0;
+			R1.Quality[R1.Real_Len]=0;
+
+			fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\n",R1.Description+1,H.Flag,Ann2.Name,T.Loc,0,"*","=",T.Loc,0,R1.Tag_Copy,R1.Quality);
+
+
+			fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t=\t%u\t0\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R2.Description+1,T.Flag,Ann2.Name,T.Loc,T.Quality_Score,T.CIG.c_str(),T.Loc,T.Tag.c_str(),T.Qual.c_str(),T.Mismatch,T.Score,T.Sub_Opt_Score,T.QScore,T.SW_Score,T.SW_Sub_Opt_Score);
+		}
+		if(T.Loc == INT_MAX)
+		{
+			assert(H.Loc!=INT_MAX);
+
+			Ann_Info Ann1;
+			Location_To_Genome(H.Loc,Ann1);//H.Chr=Ann1.Name;
+			H.Flag|=R1.Tag_Number;H.Flag|=PE_SEQ;
+			H.Skip=Get_Skip(H.CIG);
+			if (H.Loc+H.Skip > Ann1.Size) 
+			{
+				Bad_Hit=true;
+				H.Flag |= 4;
+			}
+			H.Flag|=MATE_UNMAPPED;
+			T.Flag=4;T.Flag|=PE_SEQ;T.Flag|=R2.Tag_Number;
+			if(H.Flag & 16) T.Flag|=MATE_MINUS;
+			R2.Tag_Copy[R2.Real_Len]=0;
+			R2.Quality[R2.Real_Len]=0;
+
+			fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\n",R2.Description+1,T.Flag,Ann1.Name,H.Loc,0,"*","=",H.Loc,0,R2.Tag_Copy,R2.Quality);
+
+			fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t=\t%u\t0\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R1.Description+1,H.Flag,Ann1.Name,H.Loc,H.Quality_Score,H.CIG.c_str(),H.Loc,H.Tag.c_str(),H.Qual.c_str(),H.Mismatch,H.Score,H.Sub_Opt_Score,H.QScore,H.SW_Score,H.SW_Sub_Opt_Score);
+		}
 	}
 }
 
@@ -3242,4 +3296,30 @@ int Get_Skip(std::string & S)
 		Loc=S.find_first_of("MDIS",Loc+1);
 	}
 	return Skip;
+}
+
+
+bool Check_Proper_Pair(int S1,int S2,unsigned Loc1, unsigned Loc2,int Extra_Bit)
+{
+	if(S1==S2)
+		return false;
+	if(S1=='+')
+	{
+		assert(S2=='-');
+		if(Loc1<=Loc2)
+		{
+			if(Loc2-Loc1<=INSERTSIZE+2*STD+Extra_Bit)
+				return true;
+		}
+	}
+	else
+	{
+		assert(S2=='+');
+		if(Loc1>=Loc2)
+		{
+			if(Loc1-Loc2<=INSERTSIZE+2*STD+Extra_Bit)
+				return true;
+		}
+	}
+	return false;
 }

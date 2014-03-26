@@ -472,12 +472,16 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 	return Quality_Score;
 }*/
 
-void Print_Unmapped(FILE* Single_File,READ & R,unsigned Paired,unsigned HT)
+void Print_Unmapped(FILE* Single_File,READ & R,bool Mate_Mapped,unsigned Paired,unsigned HT)
 {
 	char* Qual=R.Quality;
 	char* Tag=R.Tag_Copy;
 	unsigned Flag=4;
 	Flag=((Flag|Paired)|HT);
+	if(!Mate_Mapped)
+	{
+		Flag|=8;
+	}
 	R.Tag_Copy[R.Real_Len]=R.Quality[R.Real_Len]=0;
 	fprintf(Single_File,"%s\t%u\t*\t0\t0\t*\t*\t0\t0\t%s\t%s\n",R.Description+1,Flag,Tag,Qual);
 }
