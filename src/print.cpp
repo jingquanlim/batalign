@@ -85,13 +85,13 @@ void Read2RevCBin(char* Dest,char* Source,int StringLength)
 	*Dest=0;
 }
 
-void Cigar_Check_And_Print(Hit_Info &  H,BATREAD & Read,int StringLength,FILE* Single_File,READ & R,bool Dont_Check_Quality,int Quality_Score,Alignment A,int Clip_H,int Clip_T,char* CIG)
+void Cigar_Check_And_Print(Hit_Info &  H,BATREAD & Read,int StringLength,Final_Hit & Printed_Hit,READ & R,bool Dont_Check_Quality,int Quality_Score,Alignment A,int Clip_H,int Clip_T,char* CIG)
 {
 	H.Loc=H.Org_Loc;
-	Print_Sam(Single_File,R,H,StringLength,Quality_Score,A,Clip_H,Clip_T,CIG);
+	Print_Sam(Printed_Hit,R,H,StringLength,Quality_Score,A,Clip_H,Clip_T,CIG);
 }
 
-void Print_Sam(FILE* Single_File,READ & R,Hit_Info & H,int StringLength,int Quality_Score,Alignment A,int TClip_H,int TClip_T,char* TCIG)
+void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,int Quality_Score,Alignment A,int TClip_H,int TClip_T,char* TCIG)
 {
 	int Flag=0;
 	int Skip=0;//StringLength;
@@ -197,13 +197,13 @@ void Print_Sam(FILE* Single_File,READ & R,Hit_Info & H,int StringLength,int Qual
 		fprintf (stdout,"\nCigar Error:%s\n",R.Description);
 	}
 
-	Ann_Info Ann;
+	/*Ann_Info Ann;
 	Location_To_Genome(H.Loc,Ann);H.Chr=Ann.Name;
 	H.Loc++;
 	if (H.Loc+Skip > Ann.Size) 
 	{
 		return;
-	}
+	}*/
 
 	if(H.Sign=='-') 
 	{
@@ -211,10 +211,44 @@ void Print_Sam(FILE* Single_File,READ & R,Hit_Info & H,int StringLength,int Qual
 		Qual=Rev_Qual;
 		Tag=Rev_Tag;
 	}
-	if(Sub_Opt_Score!=INT_MAX)
-		fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t*\t0\t0\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R.Description+1,Flag,H.Chr,H.Loc,Quality_Score,CIG,Tag,Qual,H.Mismatch,H.Score,Sub_Opt_Score,H.QScore,H.SW_Score,H.SW_Sub_Opt_Score);
 	else
-		fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t*\t0\t0\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R.Description+1,Flag,H.Chr,H.Loc,Quality_Score,CIG,Tag,Qual,H.Mismatch,H.Score,H.QScore,H.SW_Score,H.SW_Sub_Opt_Score);
+	{
+		Flag=0;
+	}
+	if(Sub_Opt_Score!=INT_MAX)
+	{
+		Printed_Hit.Loc=H.Loc;
+		Printed_Hit.Skip=Skip;
+		Printed_Hit.Flag=Flag;
+		Printed_Hit.Quality_Score=Quality_Score;
+		Printed_Hit.CIG=std::string(CIG);
+		Printed_Hit.Tag=std::string(Tag);
+		Printed_Hit.Qual=std::string(Qual);
+		Printed_Hit.Mismatch=H.Mismatch;
+		Printed_Hit.Score=H.Score;
+		Printed_Hit.Sub_Opt_Score=Sub_Opt_Score;///////
+		Printed_Hit.QScore=H.QScore;
+		Printed_Hit.SW_Score=H.SW_Score;
+		Printed_Hit.SW_Sub_Opt_Score=H.SW_Sub_Opt_Score;
+		//fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t*\t0\t0\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R.Description+1,Flag,H.Chr,H.Loc,Quality_Score,CIG,Tag,Qual,H.Mismatch,H.Score,Sub_Opt_Score,H.QScore,H.SW_Score,H.SW_Sub_Opt_Score);
+	}
+	else
+	{
+		Printed_Hit.Loc=H.Loc;
+		Printed_Hit.Flag=Flag;
+		Printed_Hit.Skip=Skip;
+		Printed_Hit.Quality_Score=Quality_Score;
+		Printed_Hit.CIG=std::string(CIG);
+		Printed_Hit.Tag=std::string(Tag);
+		Printed_Hit.Qual=std::string(Qual);
+		Printed_Hit.Mismatch=H.Mismatch;
+		Printed_Hit.Score=H.Score;
+		Printed_Hit.Sub_Opt_Score=INT_MAX;///////
+		Printed_Hit.QScore=H.QScore;
+		Printed_Hit.SW_Score=H.SW_Score;
+		Printed_Hit.SW_Sub_Opt_Score=H.SW_Sub_Opt_Score;
+	}
+		///////////fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t*\t0\t0\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R.Description+1,Flag,H.Chr,H.Loc,Quality_Score,CIG,Tag,Qual,H.Mismatch,H.Score,H.QScore,H.SW_Score,H.SW_Sub_Opt_Score);
 }
 
 void Print_Mishit(READ & R,FILE* Mishit_File)

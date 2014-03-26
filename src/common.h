@@ -29,6 +29,7 @@
 #include <float.h>
 #include "zlib.h"
 #include <map>
+#include <string> 
 #define NO 30
 const int MAX_SIGLEN=50;//50
 extern "C" 
@@ -143,7 +144,7 @@ struct READ
 	int NCount;//Number of N's
 	char N[MAXTAG];
 	char NLocations[MAXTAG];
-	char Tag_Number;//Head =1, Tail =2
+	unsigned Tag_Number;//Head =1, Tail =2
 	unsigned Read_Number;
 	int Real_Len;
 };
@@ -551,6 +552,23 @@ struct Hit_Info
 	float Sub_BQScore;
 	char Cigar[MAX_SIGLEN+1];
 	int Clip_H,Clip_T;
+};
+
+struct Final_Hit
+{
+	unsigned Loc;
+	unsigned Flag;
+	int Quality_Score;
+	std::string CIG;
+	std::string Tag;
+	std::string Qual;
+	int Mismatch;
+	int Score;
+	int Sub_Opt_Score;
+	int QScore;
+	int SW_Score;
+	int SW_Sub_Opt_Score;
+	int Skip;
 };
 
 struct Hit_
