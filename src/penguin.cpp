@@ -424,7 +424,7 @@ void *Map_And_Pair_Solexa(void *T)
 		RECOVER_N=0;
 		R.Tag_Number=FIRST_READ;M.Tag_Number=SECOND_READ;
 		int SEG_SIZE=75;
-		if(SEG_SIZE<=Read_Length) SEG_SIZE=Read_Length-1;
+		if(SEG_SIZE>=Read_Length) SEG_SIZE=Read_Length-1;
 		int SHIFT_SEG_SIZE=(2*SEG_SIZE>Read_Length)? Read_Length-SEG_SIZE-1:SEG_SIZE;
 		int Hits_Printed=0;
 		Progress++;Total_Reads++;
