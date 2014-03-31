@@ -10,6 +10,7 @@ extern int Top_Penalty;
 extern int JUMP;
 extern int SCOREGAP;
 extern int SW_THRESHOLD;
+extern std::string RGID;
 
 int Find_Cigar(char* Cigar,Hit_Info & H,char* Current_Tag,int StringLength,READ & R,int & Clip_H,int & Clip_T)
 {
@@ -471,5 +472,5 @@ void Print_Unmapped(FILE* Single_File,READ & R,bool Mate_Mapped,unsigned Paired,
 		Flag|=8;
 	}
 	R.Tag_Copy[R.Real_Len]=R.Quality[R.Real_Len]=0;
-	fprintf(Single_File,"%s\t%u\t*\t0\t0\t*\t*\t0\t0\t%s\t%s\n",R.Description+1,Flag,Tag,Qual);
+	fprintf(Single_File,"%s\t%u\t*\t0\t0\t*\t*\t0\t0\t%s\t%s\tRG:Z:%s\n",R.Description+1,Flag,Tag,Qual,RGID.c_str());
 }

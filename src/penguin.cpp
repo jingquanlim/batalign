@@ -182,6 +182,7 @@ FILE* Main_Out;
 int gap_openP,gap_extensionP;
 int MAX_PER_LIST=60;
 int SCOREGAP=20;
+std::string RGID;
 //{---------------------------- GLOBAL VARIABLES -------------------------------------------------
 
 
@@ -242,8 +243,9 @@ int main(int argc, char* argv[])
 		{
 			sprintf (Current_Dir,"%d",rand());
 		}
-		fprintf(Main_Out,"@RG\tID:%s\tSM:%s\n",Current_Dir,BP.PATTERNFILE);
+		fprintf(Main_Out,"@RG\tID:%s\tSM:%s\tLB:%s\n",Current_Dir,BP.PATTERNFILE,BP.PATTERNFILE);
 		fprintf(Main_Out,"@PG\tID:PEnGuin\tCL:%s",BP.CMD_Buffer);
+		RGID=BP.PATTERNFILE;
 	}
 //********************************************************************************************************
 	Thread_Arg T;
@@ -3299,8 +3301,8 @@ void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & 
 		}
 		H.Flag|=Proper_Pair;T.Flag|=Proper_Pair;
 
-		fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R1.Description+1,H.Flag,Ann1.Name,H.Loc,H.Quality_Score,H.CIG.c_str(),(Same_Chrome? "=":Ann2.Name),T.Loc,Insert_Size,H.Tag.c_str(),H.Qual.c_str(),H.Mismatch,H.Score,H.Sub_Opt_Score,H.QScore,H.SW_Score,H.SW_Sub_Opt_Score);
-		fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R2.Description+1,T.Flag,Ann2.Name,T.Loc,T.Quality_Score,T.CIG.c_str(),(Same_Chrome? "=":Ann1.Name),H.Loc,-Insert_Size,T.Tag.c_str(),T.Qual.c_str(),T.Mismatch,T.Score,T.Sub_Opt_Score,T.QScore,T.SW_Score,T.SW_Sub_Opt_Score);
+		fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\tRG:Z:%s\n",R1.Description+1,H.Flag,Ann1.Name,H.Loc,H.Quality_Score,H.CIG.c_str(),(Same_Chrome? "=":Ann2.Name),T.Loc,Insert_Size,H.Tag.c_str(),H.Qual.c_str(),H.Mismatch,H.Score,H.Sub_Opt_Score,H.QScore,H.SW_Score,H.SW_Sub_Opt_Score,RGID.c_str());
+		fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\tRG:Z:%s\n",R2.Description+1,T.Flag,Ann2.Name,T.Loc,T.Quality_Score,T.CIG.c_str(),(Same_Chrome? "=":Ann1.Name),H.Loc,-Insert_Size,T.Tag.c_str(),T.Qual.c_str(),T.Mismatch,T.Score,T.Sub_Opt_Score,T.QScore,T.SW_Score,T.SW_Sub_Opt_Score,RGID.c_str());
 	}
 	else
 	{
@@ -3323,10 +3325,10 @@ void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & 
 			R1.Tag_Copy[R1.Real_Len]=0;
 			R1.Quality[R1.Real_Len]=0;
 
-			fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\n",R1.Description+1,H.Flag,Ann2.Name,T.Loc,0,"*","=",T.Loc,0,R1.Tag_Copy,R1.Quality);
+			fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tRG:Z:%s\n",R1.Description+1,H.Flag,Ann2.Name,T.Loc,0,"*","=",T.Loc,0,R1.Tag_Copy,R1.Quality,RGID.c_str());
 
 
-			fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t=\t%u\t0\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R2.Description+1,T.Flag,Ann2.Name,T.Loc,T.Quality_Score,T.CIG.c_str(),T.Loc,T.Tag.c_str(),T.Qual.c_str(),T.Mismatch,T.Score,T.Sub_Opt_Score,T.QScore,T.SW_Score,T.SW_Sub_Opt_Score);
+			fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t=\t%u\t0\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\tRG:Z:%s\n",R2.Description+1,T.Flag,Ann2.Name,T.Loc,T.Quality_Score,T.CIG.c_str(),T.Loc,T.Tag.c_str(),T.Qual.c_str(),T.Mismatch,T.Score,T.Sub_Opt_Score,T.QScore,T.SW_Score,T.SW_Sub_Opt_Score,RGID.c_str());
 		}
 		if(T.Loc == INT_MAX)
 		{
@@ -3347,9 +3349,9 @@ void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & 
 			R2.Tag_Copy[R2.Real_Len]=0;
 			R2.Quality[R2.Real_Len]=0;
 
-			fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\n",R2.Description+1,T.Flag,Ann1.Name,H.Loc,0,"*","=",H.Loc,0,R2.Tag_Copy,R2.Quality);
+			fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tRG:Z:%s\n",R2.Description+1,T.Flag,Ann1.Name,H.Loc,0,"*","=",H.Loc,0,R2.Tag_Copy,R2.Quality,RGID.c_str());
 
-			fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t=\t%u\t0\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R1.Description+1,H.Flag,Ann1.Name,H.Loc,H.Quality_Score,H.CIG.c_str(),H.Loc,H.Tag.c_str(),H.Qual.c_str(),H.Mismatch,H.Score,H.Sub_Opt_Score,H.QScore,H.SW_Score,H.SW_Sub_Opt_Score);
+			fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t=\t%u\t0\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\tRG:Z:%s\n",R1.Description+1,H.Flag,Ann1.Name,H.Loc,H.Quality_Score,H.CIG.c_str(),H.Loc,H.Tag.c_str(),H.Qual.c_str(),H.Mismatch,H.Score,H.Sub_Opt_Score,H.QScore,H.SW_Score,H.SW_Sub_Opt_Score,RGID.c_str());
 		}
 	}
 }
