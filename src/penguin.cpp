@@ -5,6 +5,7 @@
 #include <algorithm>
 
 //{-----------------------------  INCLUDE FILES  -------------------------------------------------/ 
+#include <sstream>
 #include <cstdio> 
 #include "math.h"
 #include <stdarg.h> 
@@ -243,9 +244,11 @@ int main(int argc, char* argv[])
 		{
 			sprintf (Current_Dir,"%d",rand());
 		}
-		fprintf(Main_Out,"@RG\tID:%s\tSM:%s\tLB:%s\n",Current_Dir,BP.PATTERNFILE,BP.PATTERNFILE);
+		std::ostringstream ostr;
+		ostr << (rand()%(INT_MAX));
+		RGID=ostr.str();
+		fprintf(Main_Out,"@RG\tID:%s\tSM:%s\tLB:%s\n",Current_Dir,RGID.c_str(),BP.PATTERNFILE);
 		fprintf(Main_Out,"@PG\tID:PEnGuin\tCL:%s",BP.CMD_Buffer);
-		RGID=BP.PATTERNFILE;
 	}
 //********************************************************************************************************
 	Thread_Arg T;
@@ -3127,7 +3130,12 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	{
 		Remove_Dup_Top(Alignments,Read_Length);
 		H1.Status=UNMAPPED;
-		Report_SW_Hits(0,RTemp,Head_Hit,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
+		if(!Report_SW_Hits(0,RTemp,Head_Hit,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true))
+		{
+			Print_Unmapped(Single_File,RTemp,false,1,64);
+			Print_Unmapped(Single_File,RTemp_P,false,1,128);
+			return;
+		}
 		Mate_Hit.Loc=INT_MAX;Print_Pair(Single_File,Head_Hit,Mate_Hit,RTemp,RTemp_P);
 		return;
 	}
@@ -3149,7 +3157,12 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 
 		H1.Status=UNMAPPED;
 		Remove_Dup_Top(Alignments,Read_Length);
-		Report_SW_Hits(0,RTemp,Head_Hit,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
+		if(!Report_SW_Hits(0,RTemp,Head_Hit,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true))
+		{
+			Print_Unmapped(Single_File,RTemp,false,1,64);
+			Print_Unmapped(Single_File,RTemp_P,false,1,128);
+			return;
+		}
 		if(!Alignments_P.empty())
 		{
 			H1_P.Status=UNMAPPED;
@@ -3163,7 +3176,10 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 				Alignments_P.push(B1_P);
 			}
 			Remove_Dup_Top(Alignments_P,Read_Length);
-			Report_SW_Hits(0,RTemp_P,Mate_Hit,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true);
+			if(!Report_SW_Hits(0,RTemp_P,Mate_Hit,Read_Length,BTemp_P,H1_P,Quality_Score1_P,Alignments_P,Good_Alignments_P,0/*Force_Indel*/,true,true))
+			{
+				Mate_Hit.Loc=INT_MAX;
+			}
 			Print_Pair(Single_File,Head_Hit,Mate_Hit,RTemp,RTemp_P);
 		}
 		else
@@ -3174,8 +3190,16 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	else
 	{
 		Remove_Dup_Top(T,Read_Length);H1.Status=UNMAPPED;
-		Report_SW_Hits(0,RTemp,Head_Hit,Read_Length,BTemp,H1,Quality_Score1,T,Good_Alignments,0/*Force_Indel*/,true,true);
-		Mate_Hit.Loc=INT_MAX;Print_Pair(Single_File,Head_Hit,Mate_Hit,RTemp,RTemp_P);
+		if(!Report_SW_Hits(0,RTemp,Head_Hit,Read_Length,BTemp,H1,Quality_Score1,T,Good_Alignments,0/*Force_Indel*/,true,true))
+		{
+			Print_Unmapped(Single_File,RTemp,false,1,64);
+			Print_Unmapped(Single_File,RTemp_P,false,1,128);
+			return;
+		}
+		else
+		{
+			Mate_Hit.Loc=INT_MAX;Print_Pair(Single_File,Head_Hit,Mate_Hit,RTemp,RTemp_P);
+		}
 	}
 
 }
