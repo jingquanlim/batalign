@@ -197,14 +197,6 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 		fprintf (stdout,"\nCigar Error:%s\n",R.Description);
 	}
 
-	/*Ann_Info Ann;
-	Location_To_Genome(H.Loc,Ann);H.Chr=Ann.Name;
-	H.Loc++;
-	if (H.Loc+Skip > Ann.Size) 
-	{
-		return;
-	}*/
-
 	if(H.Sign=='-') 
 	{
 		Flag=16; 
@@ -230,7 +222,6 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 		Printed_Hit.QScore=H.QScore;
 		Printed_Hit.SW_Score=H.SW_Score;
 		Printed_Hit.SW_Sub_Opt_Score=H.SW_Sub_Opt_Score;
-		//fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t*\t0\t0\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R.Description+1,Flag,H.Chr,H.Loc,Quality_Score,CIG,Tag,Qual,H.Mismatch,H.Score,Sub_Opt_Score,H.QScore,H.SW_Score,H.SW_Sub_Opt_Score);
 	}
 	else
 	{
@@ -248,7 +239,6 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 		Printed_Hit.SW_Score=H.SW_Score;
 		Printed_Hit.SW_Sub_Opt_Score=H.SW_Sub_Opt_Score;
 	}
-		///////////fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t*\t0\t0\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\n",R.Description+1,Flag,H.Chr,H.Loc,Quality_Score,CIG,Tag,Qual,H.Mismatch,H.Score,H.QScore,H.SW_Score,H.SW_Sub_Opt_Score);
 }
 
 void Print_Mishit(READ & R,FILE* Mishit_File)
@@ -258,8 +248,6 @@ void Print_Mishit(READ & R,FILE* Mishit_File)
 
 void Print_Blank_Line(FILE* Single_File,READ & R)
 {
-	//int Real_Len=0;
-	//for(;R.Tag_Copy[Real_Len]!=0 && R.Tag_Copy[Real_Len]!='\n';Real_Len++);
 	R.Tag_Copy[R.Real_Len]=R.Quality[R.Real_Len]=0;
 	fprintf(Single_File,"%s\t4\t*\t0\t0\t*\t*\t0\t0\t%s\t%s\n",R.Description+1,R.Tag_Copy,R.Quality);
 }
