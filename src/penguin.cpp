@@ -70,6 +70,7 @@ int DELETE=5;
 int INSERTSIZE=500;//INT_MAX;
 int STD=50;//INT_MAX;
 int SW_THRESHOLD=290;
+int READS_TO_ESTIMATE=100000;
 const int ScaleQ[]={0,1.5,1.75,2,3,4};
 extern const Alignment Default_Alignment={0};
 const int ORGSTRINGLENGTH=2200; 
@@ -77,7 +78,7 @@ bool PAIRED=FALSE;
 //extern const int QUALITYCONVERSIONFACTOR=64;
 //extern const int QUALITYSCALEFACTOR=33;
 
-bool ESTIMATE=false;
+bool ESTIMATE=true;//false;
 bool FASTDECODE=false;
 bool DEB=false;
 bool FASTSW=true;
@@ -151,6 +152,9 @@ void Fix_Offset(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alig
 void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & R2);
 int Get_Skip(std::string & S);
 bool Check_Proper_Pair(int S1,int S2,unsigned Loc1, unsigned Loc2,int Extra_Bit);
+void Estimate_Insert(int & INSERTSIZE,int & STD);
+pthread_mutex_t Lock_Estimate;
+std::vector<int> Estimate;
 //}-----------------------------  FUNCTION PRTOTYPES  -------------------------------------------------/*
 
 #undef DEBUG
@@ -255,7 +259,18 @@ int main(int argc, char* argv[])
 	Thread_Arg T;
 	if (THREAD)
 	{
+		printf("Estimating insert size..\n");
+		READS_TO_ESTIMATE=READS_TO_ESTIMATE/THREAD;
 		Launch_Threads(THREAD, Map_And_Pair_Solexa,T);
+		Estimate_Insert(INSERTSIZE,STD);
+		fclose(Head_File.Input_File);Head_File.Input_File=File_Open(BP.PATTERNFILE,"r");
+		if(PAIRED) 
+		{
+			fclose(Tail_File.Input_File);Tail_File.Input_File=File_Open(BP.PATTERNFILE1,"r");
+		}
+		ESTIMATE=false;
+		Launch_Threads(THREAD, Map_And_Pair_Solexa,T);
+
 	}
 	else
 	{
@@ -359,7 +374,7 @@ void *Map_And_Pair_Solexa(void *T)
 	}
 
 	if(PRINT_MISHIT) Mishit_File=File_Open(BP.MISFILE1,"w");
-	if (PRINT_DICTIONARY && USE_MULTI_OUT)
+	if (!ESTIMATE && PRINT_DICTIONARY && USE_MULTI_OUT)
 	{
 		std::map <unsigned, Ann_Info> ::iterator S,E;
 		S=Annotations.begin();E=Annotations.end();
@@ -377,7 +392,10 @@ void *Map_And_Pair_Solexa(void *T)
 		{
 			sprintf (Current_Dir,"%d",rand());
 		}
-		fprintf(Output_File,"@RG\tID:%s\tSM:%s\n",Current_Dir,BP.PATTERNFILE);
+		std::ostringstream ostr;
+		ostr << (rand()%(INT_MAX));
+		RGID=ostr.str();
+		fprintf(Output_File,"@RG\tID:%s\tSM:%s\tLB:%s\n",RGID.c_str(),Current_Dir,BP.PATTERNFILE);
 		fprintf(Output_File,"@PG\tID:PEnGuin\tCL:%s",BP.CMD_Buffer);
 	}
 	if (WRITE_DISCORDANT) Discordant_File=fopen(FMFiles.DISCORDANTFILE,"w");else Discordant_File=Output_File;
@@ -436,6 +454,7 @@ void *Map_And_Pair_Solexa(void *T)
 		Progress++;Total_Reads++;
 		Actual_Tag++;
 		if (READS_TO_PROCESS && READS_TO_PROCESS <= Total_Reads) break;
+		if (ESTIMATE && READS_TO_ESTIMATE <= Total_Reads) break;
 		if (Thread_ID==1 && Progress>Number_of_Tags && PROGRESSBAR) 
 		{
 			off64_t Current_Pos=ftello64(Head_File.Input_File);
@@ -476,6 +495,10 @@ void *Map_And_Pair_Solexa(void *T)
 				}
 				if(Max_Pass)//cannot partition another reasonable seg..
 				{
+					if(ESTIMATE)
+					{
+						continue;
+					}
 					if(MapQ1 != -1 && MapQ1_P!= -1)//both mapped, maybe multiply or discordantly..
 					{
 						Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MapQ1,MapQ1_P,Max_Pass);
@@ -524,6 +547,10 @@ void *Map_And_Pair_Solexa(void *T)
 					{
 						continue;
 					}
+				}
+				if(ESTIMATE)
+				{
+					continue;
 				}
 				if(MapQ1 != -1 && MapQ1_P!= -1)//both mapped, maybe multiply or discordantly..
 				{
@@ -595,6 +622,8 @@ void *Map_And_Pair_Solexa(void *T)
 			}
 			else
 			{
+				if(ESTIMATE)
+					continue;
 				Print_Unmapped(Single_File,RTemp,false,1,64);
 				Print_Unmapped(Single_File,RTemp_P,false,1,128);
 			}
@@ -2612,6 +2641,8 @@ bool Correct_Orientation(Alignment A,Alignment A_P,int Extra_Bit)
 		assert(A_P.Sign=='-');
 		if(A.Loc<=A_P.Loc)
 		{
+			if(ESTIMATE)
+				return true;
 			if(A_P.Loc-A.Loc<=INSERTSIZE+2*STD+Extra_Bit)
 				return true;
 		}
@@ -2621,6 +2652,8 @@ bool Correct_Orientation(Alignment A,Alignment A_P,int Extra_Bit)
 		assert(A_P.Sign=='+');
 		if(A.Loc>=A_P.Loc)
 		{
+			if(ESTIMATE)
+				return true;
 			if(A.Loc-A_P.Loc<=INSERTSIZE+2*STD+Extra_Bit)
 				return true;
 		}
@@ -3159,8 +3192,11 @@ bool Proper_Pair(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 			}
 			else
 			{
-				Print_Unmapped(Single_File,RTemp,false,1,64);
-				Print_Unmapped(Single_File,RTemp_P,false,1,128);
+				if(!ESTIMATE)
+				{
+					Print_Unmapped(Single_File,RTemp,false,1,64);
+					Print_Unmapped(Single_File,RTemp_P,false,1,128);
+				}
 			}
 			return true;
 		}
@@ -3408,7 +3444,9 @@ void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & 
 		{
 			if(Proper_Pair)
 			{
-				fprintf(Single_File,"%d\n",(Insert_Size>0)?Insert_Size:-Insert_Size);
+				pthread_mutex_lock(&Lock_Estimate);
+				Estimate.push_back((Insert_Size>0)?Insert_Size:-Insert_Size);	
+				pthread_mutex_unlock(&Lock_Estimate);
 				return;
 			}
 			else
@@ -3421,8 +3459,9 @@ void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & 
 		fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\tRG:Z:%s\n",R1.Description+1,H.Flag,Ann1.Name,H.Loc,H.Quality_Score,H.CIG.c_str(),(Same_Chrome? "=":Ann2.Name),T.Loc,Insert_Size,H.Tag.c_str(),H.Qual.c_str(),H.Mismatch,H.Score,H.Sub_Opt_Score,H.QScore,H.SW_Score,H.SW_Sub_Opt_Score,RGID.c_str());
 		fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\tRG:Z:%s\n",R2.Description+1,T.Flag,Ann2.Name,T.Loc,T.Quality_Score,T.CIG.c_str(),(Same_Chrome? "=":Ann1.Name),H.Loc,-Insert_Size,T.Tag.c_str(),T.Qual.c_str(),T.Mismatch,T.Score,T.Sub_Opt_Score,T.QScore,T.SW_Score,T.SW_Sub_Opt_Score,RGID.c_str());
 	}
-	else if(!ESTIMATE)
+	else 
 	{
+		assert(!ESTIMATE);
 		if (H.Loc == INT_MAX)
 		{
 			assert(T.Loc!=INT_MAX);
@@ -3517,4 +3556,48 @@ bool Check_Proper_Pair(int S1,int S2,unsigned Loc1, unsigned Loc2,int Extra_Bit)
 		}
 	}
 	return false;
+}
+
+
+void Estimate_Insert(int & INSERTSIZE,int & STD)
+{
+	int Size=Estimate.size();
+	int Quarter=Size/4;
+	int Q1=Quarter,Q2=2*Quarter,Q3=3*Quarter;
+	int Upper=Estimate[Q3]+100;
+	int Lower=Estimate[Q1]-100;
+	int j=0;
+	std::sort (Estimate.begin(),Estimate.end());
+	unsigned Total=0;
+	for(int i=0;i<Size;i++)
+	{
+		//printf("%d\n",Estimate[i]);
+		if(Estimate[i]>Upper)
+		{
+			break;
+		}
+		else
+		{
+			if(Estimate[i]>=Lower)
+			{
+				Estimate[j++]=Estimate[i];
+				Total+=Estimate[i];
+			}
+		}
+	}
+	Estimate.resize(j);
+
+	float Mean=Total/j;
+	float N=0;
+	for (int i=0;i<j;i++)
+	{
+		N=N+pow((Estimate[i]-Mean),2);
+	}
+
+	int Standard_Deviation = int(sqrt (N/j));
+	if(Standard_Deviation>STD)
+		STD=Standard_Deviation;
+	INSERTSIZE=int(Mean);
+
+	printf ("Mean Insert Size detected: %u\nStandard deviation: %u\n",INSERTSIZE,STD);
 }
