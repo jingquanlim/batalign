@@ -59,6 +59,7 @@ const unsigned SECOND_READ    =0x80;
 //}-----------------------------  INCLUDE FILES  -------------------------------------------------/
 int TOP_TEN=0;
 int SW_SIMILARITY_FOR_RESCUE=60;
+int DISC_THRESHOLD=10;
 int LENGTH_CUTOFF=0;
 int BOOST=0;
 int Dummy_Int=0;
@@ -3056,7 +3057,7 @@ bool Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		{
 			FreeQ(Alignments);FreeQ(Alignments_P);
 			Alignments.push(A1);Alignments_P.push(A1_P);
-			if(A1.Score+A1_P.Score > B1.Score+B1_P.Score+10 || MapQ1==0 || MapQ2==0)
+			if(A1.Score+A1_P.Score > B1.Score+B1_P.Score+DISC_THRESHOLD || MapQ1==0 || MapQ2==0)
 			{
 				Throw_Pair=true;
 			}
@@ -3562,6 +3563,17 @@ bool Check_Proper_Pair(int S1,int S2,unsigned Loc1, unsigned Loc2,int Extra_Bit)
 void Estimate_Insert(int & INSERTSIZE,int & STD)
 {
 	int Size=Estimate.size();
+
+	if(Size<15*(READS_TO_ESTIMATE/100))
+	{
+		printf("Variability of insert size is high: Assuming wild distribution..\n");
+		INSERTSIZE=1000;
+		STD=250;
+		SW_STRING_BUFFER=2400;
+		return;
+
+	}
+
 	int Quarter=Size/4;
 	int Q1=Quarter,Q2=2*Quarter,Q3=3*Quarter;
 	int Upper=Estimate[Q3]+100;
@@ -3592,6 +3604,15 @@ void Estimate_Insert(int & INSERTSIZE,int & STD)
 	for (int i=0;i<j;i++)
 	{
 		N=N+pow((Estimate[i]-Mean),2);
+	}
+
+	if(j<15*(READS_TO_ESTIMATE/100))
+	{
+		printf("Variability of insert size is high: Assuming wild distribution..\n");
+		INSERTSIZE=1000;
+		STD=250;
+		SW_STRING_BUFFER=2400;
+		return;
 	}
 
 	int Standard_Deviation = int(sqrt (N/j));
