@@ -569,8 +569,11 @@ void *Map_And_Pair_Solexa(void *T)
 			}
 			else
 			{
-				Print_Unmapped(Single_File,RTemp,false,1,64);
-				Print_Unmapped(Single_File,RTemp_P,false,1,128);
+				if(!ESTIMATE)
+				{
+					Print_Unmapped(Single_File,RTemp,false,1,64);
+					Print_Unmapped(Single_File,RTemp_P,false,1,128);
+				}
 			}
 			continue;
 
@@ -2985,6 +2988,7 @@ void Rescue_One_Side_X(std::priority_queue <Alignment,std::vector <Alignment>,Co
 
 bool Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,int Read_Length,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments_P,Hit_Info & H1,Hit_Info & H1_P,FILE* Single_File,int Quality_Score1,int Quality_Score1_P,Alignment & A1,Alignment & A1_P,int MapQ1,int MapQ2,bool Max_Pass)
 {	
+	assert(!ESTIMATE);
 	ALIGNMENT_Q T,T_P;
 
 	std::map<unsigned,Alignment> D,D_P;
@@ -3207,6 +3211,7 @@ bool Proper_Pair(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 
 void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,int Read_Length,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Alignments_P,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & Good_Alignments_P,Hit_Info & H1,Hit_Info & H1_P,FILE* Single_File,int Quality_Score1,int Quality_Score1_P,Alignment & A1,int MapQ2)
 {
+	assert(!ESTIMATE);
 	if(Alignments.empty())
 	{
 		assert(false);
@@ -3443,7 +3448,7 @@ void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & 
 		}
 		if(ESTIMATE)
 		{
-			if(Proper_Pair)
+			if(Insert_Size)
 			{
 				pthread_mutex_lock(&Lock_Estimate);
 				Estimate.push_back((Insert_Size>0)?Insert_Size:-Insert_Size);	
@@ -3574,12 +3579,12 @@ void Estimate_Insert(int & INSERTSIZE,int & STD)
 
 	}
 
+	std::sort (Estimate.begin(),Estimate.end());
 	int Quarter=Size/4;
 	int Q1=Quarter,Q2=2*Quarter,Q3=3*Quarter;
 	int Upper=Estimate[Q3]+100;
 	int Lower=Estimate[Q1]-100;
 	int j=0;
-	std::sort (Estimate.begin(),Estimate.end());
 	unsigned Total=0;
 	for(int i=0;i<Size;i++)
 	{
