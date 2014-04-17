@@ -571,8 +571,8 @@ void *Map_And_Pair_Solexa(void *T)
 			{
 				if(!ESTIMATE)
 				{
-					Print_Unmapped(Single_File,RTemp,false,1,64);
-					Print_Unmapped(Single_File,RTemp_P,false,1,128);
+					Print_Unmapped(Single_File,RTemp,false,1,64,Read_Length);
+					Print_Unmapped(Single_File,RTemp_P,false,1,128,Read_Length);
 				}
 			}
 			continue;
@@ -628,8 +628,8 @@ void *Map_And_Pair_Solexa(void *T)
 			{
 				if(ESTIMATE)
 					continue;
-				Print_Unmapped(Single_File,RTemp,false,1,64);
-				Print_Unmapped(Single_File,RTemp_P,false,1,128);
+				Print_Unmapped(Single_File,RTemp,false,1,64,Read_Length);
+				Print_Unmapped(Single_File,RTemp_P,false,1,128,Read_Length);
 			}
 
 		}
@@ -3124,8 +3124,8 @@ bool Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		}
 		else
 		{
-			Print_Unmapped(Single_File,RTemp,false,1,64);
-			Print_Unmapped(Single_File,RTemp_P,false,1,128);
+			Print_Unmapped(Single_File,RTemp,false,1,64,Read_Length);
+			Print_Unmapped(Single_File,RTemp_P,false,1,128,Read_Length);
 		}
 		return false;
 	}
@@ -3199,8 +3199,8 @@ bool Proper_Pair(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 			{
 				if(!ESTIMATE)
 				{
-					Print_Unmapped(Single_File,RTemp,false,1,64);
-					Print_Unmapped(Single_File,RTemp_P,false,1,128);
+					Print_Unmapped(Single_File,RTemp,false,1,64,Read_Length);
+					Print_Unmapped(Single_File,RTemp_P,false,1,128,Read_Length);
 				}
 			}
 			return true;
@@ -3233,8 +3233,8 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		H1.Status=UNMAPPED;
 		if(!Report_SW_Hits(0,RTemp,Head_Hit,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true))
 		{
-			Print_Unmapped(Single_File,RTemp,false,1,64);
-			Print_Unmapped(Single_File,RTemp_P,false,1,128);
+			Print_Unmapped(Single_File,RTemp,false,1,64,Read_Length);
+			Print_Unmapped(Single_File,RTemp_P,false,1,128,Read_Length);
 			return;
 		}
 		Mate_Hit.Loc=INT_MAX;Print_Pair(Single_File,Head_Hit,Mate_Hit,RTemp,RTemp_P);
@@ -3260,8 +3260,8 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		Remove_Dup_Top(Alignments,Read_Length);
 		if(!Report_SW_Hits(0,RTemp,Head_Hit,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true))
 		{
-			Print_Unmapped(Single_File,RTemp,false,1,64);
-			Print_Unmapped(Single_File,RTemp_P,false,1,128);
+			Print_Unmapped(Single_File,RTemp,false,1,64,Read_Length);
+			Print_Unmapped(Single_File,RTemp_P,false,1,128,Read_Length);
 			return;
 		}
 		if(!Alignments_P.empty())
@@ -3293,8 +3293,8 @@ void Mate_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 		Remove_Dup_Top(T,Read_Length);H1.Status=UNMAPPED;
 		if(!Report_SW_Hits(0,RTemp,Head_Hit,Read_Length,BTemp,H1,Quality_Score1,T,Good_Alignments,0/*Force_Indel*/,true,true))
 		{
-			Print_Unmapped(Single_File,RTemp,false,1,64);
-			Print_Unmapped(Single_File,RTemp_P,false,1,128);
+			Print_Unmapped(Single_File,RTemp,false,1,64,Read_Length);
+			Print_Unmapped(Single_File,RTemp_P,false,1,128,Read_Length);
 			return;
 		}
 		else
