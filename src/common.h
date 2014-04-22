@@ -147,6 +147,7 @@ struct READ
 	unsigned Tag_Number;//Head =1, Tail =2
 	unsigned Read_Number;
 	int Real_Len;
+	off64_t FLength;
 };
 
 struct FMFILES

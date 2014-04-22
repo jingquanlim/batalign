@@ -428,10 +428,11 @@ void fprintfX(void* Handle,char* Format, char* String)
  *  		  return true if successfull...
  * =====================================================================================
  */
-char Read_Tag(FILE *Input_File,FILE *Mate_File,const char FILETYPE, READ & Read,READ & Mate )
+char Read_Tag(FILE *Input_File,FILE *Mate_File,const char FILETYPE, READ & Read,READ & Mate)
 {
 	flockfile(Input_File);
 	if(PAIRED) flockfile(Mate_File);
+	Read.FLength=ftello64(Input_File);
 	if (fgets(Read.Description,MAXDES,Input_File)!=0)// read a tag...
 	{
 		char* C=Read.Description;while (*C!=' ' && *C!='\t' &&*C != '\r' && *C != '\n') C++;*C=0;

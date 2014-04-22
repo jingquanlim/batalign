@@ -276,6 +276,7 @@ int main(int argc, char* argv[])
 	else
 	{
 		Set_Affinity();
+		ESTIMATE=false;
 		Map_And_Pair_Solexa(NULL);
 	}
 
@@ -3040,9 +3041,8 @@ bool Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	Rescue_One_Side(D_P,Alignments_P,Alignments,RTemp,BTemp);
 	D.clear();D_P.clear();
 	Alignment B1,B1_P;
-	if(!Alignments.empty() && !Alignments_P.empty())
+	if(!Alignments.empty() && !Alignments_P.empty() && Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length))
 	{
-		assert(Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length));
 		B1=Alignments.top(),B1_P=Alignments_P.top();
 	}
 	else
