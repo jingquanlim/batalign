@@ -860,10 +860,10 @@ void align_destroy (s_align* a) {
 
 
 void init_SSW() {
-	match = 2;
-	mismatch = 2;
-	gap_open = 3;//11;//3;
-	gap_extension = 1;
+	//match = 2;
+	//mismatch = 2;
+	//gap_open = 3;//11;//3;
+	//gap_extension = 1;
 	path = 1;
 	n = 5;
 	//s1 = 8192; //max length of reference seq
