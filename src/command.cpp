@@ -149,10 +149,10 @@ void Parse_Command_line(int argc, char* argv[],unsigned & MAXCOUNT,FMFILES & F,B
 " --lengthcutoff \t\t number of matching bases to switch between conc/disc.Lower will be more aggro towards concordance..\n"
 ;
 	BP.INDELSIZE=8;BP.SCANMODE=SENSITIVE;MAX_SW=INT_MAX;
-	match = 2;
-	mismatch = 2;
-	gap_open = 3;//11;//3;
-	gap_extension = 1;
+	match = 1;
+	mismatch = 3;
+	gap_open = 11;//11;//3;
+	gap_extension = 4;
 	char* Name;int Last_Dash;char* Genome_Name;
 	char* Command_Line_Buffer;
 
