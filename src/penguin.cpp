@@ -1473,6 +1473,10 @@ void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hi
 				Aln.Sign='-';
 			}
 			Mismatch_Scan_With_Score(Org_String,Bin_Read,R.Quality,R.Real_Len,100,0,Aln);sprintf(Aln.Cigar,"%dM",R.Real_Len);
+			if(ORGSTRINGLENGTH<Loc+R.Real_Len+1)//End of reference..
+			{
+				Aln.Mismatch=5;
+			}
 			Alignments.push(Aln);
 			assert(Aln.Mismatch<=5 && Aln.Mismatch>=0);
 			
@@ -1513,6 +1517,10 @@ void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hi
 					Aln.Sign='-';
 				}
 				Mismatch_Scan_With_Score(Org_String,Bin_Read,R.Quality,R.Real_Len,100,0,Aln);sprintf(Aln.Cigar,"%dM",R.Real_Len);
+				if(ORGSTRINGLENGTH<Loc+R.Real_Len+1)//Boundary hit..
+				{
+					Aln.Mismatch=5;
+				}
 				Alignments.push(Aln);
 				assert(Aln.Mismatch<=5 && Aln.Mismatch>=0);
 
