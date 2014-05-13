@@ -149,7 +149,7 @@ void Parse_Command_line(int argc, char* argv[],unsigned & MAXCOUNT,FMFILES & F,B
 " --lengthcutoff \t\t number of matching bases to switch between conc/disc.Lower will be more aggro towards concordance..\n"
 ;
 	BP.INDELSIZE=8;BP.SCANMODE=SENSITIVE;MAX_SW=INT_MAX;
-	match = 1;
+	match = 6;
 	mismatch = 3;
 	gap_open = 11;//11;//3;
 	gap_extension = 4;
