@@ -3193,6 +3193,10 @@ bool Proper_Pair(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	}
 	else 
 	{
+		if(ESTIMATE)//estimate only from crisp pairs..
+		{
+			return false;
+		}
 		if(!Max_Pass)
 			return false;
 		else
