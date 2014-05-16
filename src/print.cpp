@@ -297,7 +297,7 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 		int Offset=0;
 		if(Clip_Count)//>30)
 		{
-			int Score_Add=std::min(Clip_Count,gap_open);//0;//std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
+			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));//std::min(Clip_Count,gap_open);//0;//
 			MapQ-=Score_Add;
 		}	
 		Quality_Score=std::max(1,QUAL_START-Offset+MapQ-std::min(Top_Penalty,QUAL_START/3));
@@ -314,7 +314,7 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 		int Offset=0;
 		if(Clip_Count)//>30)
 		{
-			int Score_Add=std::min(Clip_Count,gap_open);//std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
+			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));//std::min(Clip_Count,gap_open);//
 			MapQ-=Score_Add;
 			//Offset=5;
 		}	
@@ -334,12 +334,12 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 		int MapQ=H.BQScore;
 		if(Clip_Count)//>30)
 		{
-			int Score_Add=std::min(Clip_Count,gap_open);//0;//std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
+			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));//std::min(Clip_Count,gap_open);
 			MapQ-=Score_Add;
 		}	
 		if(A.Score<A.Sub_Opt_Score-SCOREGAP)//Q_GAP/3 )
 		{
-			Quality_Score=std::max(1,QUAL_START/2+MapQ);//-std::min(Top_Penalty,QUAL_START/2));
+			Quality_Score=std::max(1,qual_start/2+mapq);//-std::min(Top_Penalty,QUAL_START/2));
 			if(Quality_Score==1)
 			{
 				Quality_Score=std::max(1,QUAL_START/2+5+MapQ);//-std::min(Top_Penalty,QUAL_START/2));
