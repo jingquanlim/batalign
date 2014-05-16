@@ -1435,9 +1435,8 @@ void Init(BWT* revfmi,In_File & IN,FMFILES F,RQINDEX R,BATPARAMETERS & BP,char S
 
 void FreeQ(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & t ) 
 {
-	//std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> tmp; 
-	//std::swap(t,tmp );
-	while (!t.empty()) t.pop();
+	std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> tmp; 
+	std::swap(t,tmp );
 }
 
 const int FHSIZE=10;//00;
@@ -1474,11 +1473,6 @@ void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hi
 				Aln.Sign='-';
 			}
 			Mismatch_Scan_With_Score(Org_String,Bin_Read,R.Quality,R.Real_Len,100,0,Aln);sprintf(Aln.Cigar,"%dM",R.Real_Len);
-			if(ORGSTRINGLENGTH<Loc+R.Real_Len+1)//End of reference..
-			{
-				continue;
-				Aln.Mismatch=5;
-			}
 			Alignments.push(Aln);
 			assert(Aln.Mismatch<=5 && Aln.Mismatch>=0);
 			
@@ -1519,11 +1513,6 @@ void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hi
 					Aln.Sign='-';
 				}
 				Mismatch_Scan_With_Score(Org_String,Bin_Read,R.Quality,R.Real_Len,100,0,Aln);sprintf(Aln.Cigar,"%dM",R.Real_Len);
-				if(ORGSTRINGLENGTH<Loc+R.Real_Len+1)//Boundary hit..
-				{
-					continue;
-					Aln.Mismatch=5;
-				}
 				Alignments.push(Aln);
 				assert(Aln.Mismatch<=5 && Aln.Mismatch>=0);
 
@@ -1687,7 +1676,7 @@ float Calc_Top_Score(MEMX & MF,MEMX & MC,float & Top_BQ,int Top_Mis,int StringLe
 bool Do_Mismatch_Scan(MEMX & MF,MEMX & MC,LEN & L,BWT* fwfmi,BWT* revfmi,int Start_Mis,int End_Mis,int & Last_Mis,int & Head_Top_Count,Hit_Info & H,int & Quality_Score,READ & R,BATREAD & B,FILE* Mishit_File,unsigned Conversion_Factor,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments)
 {
 
-	H.Loc=0;H.Indel=0;H.Score=0;H.QScore=-1;H.Cigar[0]=0;H.Cigar[1]=0;
+	H.Loc=0;H.Indel=0;H.Score=0;H.QScore=-1;H.Cigar[0]=0;
 	Last_Mis=Scan(MF,MC,End_Mis,L,fwfmi,revfmi,Start_Mis,Head_Top_Count,(BOOST>=5) ? 2:UINT_MAX);
 
 	int Plus_Hits=MF.Hit_Array_Ptr-1,Minus_Hits=MC.Hit_Array_Ptr-1;
@@ -3194,10 +3183,6 @@ bool Proper_Pair(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	}
 	else 
 	{
-		if(ESTIMATE)//estimate only from crisp pairs..
-		{
-			return false;
-		}
 		if(!Max_Pass)
 			return false;
 		else

@@ -267,9 +267,9 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 	{
 		int Sub_Opt_Score=A.Sub_Opt_Score;
 		int MapQ=H.BQScore;
-		if(Clip_Count)//>30)
+		if(Clip_Count>30)
 		{
-			int Score_Add=std::min(Clip_Count,gap_open);;//std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
+			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
 			MapQ-=Score_Add;
 		}	
 		if(A.Score<A.Sub_Opt_Score-Q_GAP/3 )
@@ -295,9 +295,9 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 		int Sub_Opt_Score=INT_MAX;
 		int MapQ=H.BQScore;
 		int Offset=0;
-		if(Clip_Count)//>30)
+		if(Clip_Count>30)
 		{
-			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));//std::min(Clip_Count,gap_open);//0;//
+			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
 			MapQ-=Score_Add;
 		}	
 		Quality_Score=std::max(1,QUAL_START-Offset+MapQ-std::min(Top_Penalty,QUAL_START/3));
@@ -312,9 +312,9 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 		int Sub_Opt_Score=INT_MAX;
 		int MapQ=H.BQScore;
 		int Offset=0;
-		if(Clip_Count)//>30)
+		if(Clip_Count>30)
 		{
-			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));//std::min(Clip_Count,gap_open);//
+			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
 			MapQ-=Score_Add;
 			//Offset=5;
 		}	
@@ -332,9 +332,9 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 		assert(H.Status==MULTI_HIT);
 		assert(H.Sub_Opt_Score!=INT_MAX);
 		int MapQ=H.BQScore;
-		if(Clip_Count)//>30)
+		if(Clip_Count>30)
 		{
-			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));//std::min(Clip_Count,gap_open);
+			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
 			MapQ-=Score_Add;
 		}	
 		if(A.Score<A.Sub_Opt_Score-SCOREGAP)//Q_GAP/3 )

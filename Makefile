@@ -34,7 +34,8 @@ POST_UNINSTALL = :
 subdir = .
 DIST_COMMON = $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
-	$(top_srcdir)/configure depcomp install-sh missing
+	$(top_srcdir)/configure $(top_srcdir)/src/Makefile.in depcomp \
+	install-sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -43,7 +44,7 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = config.h
-CONFIG_CLEAN_FILES =
+CONFIG_CLEAN_FILES = src/Makefile
 CONFIG_CLEAN_VPATH_FILES =
 SOURCES =
 DIST_SOURCES =
@@ -98,11 +99,11 @@ DIST_ARCHIVES = $(distdir).tar.gz
 GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /home/Ken/repos/batindel/missing --run aclocal-1.11
-AMTAR = ${SHELL} /home/Ken/repos/batindel/missing --run tar
-AUTOCONF = ${SHELL} /home/Ken/repos/batindel/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/Ken/repos/batindel/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/Ken/repos/batindel/missing --run automake-1.11
+ACLOCAL = ${SHELL} /home/Ken/indel/src/temp/myrepo/missing --run aclocal-1.11
+AMTAR = ${SHELL} /home/Ken/indel/src/temp/myrepo/missing --run tar
+AUTOCONF = ${SHELL} /home/Ken/indel/src/temp/myrepo/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/Ken/indel/src/temp/myrepo/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/Ken/indel/src/temp/myrepo/missing --run automake-1.11
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -130,7 +131,7 @@ LDFLAGS =
 LIBOBJS = 
 LIBS = 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/Ken/repos/batindel/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/Ken/indel/src/temp/myrepo/missing --run makeinfo
 MKDIR_P = /bin/mkdir -p
 OBJEXT = o
 PACKAGE = BatINDEL
@@ -144,10 +145,10 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = 
 VERSION = 1.00_mmx
-abs_builddir = /home/Ken/repos/batindel
-abs_srcdir = /home/Ken/repos/batindel
-abs_top_builddir = /home/Ken/repos/batindel
-abs_top_srcdir = /home/Ken/repos/batindel
+abs_builddir = /home/Ken/indel/src/temp/myrepo
+abs_srcdir = /home/Ken/indel/src/temp/myrepo
+abs_top_builddir = /home/Ken/indel/src/temp/myrepo
+abs_top_srcdir = /home/Ken/indel/src/temp/myrepo
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 am__include = include
@@ -167,7 +168,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/Ken/repos/batindel/install-sh
+install_sh = ${SHELL} /home/Ken/indel/src/temp/myrepo/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -245,6 +246,8 @@ $(srcdir)/config.h.in:  $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f config.h stamp-h1
+src/Makefile: $(top_builddir)/config.status $(top_srcdir)/src/Makefile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.

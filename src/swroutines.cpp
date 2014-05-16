@@ -1,4 +1,3 @@
-#include <algorithm>
 #include "swroutines.h"
 #include "assert.h"
 #include <queue>
@@ -593,19 +592,17 @@ void ssw_cigar_processQ(s_align* a,Cigar_Info & C,char* Ref,int Ref_Off,char* Pa
 	C.Length=Tot_Length;
 	if(TClip_Resc)// && TClip_QScore<2*QLIMIT_FLOAT)
 	{
-		//TClip_QScore=std::min(gap_open,TClip_QScore);
-		//QScore+=TClip_QScore;
-		//Score+=TClip_Score;
-		//BQScore+=TClip_BQScore;
+		QScore+=TClip_QScore;
+		Score+=TClip_Score;
+		BQScore+=TClip_BQScore;
 		Tot_Length+=Clip_T;
 		C.Mis+=TClip_Mis;
 	}
 	if(HClip_Resc)// && HClip_QScore<2*QLIMIT_FLOAT)
 	{
-		//HClip_QScore=std::min(gap_open,HClip_QScore);
-		//QScore+=HClip_QScore;
-		//Score+=HClip_Score;
-		//BQScore+=HClip_BQScore;
+		QScore+=HClip_QScore;
+		Score+=HClip_Score;
+		BQScore+=HClip_BQScore;
 		Tot_Length+=Clip_H;
 		C.Mis+=HClip_Mis;
 	}
