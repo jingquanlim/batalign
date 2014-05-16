@@ -339,7 +339,7 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 		}	
 		if(A.Score<A.Sub_Opt_Score-SCOREGAP)//Q_GAP/3 )
 		{
-			Quality_Score=std::max(1,qual_start/2+mapq);//-std::min(Top_Penalty,QUAL_START/2));
+			Quality_Score=std::max(1,QUAL_START/2+MapQ);//-std::min(Top_Penalty,QUAL_START/2));
 			if(Quality_Score==1)
 			{
 				Quality_Score=std::max(1,QUAL_START/2+5+MapQ);//-std::min(Top_Penalty,QUAL_START/2));
