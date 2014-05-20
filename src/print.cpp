@@ -101,6 +101,7 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 	char* Qual=R.Quality,Rev_Qual[MAXTAG];char *CIG;
 	char* Tag=R.Tag_Copy,Rev_Tag[MAXTAG];
 	assert(H.Loc!=UINT_MAX && A.Score >=0);
+	Hit_Info HOld=H;bool forced_align=false;//Re-alignment forced..
 	//int Real_Len=0;
 	int Clip_H=TClip_H,Clip_T=TClip_T;
 	if(TCIG)
@@ -112,6 +113,7 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 				H.SW_Score=A.SW_Score;
 			H.SW_Sub_Opt_Score=0;
 			TCIG=NULL;
+			forced_align=true;
 		}
 		else/*Should be bad Cigar*/
 		{
@@ -138,6 +140,12 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 			{
 				Read2Bin(Real_String,R.Tag_Copy,R.Real_Len);
 				Skip=Find_Cigar(CIG,H,Real_String,R.Real_Len,R,Clip_H,Clip_T);
+				if(!forced_align)
+				{
+					H.Score= HOld.Score;
+					H.QScore=HOld.QScore;
+					H.BQScore=HOld.BQScore;
+				}
 			}
 
 		}
@@ -155,6 +163,12 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 				Read2Bin(Real_String,R.Tag_Copy,R.Real_Len);
 				H.Loc-=(R.Real_Len-StringLength)+INDELGAP-1;
 				Skip=Find_Cigar(CIG,H,Real_String,R.Real_Len,R,Clip_H,Clip_T);
+				if(!forced_align)
+				{
+					H.Score= HOld.Score;
+					H.QScore=HOld.QScore;
+					H.BQScore=HOld.BQScore;
+				}
 			}
 		}
 
