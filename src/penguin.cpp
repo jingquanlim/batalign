@@ -206,6 +206,7 @@ int main(int argc, char* argv[])
 	Read_INI(NULL,MAXCOUNT,FMFiles,BP);
 	Parse_Command_line(argc,argv,MAXCOUNT,FMFiles,BP);	
 	init_SSW();Build_Pow10();
+	init_SSW_Clip(1 /*match*/,3 /*mismatch*/,11 /*gap_open*/,4 /*gap_extension*/);
 	if(CONFIG_FILE) Read_INI(CONFIG_FILE,MAXCOUNT,FMFiles,BP);
 	if (MISC_VERB) fprintf(stderr,"BatINDEL V 1.00\n");
 	if (BP.MAX_MISMATCHES != INT_MAX)
@@ -1473,6 +1474,11 @@ void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hi
 				Aln.Sign='-';
 			}
 			Mismatch_Scan_With_Score(Org_String,Bin_Read,R.Quality,R.Real_Len,100,0,Aln);sprintf(Aln.Cigar,"%dM",R.Real_Len);
+			if(ORGSTRINGLENGTH<Loc+R.Real_Len+1)//End of reference..
+			{
+				continue;
+				Aln.Mismatch=5;
+			}
 			Alignments.push(Aln);
 			assert(Aln.Mismatch<=5 && Aln.Mismatch>=0);
 			
@@ -1513,6 +1519,11 @@ void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hi
 					Aln.Sign='-';
 				}
 				Mismatch_Scan_With_Score(Org_String,Bin_Read,R.Quality,R.Real_Len,100,0,Aln);sprintf(Aln.Cigar,"%dM",R.Real_Len);
+				if(ORGSTRINGLENGTH<Loc+R.Real_Len+1)//Boundary hit..
+				{
+					continue;
+					Aln.Mismatch=5;
+				}
 				Alignments.push(Aln);
 				assert(Aln.Mismatch<=5 && Aln.Mismatch>=0);
 
@@ -3183,6 +3194,10 @@ bool Proper_Pair(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	}
 	else 
 	{
+		if(ESTIMATE)//estimate only from crisp pairs..
+		{
+			return false;
+		}
 		if(!Max_Pass)
 			return false;
 		else

@@ -35,8 +35,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = index$(EXEEXT) penguin$(EXEEXT)
 subdir = src
-DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	COPYING
+DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -96,11 +95,11 @@ DIST_SOURCES = $(libz_a_SOURCES) $(index_SOURCES) $(penguin_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/Ken/indel/src/temp/myrepo/missing --run aclocal-1.11
-AMTAR = ${SHELL} /home/Ken/indel/src/temp/myrepo/missing --run tar
-AUTOCONF = ${SHELL} /home/Ken/indel/src/temp/myrepo/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/Ken/indel/src/temp/myrepo/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/Ken/indel/src/temp/myrepo/missing --run automake-1.11
+ACLOCAL = ${SHELL} /home/Ken/repos/batindel/missing --run aclocal-1.11
+AMTAR = ${SHELL} /home/Ken/repos/batindel/missing --run tar
+AUTOCONF = ${SHELL} /home/Ken/repos/batindel/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/Ken/repos/batindel/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/Ken/repos/batindel/missing --run automake-1.11
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -128,7 +127,7 @@ LDFLAGS =
 LIBOBJS = 
 LIBS = 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/Ken/indel/src/temp/myrepo/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/Ken/repos/batindel/missing --run makeinfo
 MKDIR_P = /bin/mkdir -p
 OBJEXT = o
 PACKAGE = BatINDEL
@@ -142,10 +141,10 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = 
 VERSION = 1.00_mmx
-abs_builddir = /home/Ken/indel/src/temp/myrepo/src
-abs_srcdir = /home/Ken/indel/src/temp/myrepo/src
-abs_top_builddir = /home/Ken/indel/src/temp/myrepo
-abs_top_srcdir = /home/Ken/indel/src/temp/myrepo
+abs_builddir = /home/Ken/repos/batindel/src
+abs_srcdir = /home/Ken/repos/batindel/src
+abs_top_builddir = /home/Ken/repos/batindel
+abs_top_srcdir = /home/Ken/repos/batindel
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 am__include = include
@@ -165,7 +164,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/Ken/indel/src/temp/myrepo/install-sh
+install_sh = ${SHELL} /home/Ken/repos/batindel/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -222,9 +221,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu src/Makefile
+	  $(AUTOMAKE) --foreign src/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

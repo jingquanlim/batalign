@@ -125,6 +125,7 @@ s_align* ssw_align (const s_profile* prof,
 void align_destroy (s_align* a);
 
 void init_SSW(); 
+void init_SSW_Clip(int32_t match,int32_t  mismatch,int32_t  gap_open,int32_t  gap_extension);
 s_align* ssw_write (s_align* a, 
 			kseq_t* ref_seq,
 			kseq_t* read);

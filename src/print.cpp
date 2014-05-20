@@ -20,7 +20,7 @@ int Find_Cigar(char* Cigar,Hit_Info & H,char* Current_Tag,int StringLength,READ 
 	Cigar_Info Cig_Info;
 
 	int Jump=0;if(H.Sign=='-') Jump= 0+JUMP;
-	s_profile* p = ssw_init((int8_t*)Current_Tag, StringLength, mata, n, 1);
+	s_profile* p = ssw_init((int8_t*)Current_Tag, StringLength, mata_SC, n, 1);
 	Get_Bases(H.Loc+Jump,StringLength+INDELGAP,Org_String);
 	Aln=mengyao_ssw_core(Org_String,StringLength, Current_Tag,StringLength+INDELGAP,0,0/*DP*/, p);
 	if(Aln->score1 >= ACC_SCORE)
@@ -110,6 +110,7 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 			if(A.Loc)
 				H.SW_Score=A.SW_Score;
 			H.SW_Sub_Opt_Score=0;
+			TCIG=NULL;
 		}
 		else/*Should be bad Cigar*/
 		{

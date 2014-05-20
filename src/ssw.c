@@ -61,6 +61,7 @@ struct _profile{
 
 extern int32_t match, mismatch, gap_open, gap_extension, path, n;
 extern int8_t* mata;
+extern int8_t* mata_SC;
 /* Generate query profile rearrange query sequence & calculate the weight of match/mismatch. */
 __m128i* qP_byte (const int8_t* read_num,
 				  const int8_t* mat,
@@ -878,6 +879,28 @@ void init_SSW() {
 		mata[k++] = 0; // ambiguous base
 	}
 	for (m = 0; LIKELY(m < 5); ++m) mata[k++] = 0; //ambiguous base
+	
+}
+
+void init_SSW_Clip(int32_t match,int32_t  mismatch,int32_t  gap_open,int32_t  gap_extension) {
+	//match = 2;
+	//mismatch = 2;
+	//gap_open = 3;//11;//3;
+	//gap_extension = 1;
+	path = 1;
+	n = 5;
+	//s1 = 8192; //max length of reference seq
+	//s2 = 128; //max length of read seq
+	//filter = 0;
+
+	// initialize scoring matrix for genome sequences
+	int32_t l, m, k;
+	mata_SC = (int8_t*)calloc(25, sizeof(int8_t));
+	for (l = k = 0; LIKELY(l < 4); ++l) {
+		for (m = 0; LIKELY(m < 4); ++m) mata_SC[k++] = l == m ? match : -mismatch;	/* weight_match : -weight_mismatch */
+		mata_SC[k++] = 0; // ambiguous base
+	}
+	for (m = 0; LIKELY(m < 5); ++m) mata_SC[k++] = 0; //ambiguous base
 	
 }
 s_align* ssw_write (s_align* a, 

@@ -128,6 +128,7 @@
 		#endif
 		int32_t match, mismatch, gap_open, gap_extension, path, n, filter;
 		int8_t* mata;
+		int8_t* mata_SC;
 	#endif
 #else 
 #ifndef __GLOBAL_VAR__
@@ -258,6 +259,7 @@ extern char* DISC_HIT_BUFFER_ORG;
 #endif
 extern int32_t match, mismatch, gap_open, gap_extension, path, n, filter;
 extern int8_t* mata;
+extern int8_t* mata_SC;
 //}---------------------------- GLOBAL VARIABLES -------------------------------------------------
 #endif
 #endif
