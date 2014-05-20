@@ -11,6 +11,7 @@ extern int JUMP;
 extern int SCOREGAP;
 extern int SW_THRESHOLD;
 extern std::string RGID;
+extern bool Hard_Penalty;
 
 int Find_Cigar(char* Cigar,Hit_Info & H,char* Current_Tag,int StringLength,READ & R,int & Clip_H,int & Clip_T)
 {
@@ -28,7 +29,7 @@ int Find_Cigar(char* Cigar,Hit_Info & H,char* Current_Tag,int StringLength,READ 
 		H.SW_Score=Aln->score1;H.SW_Sub_Opt_Score=Aln->score2;
 		Clip_H=Aln->read_begin1;Clip_T=0;
 		if(Aln->read_end1!=StringLength-1) Clip_T=StringLength-1-Aln->read_end1;
-		ssw_cigar_processQ(Aln,Cig_Info,Org_String,Aln->ref_begin1,Current_Tag,Aln->read_begin1,StringLength,R.Quality,NULL,Clip_H,Clip_T);
+		ssw_cigar_processQ(Aln,Cig_Info,Org_String,Aln->ref_begin1,Current_Tag,Aln->read_begin1,StringLength,R.Quality,NULL,Clip_H,Clip_T,Hard_Penalty);
 		ssw_cigar_print(Aln,Cigar,Cig_Info,Org_String+Aln->ref_begin1,Current_Tag+Aln->read_begin1,Clip_H,Clip_T,StringLength);
 		H.Score= -Cig_Info.Score;
 		H.QScore=Cig_Info.QScore;
@@ -268,7 +269,13 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 	{
 		int Sub_Opt_Score=A.Sub_Opt_Score;
 		int MapQ=H.BQScore;
-		if(Clip_Count>30)
+		if(!Hard_Penalty)
+		{
+			Clip_Count=std::min(Clip_Count,11);
+			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
+			MapQ-=Score_Add;
+		}
+		else if(Clip_Count>30)
 		{
 			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
 			MapQ-=Score_Add;
@@ -296,7 +303,13 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 		int Sub_Opt_Score=INT_MAX;
 		int MapQ=H.BQScore;
 		int Offset=0;
-		if(Clip_Count>30)
+		if(!Hard_Penalty)
+		{
+			Clip_Count=std::min(Clip_Count,11);
+			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
+			MapQ-=Score_Add;
+		}
+		else if(Clip_Count>30)
 		{
 			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
 			MapQ-=Score_Add;
@@ -313,7 +326,13 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 		int Sub_Opt_Score=INT_MAX;
 		int MapQ=H.BQScore;
 		int Offset=0;
-		if(Clip_Count>30)
+		if(!Hard_Penalty)
+		{
+			Clip_Count=std::min(Clip_Count,11);
+			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
+			MapQ-=Score_Add;
+		}
+		else if(Clip_Count>30)
 		{
 			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
 			MapQ-=Score_Add;
@@ -333,7 +352,13 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 		assert(H.Status==MULTI_HIT);
 		assert(H.Sub_Opt_Score!=INT_MAX);
 		int MapQ=H.BQScore;
-		if(Clip_Count>30)
+		if(!Hard_Penalty)
+		{
+			Clip_Count=std::min(Clip_Count,11);
+			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
+			MapQ-=Score_Add;
+		}
+		else if(Clip_Count>30)
 		{
 			int Score_Add=std::min((Clip_Count)*MN,BOPEN+BEXT*(Clip_Count-1));
 			MapQ-=Score_Add;

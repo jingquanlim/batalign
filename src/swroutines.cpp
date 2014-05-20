@@ -361,7 +361,7 @@ void ssw_cigar_process(s_align* a,Cigar_Info & C,char* Ref,char* Pattern,int Str
 }
 
 
-void ssw_cigar_processQ(s_align* a,Cigar_Info & C,char* Ref,int Ref_Off,char* Pattern,int Pat_Off,int StringLength,const char* Qual,char* Cigar,int Clip_H,int Clip_T) { //print the cigar out
+void ssw_cigar_processQ(s_align* a,Cigar_Info & C,char* Ref,int Ref_Off,char* Pattern,int Pat_Off,int StringLength,const char* Qual,char* Cigar,int Clip_H,int Clip_T,bool Hard_Penalty) { //print the cigar out
 	bool Cig_Err=false;
 	const int gap_open=40,gap_extension=6;
 	const int MX=6,MN=2,BOPEN=6,BEXT=3,MATCH_BONUS=0;//2;
@@ -592,17 +592,23 @@ void ssw_cigar_processQ(s_align* a,Cigar_Info & C,char* Ref,int Ref_Off,char* Pa
 	C.Length=Tot_Length;
 	if(TClip_Resc)// && TClip_QScore<2*QLIMIT_FLOAT)
 	{
-		QScore+=TClip_QScore;
-		Score+=TClip_Score;
-		BQScore+=TClip_BQScore;
+		if(Hard_Penalty)
+		{
+			QScore+=TClip_QScore;
+			Score+=TClip_Score;
+			BQScore+=TClip_BQScore;
+		}
 		Tot_Length+=Clip_T;
 		C.Mis+=TClip_Mis;
 	}
 	if(HClip_Resc)// && HClip_QScore<2*QLIMIT_FLOAT)
 	{
-		QScore+=HClip_QScore;
-		Score+=HClip_Score;
-		BQScore+=HClip_BQScore;
+		if(Hard_Penalty)
+		{
+			QScore+=HClip_QScore;
+			Score+=HClip_Score;
+			BQScore+=HClip_BQScore;
+		}
 		Tot_Length+=Clip_H;
 		C.Mis+=HClip_Mis;
 	}

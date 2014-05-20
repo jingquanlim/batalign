@@ -76,6 +76,7 @@ const int ScaleQ[]={0,1.5,1.75,2,3,4};
 extern const Alignment Default_Alignment={0};
 const int ORGSTRINGLENGTH=2200; 
 bool PAIRED=FALSE;
+bool Hard_Penalty=true;
 //extern const int QUALITYCONVERSIONFACTOR=64;
 //extern const int QUALITYSCALEFACTOR=33;
 

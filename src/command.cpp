@@ -24,6 +24,7 @@ extern int MAX_PER_LIST;
 extern int SCOREGAP;
 extern bool DEBUG_SEGS;
 extern bool PAIRED;
+extern bool Hard_Penalty;
 //extern bool TESTMODE;
 
 option Long_Options[]=
@@ -57,6 +58,7 @@ option Long_Options[]=
 {"debug",0,NULL,27},
 {"concthreshold",1,NULL,28},
 {"lengthcutoff",1,NULL,29},
+{"softpenalty",0,NULL,30},
 {"help",0,NULL,'h'},
 {"output",1,NULL,'o'},
 {"genome",1,NULL,'g'},
@@ -296,6 +298,9 @@ void Parse_Command_line(int argc, char* argv[],unsigned & MAXCOUNT,FMFILES & F,B
 				break;
 			case 29://lengthcutoff
 				LENGTH_CUTOFF=atoi(optarg);
+				break;
+			case 30://softpenalty
+				Hard_Penalty=false;
 				break;
 			case 'j':
 				REJECT_FILE=optarg;
