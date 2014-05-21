@@ -71,17 +71,17 @@ command.o: command.cpp /usr/include/getopt.h /usr/include/ctype.h \
  /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../include/c++/4.4.7/x86_64-redhat-linux/bits/atomic_word.h \
  /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../include/c++/4.4.7/bits/basic_string.tcc \
  iniparser.h /usr/include/libio.h /usr/include/_G_config.h \
- /usr/include/bits/sys_errlist.h /usr/include/stdlib.h \
- /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
- /usr/include/sys/types.h /usr/include/sys/select.h \
- /usr/include/bits/select.h /usr/include/bits/sigset.h \
- /usr/include/sys/sysmacros.h /usr/include/alloca.h dictionary.h \
- MemManager.h ../config.h TypeNLimit.h MiscUtilities.h TextConverter.h \
- BWT.h HSP.h /usr/include/signal.h /usr/include/bits/signum.h \
- /usr/include/bits/siginfo.h /usr/include/bits/sigaction.h \
- /usr/include/bits/sigcontext.h /usr/include/bits/sigstack.h \
- /usr/include/sys/ucontext.h /usr/include/bits/sigthread.h rqindex.h \
- utils.h
+ /usr/include/bits/sys_errlist.h /usr/include/bits/stdio.h \
+ /usr/include/stdlib.h /usr/include/bits/waitflags.h \
+ /usr/include/bits/waitstatus.h /usr/include/sys/types.h \
+ /usr/include/sys/select.h /usr/include/bits/select.h \
+ /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h \
+ /usr/include/alloca.h dictionary.h MemManager.h ../config.h TypeNLimit.h \
+ MiscUtilities.h TextConverter.h BWT.h HSP.h /usr/include/signal.h \
+ /usr/include/bits/signum.h /usr/include/bits/siginfo.h \
+ /usr/include/bits/sigaction.h /usr/include/bits/sigcontext.h \
+ /usr/include/bits/sigstack.h /usr/include/sys/ucontext.h \
+ /usr/include/bits/sigthread.h rqindex.h utils.h
 
 /usr/include/getopt.h:
 
@@ -278,6 +278,8 @@ iniparser.h:
 /usr/include/_G_config.h:
 
 /usr/include/bits/sys_errlist.h:
+
+/usr/include/bits/stdio.h:
 
 /usr/include/stdlib.h:
 

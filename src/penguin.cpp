@@ -85,6 +85,7 @@ bool FASTDECODE=false;
 bool DEB=false;
 bool FASTSW=true;
 bool DEBUG_SEGS=false;
+unsigned GENOME_SIZE=0;
 int QUALITYCONVERSIONFACTOR=33;
 int QUALITYSCALEFACTOR=1;
 BATPARAMETERS BP;
@@ -112,7 +113,7 @@ void Parse_Command_line(int argc, char* argv[],unsigned & MAXCOUNT,FMFILES & FMF
 int Head_Tail(BWT* revfmi,SARange* Head_Hits,SARange* Tail_Hits,int Insert,int MAXCOUNT,char & In_Large,RQINDEX & R,unsigned Entries,Pair* Pairs,int & Pairs_Index,int & HITS,int & Err,unsigned Conversion_Factor);
 void *Map_And_Pair_Solexa(void *T);
 void Verbose(char *BWTFILE,char *OCCFILE,char *REVBWTINDEX,char *REVOCCFILE,char *PATTERNFILE,char *HITSFILE,char* LOCATIONFILE,char MAX_MISMATCHES,int Patternfile_Count,char* PATTERNFILE1,char FILETYPE,LEN & L,char FORCESOLID);
-void Init(BWT* revfmi,In_File & IN,FMFILES F,RQINDEX R,BATPARAMETERS & BP,char Solid,char Npolicy,LEN & L);
+void Init(In_File & IN,FMFILES F,RQINDEX R,BATPARAMETERS & BP,char Solid,char Npolicy,LEN & L);
 void  Paired_Extension(int Last_MisT,int Last_MisH,char* Fwd_Read,char *Revcomp_Read, RQINDEX & RQ,Pair* & Pairs,SARange* & MFH_Hit_Array,SARange* & MFT_Hit_Array,SARange* & MCH_Hit_Array,SARange* & MCT_Hit_Array,int StringLength,READ & R,int & Err,unsigned Conversion_Factor,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,int Current_Score,int & Tot_SW_Scans);
 void Launch_Threads(int NTHREAD, void* (*Map_t)(void*),Thread_Arg T);
 bool Report_SW_Hits(const int Err,READ & R,Final_Hit & Single_File,const int StringLength,BATREAD & Read,Hit_Info & Mismatch_Hit,int Quality_Score,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,bool Force_Indel,bool PRINT,bool DUMMY_FORCED=false);
@@ -226,11 +227,12 @@ int main(int argc, char* argv[])
 	Load_Range_Index(RQ,L_Main.STRINGLENGTH/3,FMFiles,Entries);
 	if(FASTDECODE) Load_Range_Index(RQHALF,L_Main.STRINGLENGTH/2,FMFiles,Entries_Half);
 	
-	Init(revfmi,IN,FMFiles,RQ,BP,Head_File.SOLID,0,L_Main);
+	Init(IN,FMFiles,RQ,BP,Head_File.SOLID,0,L_Main);
 	Mode_Parameters(BP);
 
 	unsigned Location_Array[80];
 	Load_FM_and_Sample(fwfmi,revfmi,mmPool,FMFiles); 
+	GENOME_SIZE=revfmi->textLength;assert(GENOME_SIZE==fwfmi->textLength);
 	Load_Location(FMFiles.LOCATIONFILE,Annotations,S,E,Location_Array);
 	if (NFILE) Load_LocationN(FMFiles.NLOCATIONFILE,Annotations,S,E,Location_Array);
 	if(!USE_MULTI_OUT)
@@ -1370,7 +1372,7 @@ void Verbose(char *BWTFILE,char *OCCFILE,char *REVBWTINDEX,char *REVOCCFILE,char
 	fprintf(stderr,"+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n");
 }
 
-void Init(BWT* revfmi,In_File & IN,FMFILES F,RQINDEX R,BATPARAMETERS & BP,char Solid,char Npolicy,LEN & L)
+void Init(In_File & IN,FMFILES F,RQINDEX R,BATPARAMETERS & BP,char Solid,char Npolicy,LEN & L)
 {
 	JUMP=BP.INDELSIZE;
 	INSERT=DELETE=BP.INDELSIZE;
@@ -1475,7 +1477,7 @@ void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hi
 				Aln.Sign='-';
 			}
 			Mismatch_Scan_With_Score(Org_String,Bin_Read,R.Quality,R.Real_Len,100,0,Aln);sprintf(Aln.Cigar,"%dM",R.Real_Len);
-			if(ORGSTRINGLENGTH<Loc+R.Real_Len+1)//End of reference..
+			if(GENOME_SIZE<Loc+R.Real_Len+1)//End of reference..
 			{
 				continue;
 				Aln.Mismatch=5;
@@ -1520,7 +1522,7 @@ void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hi
 					Aln.Sign='-';
 				}
 				Mismatch_Scan_With_Score(Org_String,Bin_Read,R.Quality,R.Real_Len,100,0,Aln);sprintf(Aln.Cigar,"%dM",R.Real_Len);
-				if(ORGSTRINGLENGTH<Loc+R.Real_Len+1)//Boundary hit..
+				if(GENOME_SIZE<Loc+R.Real_Len+1)//Boundary hit..
 				{
 					continue;
 					Aln.Mismatch=5;

@@ -93,7 +93,7 @@ void Cigar_Check_And_Print(Hit_Info &  H,BATREAD & Read,int StringLength,Final_H
 	Print_Sam(Printed_Hit,R,H,StringLength,Quality_Score,A,Clip_H,Clip_T,CIG);
 }
 
-void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,int Quality_Score,Alignment A,int TClip_H,int TClip_T,char* TCIG)
+void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,int Quality_Score,Alignment A,const int TClip_H,const int TClip_T,char* TCIG)
 {
 	int Flag=0;
 	int Skip=0;//StringLength;
@@ -104,14 +104,17 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 	Hit_Info HOld=H;bool forced_align=false;//Re-alignment forced..
 	//int Real_Len=0;
 	int Clip_H=TClip_H,Clip_T=TClip_T;
+	bool TCIG_blank=true;
 	if(TCIG)
 	{
+		TCIG_blank=false;
 		if(TCIG[0])
 		{
 			CIG=TCIG;
 			if(A.Loc)
 				H.SW_Score=A.SW_Score;
 			H.SW_Sub_Opt_Score=0;
+			HOld=H;
 			TCIG=NULL;
 			forced_align=true;
 		}
@@ -140,8 +143,10 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 			{
 				Read2Bin(Real_String,R.Tag_Copy,R.Real_Len);
 				Skip=Find_Cigar(CIG,H,Real_String,R.Real_Len,R,Clip_H,Clip_T);
-				if(!forced_align)
+				if(forced_align)
 				{
+					H.SW_Score=HOld.SW_Score;H.SW_Sub_Opt_Score=HOld.SW_Sub_Opt_Score;
+					Clip_H=TClip_H;Clip_T=TClip_T;
 					H.Score= HOld.Score;
 					H.QScore=HOld.QScore;
 					H.BQScore=HOld.BQScore;
@@ -163,8 +168,10 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 				Read2Bin(Real_String,R.Tag_Copy,R.Real_Len);
 				H.Loc-=(R.Real_Len-StringLength)+INDELGAP-1;
 				Skip=Find_Cigar(CIG,H,Real_String,R.Real_Len,R,Clip_H,Clip_T);
-				if(!forced_align)
+				if(forced_align)
 				{
+					H.SW_Score=HOld.SW_Score;H.SW_Sub_Opt_Score=HOld.SW_Sub_Opt_Score;
+					Clip_H=TClip_H;Clip_T=TClip_T;
 					H.Score= HOld.Score;
 					H.QScore=HOld.QScore;
 					H.BQScore=HOld.BQScore;
@@ -172,7 +179,7 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 			}
 		}
 
-		if(TCIG)
+		if(TCIG || !TCIG_blank)
 		{
 			if(A.Loc)
 			{
