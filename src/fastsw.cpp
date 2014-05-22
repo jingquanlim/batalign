@@ -475,6 +475,7 @@ Alignment Fast_SW(char *Ref,char *Read,char *Quality,int OFF,char Sign)
 	}
 	while ((Read_Len-Read_Len/2)>1);
 	Alignment A;
+	A.Clip_H=A.Clip_T=INT_MAX;
 	A.Loc=0;
 	if(Gap_Alignment.Score>0 && Gap_Alignment.Score!=INT_MAX)
 	{

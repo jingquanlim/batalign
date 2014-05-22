@@ -807,6 +807,7 @@ bool Report_Mismatch_Hits(READ & R,Final_Hit &  Single_File,const int StringLeng
 bool Report_Single_SW(const int Err,READ & R,Final_Hit & Printed_Hit,const int StringLength,BATREAD & Read,Hit_Info & Mismatch_Hit,bool & Print_Status,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,int Clip_H,int Clip_T,char *CIG)
 {
 	Alignment A;
+	A.Clip_H=A.Clip_T=INT_MAX;
 	Ann_Info Ann;
 	Hit_Info H;
 	if(Mismatch_Hit.Status==SW_RECOVERED)
@@ -1477,13 +1478,13 @@ void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hi
 				Aln.Sign='-';
 			}
 			Mismatch_Scan_With_Score(Org_String,Bin_Read,R.Quality,R.Real_Len,100,0,Aln);sprintf(Aln.Cigar,"%dM",R.Real_Len);
-			if(GENOME_SIZE<Loc+R.Real_Len+1)//End of reference..
+			if(GENOME_SIZE<Loc+2*R.Real_Len+1)//End of reference..
 			{
 				continue;
 				Aln.Mismatch=5;
 			}
 			Alignments.push(Aln);
-			assert(Aln.Mismatch<=5 && Aln.Mismatch>=0);
+			//assert(Aln.Mismatch<=5 && Aln.Mismatch>=0);
 			
 			Hits_[First_Hit_Ptr].Loc=Loc;
 			Hits_[First_Hit_Ptr++].Sign=Sign;
@@ -1522,13 +1523,13 @@ void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hi
 					Aln.Sign='-';
 				}
 				Mismatch_Scan_With_Score(Org_String,Bin_Read,R.Quality,R.Real_Len,100,0,Aln);sprintf(Aln.Cigar,"%dM",R.Real_Len);
-				if(GENOME_SIZE<Loc+R.Real_Len+1)//Boundary hit..
+				if(GENOME_SIZE<Loc+2*R.Real_Len+1)//Boundary hit..
 				{
 					continue;
 					Aln.Mismatch=5;
 				}
 				Alignments.push(Aln);
-				assert(Aln.Mismatch<=5 && Aln.Mismatch>=0);
+				//assert(Aln.Mismatch<=5 && Aln.Mismatch>=0);
 
 				Hits_[First_Hit_Ptr].Loc=Loc;//+1;
 				Hits_[First_Hit_Ptr++].Sign=Sign;
@@ -1628,6 +1629,7 @@ Alignment Realign(Hit_Info &  H,BATREAD & Read,int StringLength,const READ & R,b
 {
 	s_align* Aln;
 	Alignment A;
+	A.Clip_H=A.Clip_T=INT_MAX;
 	char Org_String[ORGSTRINGLENGTH],Cigar[MAX_SIGLEN];
 	Cigar_Info Cig_Info;
 
@@ -1690,7 +1692,7 @@ float Calc_Top_Score(MEMX & MF,MEMX & MC,float & Top_BQ,int Top_Mis,int StringLe
 bool Do_Mismatch_Scan(MEMX & MF,MEMX & MC,LEN & L,BWT* fwfmi,BWT* revfmi,int Start_Mis,int End_Mis,int & Last_Mis,int & Head_Top_Count,Hit_Info & H,int & Quality_Score,READ & R,BATREAD & B,FILE* Mishit_File,unsigned Conversion_Factor,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments)
 {
 
-	H.Loc=0;H.Indel=0;H.Score=0;H.QScore=-1;H.Cigar[0]=0;
+	H.Loc=0;H.Indel=0;H.Score=0;H.QScore=-1;H.Cigar[0]=0;H.Cigar[1]=0;
 	Last_Mis=Scan(MF,MC,End_Mis,L,fwfmi,revfmi,Start_Mis,Head_Top_Count,(BOOST>=5) ? 2:UINT_MAX);
 
 	int Plus_Hits=MF.Hit_Array_Ptr-1,Minus_Hits=MC.Hit_Array_Ptr-1;
@@ -1883,6 +1885,7 @@ bool Do_Mismatch_Scan(MEMX & MF,MEMX & MC,LEN & L,BWT* fwfmi,BWT* revfmi,int Sta
 Alignment RealignFast(Hit_Info &  H,int StringLength, READ & R,int OFF,int Filter,bool Do_Filter)
 {
 	Alignment A;
+	A.Clip_H=A.Clip_T=INT_MAX;
 	if(!FASTSW)
 	{
 		A.Score=INT_MAX;
@@ -1931,6 +1934,7 @@ Alignment RealignFast(Hit_Info &  H,int StringLength, READ & R,int OFF,int Filte
 Alignment RealignFastMinus(Hit_Info &  H,BATREAD & Read,int StringLength, READ & R,int OFF,int Filter,bool Do_Filter)
 {
 	Alignment A;
+	A.Clip_H=A.Clip_T=INT_MAX;
 	if(!FASTSW)
 	{
 		A.Score=INT_MAX;
@@ -1977,6 +1981,7 @@ Alignment RealignX(Hit_Info &  H,BATREAD & Read,int StringLength, READ & R,bool 
 {
 	s_align* Aln;
 	Alignment A;
+	A.Clip_H=A.Clip_T=INT_MAX;
 	char Org_String[ORGSTRINGLENGTH];
 	char *Quality,Rev_Qual[MAXTAG];
 	Cigar_Info Cig_Info;
@@ -2088,6 +2093,7 @@ bool Extend_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int Stri
 			assert(SA.End-SA.Start>=0);
 			Hits+=(SA.End-SA.Start+1);
 			Alignment A;
+			A.Clip_H=A.Clip_T=INT_MAX;
 			for (int j=0;j<=(SA.End-SA.Start);j++)
 			{
 				unsigned Loc=SA2Loc(SA,j,Conversion_Factor);
@@ -2210,6 +2216,7 @@ bool Recover_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int Str
 				H.Sign='+';
 				Hit_Info H2=H;
 				Alignment A;
+				A.Clip_H=A.Clip_T=INT_MAX;
 				A=RealignFast(H2,StringLength,R,INT_MAX,Filter,true);
 				if(A.Score==INT_MAX)
 				{
@@ -2851,6 +2858,7 @@ bool Rescue_Mate(unsigned Loc,char Sign,int StringLength,char* Current_Tag,char*
 {
 	s_align* Aln;
 	Alignment A;
+	A.Clip_H=A.Clip_T=INT_MAX;
 	bool Status=true;
 	char Org_String[ORGSTRINGLENGTH];
 	char *Quality,Rev_Qual[MAXTAG];
