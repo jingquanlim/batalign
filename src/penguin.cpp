@@ -1013,6 +1013,7 @@ int Calc_SW_Quality(Alignment A,READ & R,const int StringLength,BATREAD & Read,s
 {
 	return 30;
 	Alignment B;
+	B.Clip_H=B.Clip_T=INT_MAX;
 	assert(A.QScore!=INT_MAX);
 	//float Top_Prob=pow(10,-A.QScore/10);
 	float Top_Prob=Pow10(A.QScore);
@@ -1453,6 +1454,7 @@ void Print_SA(SARange* SAList,int Count,int & Hits,char Sign,int STRINGLENGTH,Hi
 	unsigned Loc;
 	Ann_Info A;
 	Alignment Aln;
+	Aln.Realigned=NO;
 	int Rand_Hit=1;
 	for(int i=0;Hits<HITS_IN_SAM && i<Count-1 && First_Hit_Ptr==0 && First_Hit_Ptr<= FHSIZE;i++)
 	{
@@ -2216,7 +2218,6 @@ bool Recover_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int Str
 				H.Sign='+';
 				Hit_Info H2=H;
 				Alignment A;
-				A.Clip_H=A.Clip_T=INT_MAX;
 				A=RealignFast(H2,StringLength,R,INT_MAX,Filter,true);
 				if(A.Score==INT_MAX)
 				{
@@ -2602,6 +2603,7 @@ void Pop_And_Realign(std::priority_queue <Alignment,std::vector <Alignment>,Comp
 	Alignments.pop();
 	if(Aln.Realigned==NO)
 		Aln.Clip_H=Aln.Clip_T=0;
+	assert(Aln.Realigned==NO ||Aln.Realigned==1);
 
 	H.Org_Loc=Aln.Loc;H.Sign=Aln.Sign;
 	if(H.Sign=='+')

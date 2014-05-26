@@ -95,6 +95,7 @@ void Cigar_Check_And_Print(Hit_Info &  H,BATREAD & Read,int StringLength,Final_H
 
 void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,int Quality_Score,Alignment A,const int TClip_H,const int TClip_T,char* TCIG)
 {
+	bool Skip_Penalty=true;
 	int Flag=0;
 	int Skip=0;//StringLength;
 	char Printed_CIG[MAX_SIGLEN];
@@ -146,6 +147,10 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 				if(forced_align)
 				{
 					H.SW_Score=HOld.SW_Score;H.SW_Sub_Opt_Score=HOld.SW_Sub_Opt_Score;
+					if(!Hard_Penalty && (Clip_T+Clip_H>0))
+					{
+						Skip_Penalty=false;
+					}
 					Clip_H=TClip_H;Clip_T=TClip_T;
 					H.Score= HOld.Score;
 					H.QScore=HOld.QScore;
@@ -171,6 +176,10 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 				if(forced_align)
 				{
 					H.SW_Score=HOld.SW_Score;H.SW_Sub_Opt_Score=HOld.SW_Sub_Opt_Score;
+					if(!Hard_Penalty && (Clip_T+Clip_H>0))
+					{
+						Skip_Penalty=true;
+					}
 					Clip_H=TClip_H;Clip_T=TClip_T;
 					H.Score= HOld.Score;
 					H.QScore=HOld.QScore;
@@ -185,7 +194,10 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 			{
 				H.Score= A.Score;
 				H.QScore=A.QScore;
-				H.BQScore=A.BQScore;
+				if(Skip_Penalty) // Do not penalise soft clipped..
+				{
+					H.BQScore=A.BQScore;
+				}
 				H.Mismatch=A.Mismatch;
 				H.Indel=A.Indel;
 			}
