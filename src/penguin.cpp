@@ -1711,7 +1711,7 @@ bool Do_Mismatch_Scan(MEMX & MF,MEMX & MC,LEN & L,BWT* fwfmi,BWT* revfmi,int Sta
 			if (SA.Skip)
 				Top_Penalty++;
 			else
-			Top_Penalty=SA.End-SA.Start;
+				Top_Penalty=SA.End-SA.Start;
 		}
 		SA=MC.Exact_Match_Forward[L.LH-1];
 		if(SA.Start)
@@ -1719,7 +1719,7 @@ bool Do_Mismatch_Scan(MEMX & MF,MEMX & MC,LEN & L,BWT* fwfmi,BWT* revfmi,int Sta
 			if (SA.Skip)
 				Top_Penalty++;
 			else
-			Top_Penalty+=(SA.End-SA.Start);
+				Top_Penalty+=(SA.End-SA.Start);
 		}
 	}
 

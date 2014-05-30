@@ -38,7 +38,7 @@ int Find_Cigar(char* Cigar,Hit_Info & H,char* Current_Tag,int StringLength,READ 
 		H.Indel=Cig_Info.Indel_Count;
 		//A.Sign=H.Sign;
 
-		H.Loc=H.Loc+Jump+Aln->ref_begin1-1;
+		H.Loc=H.Loc+Jump+Aln->ref_begin1;
 		align_destroy(Aln);
 		init_destroy(p); 
 		return (Cig_Info.Length+Clip_T);
