@@ -1071,7 +1071,7 @@ bool Report_SW_Hits(const int Err,READ & R,Final_Hit & Single_File,const int Str
 	{
 		Alignment A,B;
 		Ann_Info Ann;
-		Hit_Info H;H.Sub_Opt_Score=INT_MAX;
+		Hit_Info H;H.Sub_Opt_Score=INT_MAX;H.BQScore=INT_MAX;
 
 		int SW_Quality_Score=INT_MAX;
 		int Flag;

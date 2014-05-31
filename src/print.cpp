@@ -151,10 +151,13 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 					{
 						Skip_Penalty=false;
 					}
+					else
+					{
+						H.BQScore=HOld.BQScore;
+					}
 					Clip_H=TClip_H;Clip_T=TClip_T;
 					H.Score= HOld.Score;
 					H.QScore=HOld.QScore;
-					H.BQScore=HOld.BQScore;
 				}
 			}
 
@@ -180,10 +183,13 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 					{
 						Skip_Penalty=true;
 					}
+					else
+					{
+						H.BQScore=HOld.BQScore;
+					}
 					Clip_H=TClip_H;Clip_T=TClip_T;
 					H.Score= HOld.Score;
 					H.QScore=HOld.QScore;
-					H.BQScore=HOld.BQScore;
 				}
 			}
 		}
@@ -292,6 +298,7 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 {
 	int Quality_Score;
 	const int QUAL_START=60,Q_GAP=10;
+	assert(H.BQScore!=INT_MAX);
 	//int BOPEN=gap_open,BEXT=gap_extension;// BOPEN=6,BEXT=3,MATCH_BONUS=0;//2;
 	//int BOPEN=gap_open,BEXT=gap_extension;// BOPEN=6,BEXT=3,MATCH_BONUS=0;//2;
 	/*if(H.Status==PAIRED_SW)
@@ -329,6 +336,7 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 				Quality_Score=1;
 		}
 		//Quality_Score=0;
+		assert (Quality_Score<=60 && Quality_Score>=0);
 	}
 	//Unique hits..
 	else if(H.Status==UNIQUEHIT)
@@ -349,9 +357,13 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 		}	
 		Quality_Score=std::max(1,QUAL_START-Offset+MapQ-std::min(Top_Penalty,QUAL_START/3));
 		if(Quality_Score>1) 
+		{
 			Quality_Score+=5;
+			if(Quality_Score>60) Quality_Score=60;
+		}
 		//if(!STACK_LOWQ && Quality_Score==1)
 			//Quality_Score=0;
+		assert (Quality_Score<=60 && Quality_Score>=0);
 
 	}
 	else if(H.Status==SHARP_UNIQUEHIT)
@@ -377,6 +389,7 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 			Quality_Score+=5;
 		//if(!STACK_LOWQ && Quality_Score==1)
 		//	Quality_Score=0;
+		assert (Quality_Score<=60 && Quality_Score>=0);
 	}
 	//Multiple hits..
 	else 
@@ -409,11 +422,13 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 
 				if(Quality_Score>5) Quality_Score=5;
 				assert(Quality_Score<=5);
+				assert (Quality_Score>=0);
 				return Quality_Score;
 			}
 			else
 			{
 				Quality_Score+=5;
+				assert (Quality_Score<=60 && Quality_Score>=0);
 				return Quality_Score;
 			}
 			/*if(!STACK_LOWQ && Quality_Score==1)
@@ -428,8 +443,10 @@ int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 			else
 				Quality_Score=1;
 		}
+		assert (Quality_Score<=60 && Quality_Score>=0);
 		//Quality_Score=0;
 	}
+	assert (Quality_Score<=60 && Quality_Score>=0);
 	return Quality_Score;
 }
 
