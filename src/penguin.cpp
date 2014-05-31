@@ -1703,7 +1703,7 @@ bool Do_Mismatch_Scan(MEMX & MF,MEMX & MC,LEN & L,BWT* fwfmi,BWT* revfmi,int Sta
 	float Top_Score=FLT_MAX,Sub_Opt_Score=FLT_MAX,Sub_BQScore=FLT_MAX;
 	float Top_BQScore=FLT_MAX;bool Close_Hits=false;
 	Top_Penalty=0;
-	if(Last_Mis==0)
+	/*if(Last_Mis==0)
 	{
 		SARange SA=MF.Exact_Match_Forward[L.LH-1];
 		if(SA.Start)//Get stat for later mapQ calculation..
@@ -1721,7 +1721,7 @@ bool Do_Mismatch_Scan(MEMX & MF,MEMX & MC,LEN & L,BWT* fwfmi,BWT* revfmi,int Sta
 			else
 				Top_Penalty+=(SA.End-SA.Start);
 		}
-	}
+	}*/
 
 	if(Plus_Hits+Minus_Hits==1 && Last_Mis!=End_Mis && !HEURISTIC)
 	{
