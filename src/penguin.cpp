@@ -640,6 +640,15 @@ void *Map_And_Pair_Solexa(void *T)
 		}
 		continue;
 	}
+
+	MF.Left_Mishits.clear();MC.Left_Mishits.clear();
+	MF.Right_Mishits.clear();MC.Right_Mishits.clear();
+	MF.Mismatches_Backward.clear();MC.Mismatches_Backward.clear();
+	MF.Mismatches_Forward.clear();MC.Mismatches_Forward.clear();
+	MF.Two_Mismatches_At_End_Forward.clear();MC.Two_Mismatches_At_End_Forward.clear();
+	MF.Two_Mismatches_At_End.clear();MC.Two_Mismatches_At_End.clear();
+	MF.Possible_20.clear();MC.Possible_20.clear();
+	MF.Possible_02.clear();MC.Possible_02.clear();
 }
 
 int Do_Indel(MEMX & MFLH,MEMX & MCLH,MEMX & MFLT,MEMX & MCLT,MEMX & MFH,MEMX & MCH,MEMX & MFT,MEMX & MCT,int StringLength,Pair* & Pairs,READ & R,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,const Hit_Info & H)

@@ -30,6 +30,7 @@
 #include "zlib.h"
 #include <map>
 #include <string> 
+#include <vector> 
 #define NO 30
 const int MAX_SIGLEN=50;//50
 extern "C" 
@@ -353,7 +354,7 @@ struct MEMX
 {
 	SARange Branch_Ranges[4];
 
-	unsigned* Forward_Start_LookupX;
+	unsigned* Forward_Start_LookupX;//Table structures..
 	unsigned* Forward_End_LookupX;
 	unsigned* Backward_Start_LookupX;
 	unsigned* Backward_End_LookupX;
@@ -412,14 +413,14 @@ struct MEMX
 
 	SARange* Exact_Match_Forward;
 	SARange* Exact_Match_Backward;
-	SARange* Left_Mishits;
-	SARange* Right_Mishits;
-	SARange* Mismatches_Backward;
-	SARange* Mismatches_Forward;
-	SARange* Two_Mismatches_At_End_Forward;
-	SARange* Two_Mismatches_At_End;
-	SARange* Possible_20;
-	SARange* Possible_02;
+	std::vector<SARange> Left_Mishits;
+	std::vector<SARange> Right_Mishits;
+	std::vector<SARange> Mismatches_Backward;
+	std::vector<SARange> Mismatches_Forward;
+	std::vector<SARange> Two_Mismatches_At_End_Forward;
+	std::vector<SARange> Two_Mismatches_At_End;
+	std::vector<SARange> Possible_20;
+	std::vector<SARange> Possible_02;
 };
 
 struct GUESS
@@ -429,54 +430,6 @@ struct GUESS
 	MEMX Guess_Complement;
 	char* Guessed_ReadC;
 };
-struct MEM
-{
-	unsigned* Forward_Start_LookupX;
-	unsigned* Forward_End_LookupX;
-	unsigned* Backward_Start_LookupX;
-	unsigned* Backward_End_LookupX;
-	unsigned ARRAY_BOUND;
-	unsigned END_BOUND;
-
-	char* Write_Buffer;
-	int Lookupsize;
-
-	SARange* BMHStack;
-	SARange* FSHStack;
-	SARange* FSHStackX0X;
-	SARange* FSSStack;
-	SARange* FSSStackX;
-	SARange* BMStack;
-	SARange* BMStackX;
-	SARange* BMStack_X11;
-	SARange* BMStack_X11H;
-	SARange* PSBStack;
-
-	SARange* Exact_Match_ForwardF;
-	SARange* Exact_Match_BackwardF;
-	SARange* Left_MishitsF;
-	SARange* Right_MishitsF;
-	SARange* Mismatches_BackwardF;
-	SARange* Mismatches_ForwardF;
-	SARange* Two_Mismatches_At_End_ForwardF;
-	SARange* Two_Mismatches_At_EndF;
-	SARange* Possible_20F;
-	SARange* Possible_02F;
-
-	SARange* Exact_Match_ForwardC;
-	SARange* Exact_Match_BackwardC;
-	SARange* Left_MishitsC;
-	SARange* Right_MishitsC;
-	SARange* Mismatches_BackwardC;
-	SARange* Mismatches_ForwardC;
-	SARange* Two_Mismatches_At_End_ForwardC;
-	SARange* Two_Mismatches_At_EndC;
-	SARange* Possible_20C;
-	SARange* Possible_02C;
-
-};
-
-
 
 struct Thread_Arg
 {

@@ -148,19 +148,19 @@ void Allocate_Memory(MEMX & M)
 	M.Exact_Match_Forward=(SARange*)malloc(sizeof(SARange)*2*MAXSTRINGLEN);	
 	M.Exact_Match_Backward=(SARange*)malloc(sizeof(SARange)*2*MAXSTRINGLEN);
 	M.ARRAY_BOUND =sizeof(SARange)*4*Max_Allocate;
-	M.Left_Mishits=(SARange*)malloc(M.ARRAY_BOUND);	
-	M.Right_Mishits=(SARange*)malloc(M.ARRAY_BOUND);	
-	M.Mismatches_Backward=(SARange*)malloc(M.ARRAY_BOUND);//STRINGLENGTH*STRINGLENGTH);//*STRINGLENGTH);	
-	M.Mismatches_Forward=(SARange*)malloc(M.ARRAY_BOUND);//STRINGLENGTH*STRINGLENGTH*STRINGLENGTH);	
+	//M.Left_Mishits=(SARange*)malloc(M.ARRAY_BOUND);	
+	//M.Right_Mishits=(SARange*)malloc(M.ARRAY_BOUND);	
+	//M.Mismatches_Backward=(SARange*)malloc(M.ARRAY_BOUND);//STRINGLENGTH*STRINGLENGTH);//*STRINGLENGTH);	
+	//M.Mismatches_Forward=(SARange*)malloc(M.ARRAY_BOUND);//STRINGLENGTH*STRINGLENGTH*STRINGLENGTH);	
         M.END_BOUND=sizeof(SARange)*2*STRINGLENGTH*STRINGLENGTH*STRINGLENGTH;
-	M.Two_Mismatches_At_End_Forward=(SARange*)malloc(M.END_BOUND);	
-	M.Two_Mismatches_At_End=(SARange*)malloc(M.END_BOUND);	
-	M.Possible_20=(SARange*)malloc(M.END_BOUND);///no need extra stringlength.	
-	M.Possible_02=(SARange*)malloc(sizeof(SARange)*2*STRINGLENGTH*STRINGLENGTH*STRINGLENGTH);///no need..	
+	//M.Two_Mismatches_At_End_Forward=(SARange*)malloc(M.END_BOUND);	
+	//M.Two_Mismatches_At_End=(SARange*)malloc(M.END_BOUND);	
+	//M.Possible_20=(SARange*)malloc(M.END_BOUND);///no need extra stringlength.	
+	//M.Possible_02=(SARange*)malloc(sizeof(SARange)*2*STRINGLENGTH*STRINGLENGTH*STRINGLENGTH);///no need..	
 	M.END_BOUND=M.END_BOUND/sizeof(SARange);
 	M.ARRAY_BOUND=M.ARRAY_BOUND/sizeof(SARange);
 
-	if (NULL== M.Possible_02||NULL==M.Mismatches_Backward||NULL==M.Two_Mismatches_At_End_Forward||NULL==M.Two_Mismatches_At_End||NULL==M.BMHStack||NULL==M.FSHStackX0X||NULL==M.FSHStack||NULL==M.FSSStack||NULL==M.FSSStackX||NULL==M.BMStack_X11H||NULL==M.BMStack_X11||NULL==M.BMStack||NULL==M.BMStackX||NULL==M.Exact_Match_Backward||NULL==M.Exact_Match_Forward||NULL==M.Exact_Match_Forward||NULL==M.Mismatches_Forward||NULL==M.PSBStack)
+	if (NULL==M.BMHStack||NULL==M.FSHStackX0X||NULL==M.FSHStack||NULL==M.FSSStack||NULL==M.FSSStackX||NULL==M.BMStack_X11H||NULL==M.BMStack_X11||NULL==M.BMStack||NULL==M.BMStackX||NULL==M.Exact_Match_Backward||NULL==M.Exact_Match_Forward||NULL==M.Exact_Match_Forward||NULL==M.PSBStack)
 	{
 		if(LOG_SUCCESS_FILE) fprintf(Log_SFile,"Allocate_Memory(): out of memory");
 		printf("Allocate_Memory(): out of memory");
@@ -790,12 +790,12 @@ unsigned Zero_Mismatch(char* Current_Tag,LEN L, BWT* revfmi,MEMX & M)
 	SARange Range;
 	M.Left_Mishits_Pointer=0;
 	M.Right_Mishits_Pointer=0;
-	M.Possible_20_Pointer=0;
-	M.Possible_02_Pointer=0;
+	M.Possible_20_Pointer=0;M.Possible_20.clear();
+	M.Possible_02_Pointer=0;M.Possible_02.clear();
 	M.Mismatches_Forward_Pointer=0;
 	M.Mismatches_Backward_Pointer=0;
-	M.Two_Mismatches_At_End_Pointer=0;
-	M.Two_Mismatches_At_End_Forward_Pointer=0;
+	M.Two_Mismatches_At_End_Pointer=0;M.Two_Mismatches_At_End.clear();
+	M.Two_Mismatches_At_End_Forward_Pointer=0;M.Two_Mismatches_At_End_Forward.clear();
 	M.FMIndex=REVERSE;
 
 	if(M.Lookupsize ==3)
@@ -936,14 +936,16 @@ void Search_Backwards(char* Current_Tag,struct SARange & Tag,int Count,int Start
 							{
 								if(M.Two_Mismatches_At_End_Pointer < M.END_BOUND)
 								{
-									M.Two_Mismatches_At_End[M.Two_Mismatches_At_End_Pointer]=Temp_Range;
+									assert(M.Two_Mismatches_At_End.size()==M.Two_Mismatches_At_End_Pointer);
+									M.Two_Mismatches_At_End.push_back(Temp_Range);
 									M.Two_Mismatches_At_End_Pointer++;
 								}
 								continue;
 							}
 							if (M.Mismatches_Backward_Pointer < M.ARRAY_BOUND)
 							{
-								M.Mismatches_Backward[M.Mismatches_Backward_Pointer]=Temp_Range;
+								assert(M.Mismatches_Backward.size()==M.Mismatches_Backward_Pointer);
+								M.Mismatches_Backward.push_back(Temp_Range);
 								M.Mismatches_Backward_Pointer++;
 							}
 						}
@@ -1013,14 +1015,16 @@ void Search_Backwards_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int
 					//if(Tag.Skip) Tag.Start=Tag.End;
 					if(M.Two_Mismatches_At_End_Pointer < M.END_BOUND)
 					{
-						M.Two_Mismatches_At_End[M.Two_Mismatches_At_End_Pointer]=Tag;
+						assert(M.Two_Mismatches_At_End.size()==M.Two_Mismatches_At_End_Pointer);
+						M.Two_Mismatches_At_End.push_back(Tag);
 						M.Two_Mismatches_At_End_Pointer++;
 					}
 					return;
 				}
 				if(M.Mismatches_Backward_Pointer < M.ARRAY_BOUND)
 				{
-					M.Mismatches_Backward[M.Mismatches_Backward_Pointer]=Tag;
+					assert(M.Mismatches_Backward.size()==M.Mismatches_Backward_Pointer);
+					M.Mismatches_Backward.push_back(Tag);
 					M.Mismatches_Backward_Pointer++;
 				}
 			}
@@ -1097,7 +1101,7 @@ unsigned Two_Mismatch(char* Current_Tag,LEN L, int MAXHITS, BWT* fwfmi, BWT* rev
 		}
 		if(MAXHITS<=M.Hits) return M.Hits;
 	}
-	M.Two_Mismatches_At_End_Forward_Pointer=0;
+	M.Two_Mismatches_At_End_Forward_Pointer=0;M.Two_Mismatches_At_End_Forward.clear();
 
 	M.FMIndex=FORWARD;
 	if(M.Two_Mismatches_At_End_Pointer)
@@ -1112,7 +1116,7 @@ unsigned Two_Mismatch(char* Current_Tag,LEN L, int MAXHITS, BWT* fwfmi, BWT* rev
 
 	}
 
-	M.Two_Mismatches_At_End_Pointer=0;
+	M.Two_Mismatches_At_End_Pointer=0;M.Two_Mismatches_At_End.clear();
 	M.FMIndex=REVERSE;
 	M.Possible_03_Pointer=M.Mismatches_Forward_Pointer;
 	if(M.Mismatches_Forward_Pointer)
@@ -1281,7 +1285,8 @@ void Search_X01(char* Current_Tag,const struct SARange & Tag,int Count,int Start
 						if(M.Possible_02_Pointer < M.END_BOUND)
 						{
 							if (Temp_Range.Level!=StringLength) Temp_Range.Level++; 
-							M.Possible_02[M.Possible_02_Pointer]=Temp_Range;
+							assert(M.Possible_02.size()==M.Possible_02_Pointer);
+							M.Possible_02.push_back(Temp_Range);
 							M.Possible_02_Pointer++;
 						}
 					}
@@ -1348,7 +1353,8 @@ void Search_X01_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Start
 			{
 				if(!Tag.Skip)Tag.End=Tag.Start;
 				if (Tag.Level!=StringLength) Tag.Level++; 
-				M.Possible_02[M.Possible_02_Pointer]=Tag;
+				assert(M.Possible_02.size()==M.Possible_02_Pointer);
+				M.Possible_02.push_back(Tag);
 				M.Possible_02_Pointer++;
 			}
 			return;
@@ -1442,7 +1448,8 @@ void Search_Backwards_X10(char* Current_Tag,const struct SARange & Tag,int Count
 					{
 						if (M.Possible_20_Pointer < M.END_BOUND)
 						{
-							M.Possible_20[M.Possible_20_Pointer]=Temp_Range;
+							assert(M.Possible_20.size()==M.Possible_20_Pointer);
+							M.Possible_20.push_back(Temp_Range);
 							M.Possible_20_Pointer++;
 						}
 					}
@@ -1508,8 +1515,8 @@ void Search_Backwards_X10_OneSA(char* Current_Tag,struct SARange & Tag,int Count
 			if(M.Possible_20_Pointer < M.END_BOUND)
 			{
 				if (!Tag.Skip) Tag.End=Tag.Start;
-				//if (Tag.Level!=StringLength) Tag.Level++; 
-				M.Possible_20[M.Possible_20_Pointer]=Tag;
+				assert(M.Possible_20.size()==M.Possible_20_Pointer);
+				M.Possible_20.push_back(Tag);
 				M.Possible_20_Pointer++;
 			}
 			return;
@@ -1721,7 +1728,7 @@ unsigned Three_Mismatch(char* Current_Tag,LEN L, int MAXHITS, BWT* fwfmi, BWT* r
 		}
 		if(MAXHITS<=M.Hits) return M.Hits;
 	}
-	M.Two_Mismatches_At_End_Forward_Pointer=0;
+	M.Two_Mismatches_At_End_Forward_Pointer=0;M.Two_Mismatches_At_End_Forward.clear();
 
 	M.FMIndex=FORWARD;
 	if(M.Two_Mismatches_At_End_Pointer)
@@ -1733,7 +1740,7 @@ unsigned Three_Mismatch(char* Current_Tag,LEN L, int MAXHITS, BWT* fwfmi, BWT* r
 		}
 		if(MAXHITS<=M.Hits) return M.Hits;
 	}
-	M.Two_Mismatches_At_End_Pointer=0;
+	M.Two_Mismatches_At_End_Pointer=0;M.Two_Mismatches_At_End.clear();
 
 	M.FMIndex=REVERSE;
 	M.Possible_04_Pointer=M.Mismatches_Forward_Pointer;
@@ -1896,7 +1903,8 @@ void Search_10X_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Start
 			{
 				Tag.End=Tag.Start;
 				if (Tag.Level!=StringLength) Tag.Level++; 
-				M.Right_Mishits[M.Right_Mishits_Pointer]=Tag;
+				assert(M.Right_Mishits.size()==M.Right_Mishits_Pointer);
+				M.Right_Mishits.push_back(Tag);
 				M.Right_Mishits_Pointer++;
 			}
 			return;
@@ -1974,7 +1982,8 @@ void Search_10X(char* Current_Tag,const struct SARange & Tag,int Count,int Start
 						if(M.Right_Mishits_Pointer < M.ARRAY_BOUND)
 						{
 							if (Temp_Range.Level!=StringLength) Temp_Range.Level++; 
-							M.Right_Mishits[M.Right_Mishits_Pointer]=Temp_Range;
+							assert(M.Right_Mishits.size()==M.Right_Mishits_Pointer);
+							M.Right_Mishits.push_back(Temp_Range);
 							M.Right_Mishits_Pointer++;
 						}
 					}
@@ -2050,7 +2059,8 @@ void Search_01X(char* Current_Tag,const struct SARange & Tag,int Count,int Start
 						if(M.Left_Mishits_Pointer < M.ARRAY_BOUND)
 						{
 							Temp_Range.Level += Start+2;
-							M.Left_Mishits[M.Left_Mishits_Pointer]=Temp_Range;
+							assert(M.Left_Mishits.size()==M.Left_Mishits_Pointer);
+							M.Left_Mishits.push_back(Temp_Range);
 							M.Left_Mishits_Pointer++;
 						}
 					}
@@ -2115,7 +2125,8 @@ void Search_01X_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Start
 			{
 				if(!Tag.Skip) Tag.End=Tag.Start;
 				Tag.Level += Start+2;
-				M.Left_Mishits[M.Left_Mishits_Pointer]=Tag;
+				assert(M.Left_Mishits.size()==M.Left_Mishits_Pointer);
+				M.Left_Mishits.push_back(Tag);
 				M.Left_Mishits_Pointer++;
 			}
 			return;
@@ -2140,7 +2151,8 @@ unsigned Four_Mismatch(char* Current_Tag,LEN L, int MAXHITS, BWT* fwfmi, BWT* re
 		if(MAXHITS<=M.Hits) return M.Hits;
 	}
 
-	M.Two_Mismatches_At_End_Forward_Pointer=0;
+	M.Two_Mismatches_At_End_Forward_Pointer=0;M.Two_Mismatches_At_End_Forward.clear();
+
 	M.FMIndex=FORWARD;
 	if(M.Two_Mismatches_At_End_Pointer)
 	{
@@ -2151,7 +2163,7 @@ unsigned Four_Mismatch(char* Current_Tag,LEN L, int MAXHITS, BWT* fwfmi, BWT* re
 		}
 		if(MAXHITS<=M.Hits) return M.Hits;
 	}
-	M.Two_Mismatches_At_End_Pointer=0;
+	M.Two_Mismatches_At_End_Pointer=0;M.Two_Mismatches_At_End.clear();
 
 	M.FMIndex=REVERSE;
 	M.Possible_05_Pointer=M.Mismatches_Forward_Pointer;
@@ -2651,11 +2663,9 @@ void Search_Half_Tag_11X_OneSA(char* Current_Tag,struct SARange & Tag,int Count,
 			if (M.Left_Mishits_Pointer < M.ARRAY_BOUND)//Bounds Check...
 			{
 				if(!Tag.Skip) Tag.End=Tag.Start;
-				//Tag.Level=LHQR+Tag.Level;
-				//if (Tag.Level!=StringLength) Tag.Level++; 
-				//Tag.Level=LHQR+Tag.Level;//+1;
 				Tag.Level += Start+2;
-				M.Left_Mishits[M.Left_Mishits_Pointer]=Tag;
+				assert(M.Left_Mishits.size()==M.Left_Mishits_Pointer);
+				M.Left_Mishits.push_back(Tag);
 				M.Left_Mishits_Pointer++;
 			}
 			return;
@@ -2724,11 +2734,9 @@ void Search_Half_Tag_11X(char* Current_Tag,const struct SARange & Tag,int Count,
 					{
 						if(M.Left_Mishits_Pointer < M.ARRAY_BOUND) 
 						{
-							//Temp_Range.Level=LHQR+Temp_Range.Level;
-							//if (Temp_Range.Level!=StringLength) Temp_Range.Level++;
-							//Temp_Range.Level=LHQR+Temp_Range.Level;//+1;
 							Temp_Range.Level += Start+2;
-							M.Left_Mishits[M.Left_Mishits_Pointer]=Temp_Range;
+							assert(M.Left_Mishits.size()==M.Left_Mishits_Pointer);
+							M.Left_Mishits.push_back(Temp_Range);
 							M.Left_Mishits_Pointer++;
 						}
 					}
@@ -2756,7 +2764,7 @@ unsigned Five_Mismatch(char* Current_Tag,LEN L, int MAXHITS, BWT* fwfmi, BWT* re
 		}
 		if(MAXHITS<=M.Hits) return M.Hits;
 	}
-	M.Two_Mismatches_At_End_Forward_Pointer=0;
+	M.Two_Mismatches_At_End_Forward_Pointer=0;M.Two_Mismatches_At_End_Forward.clear();
 
 
 	M.FMIndex=FORWARD;
@@ -2769,7 +2777,7 @@ unsigned Five_Mismatch(char* Current_Tag,LEN L, int MAXHITS, BWT* fwfmi, BWT* re
 		}
 		if(MAXHITS<=M.Hits) return M.Hits;
 	}
-	M.Two_Mismatches_At_End_Pointer=0;
+	M.Two_Mismatches_At_End_Pointer=0;M.Two_Mismatches_At_End.clear();
 
 	M.FMIndex=REVERSE;
 	if(M.Mismatches_Forward_Pointer)
@@ -2977,7 +2985,8 @@ void Search_XL01_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Star
 			{
 				if(!Tag.Skip)Tag.End=Tag.Start;
 				if (Tag.Level!=StringLength) Tag.Level++; 
-				M.Possible_02[M.Possible_02_Pointer]=Tag;
+				assert(M.Possible_02.size()==M.Possible_02_Pointer);
+				M.Possible_02.push_back(Tag);
 				M.Possible_02_Pointer++;
 			}
 			return;
@@ -3056,7 +3065,8 @@ void Search_XL01(char* Current_Tag,const struct SARange & Tag,int Count,int Star
 						if(M.Possible_02_Pointer < M.END_BOUND)
 						{
 							if (Temp_Range.Level!=StringLength) Temp_Range.Level++; 
-							M.Possible_02[M.Possible_02_Pointer]=Temp_Range;
+							assert(M.Possible_02.size()==M.Possible_02_Pointer);
+							M.Possible_02.push_back(Temp_Range);
 							M.Possible_02_Pointer++;
 						}
 					}
@@ -3122,7 +3132,8 @@ void Search_Backwards_XL10_OneSA(char* Current_Tag,struct SARange & Tag,int Coun
 			{
 				if (!Tag.Skip) Tag.End=Tag.Start;
 				//if (Tag.Level!=StringLength) Tag.Level++; 
-				M.Possible_20[M.Possible_20_Pointer]=Tag;
+				assert(M.Possible_20.size()==M.Possible_20_Pointer);
+				M.Possible_20.push_back(Tag);
 				M.Possible_20_Pointer++;
 			}
 			return;
@@ -3193,7 +3204,8 @@ void Search_Backwards_XL10(char* Current_Tag,const struct SARange & Tag,int Coun
 					{
 						if (M.Possible_20_Pointer < M.END_BOUND)
 						{
-							M.Possible_20[M.Possible_20_Pointer]=Temp_Range;
+							assert(M.Possible_20.size()==M.Possible_20_Pointer);
+							M.Possible_20.push_back(Temp_Range);
 							M.Possible_20_Pointer++;
 						}
 					}
@@ -3650,14 +3662,16 @@ void Search_Forwards(const char* Current_Tag,const struct SARange & Tag,int Coun
 							{
 								if(M.Two_Mismatches_At_End_Forward_Pointer < M.END_BOUND)
 								{
-									M.Two_Mismatches_At_End_Forward[M.Two_Mismatches_At_End_Forward_Pointer]=Temp_Range;
+									assert(M.Two_Mismatches_At_End_Forward.size()==M.Two_Mismatches_At_End_Forward_Pointer);
+									M.Two_Mismatches_At_End_Forward.push_back(Temp_Range);
 									M.Two_Mismatches_At_End_Forward_Pointer++;
 								}
 								continue;
 							}
 							if(M.Mismatches_Forward_Pointer < M.ARRAY_BOUND)
 							{
-								M.Mismatches_Forward[M.Mismatches_Forward_Pointer]=Temp_Range;
+								assert(M.Mismatches_Forward.size()==M.Mismatches_Forward_Pointer);
+								M.Mismatches_Forward.push_back(Temp_Range);
 								M.Mismatches_Forward_Pointer++;
 							}
 						}
@@ -3729,14 +3743,16 @@ void Search_Forwards_OneSA(const char* Current_Tag,struct SARange & Tag,int Coun
 					if(M.Two_Mismatches_At_End_Forward_Pointer < M.END_BOUND)
 					{
 						//if(Tag.Skip) Tag.Start=Tag.End;
-						M.Two_Mismatches_At_End_Forward[M.Two_Mismatches_At_End_Forward_Pointer]=Tag;
+						assert(M.Two_Mismatches_At_End_Forward.size()==M.Two_Mismatches_At_End_Forward_Pointer);
+						M.Two_Mismatches_At_End_Forward.push_back(Tag);
 						M.Two_Mismatches_At_End_Forward_Pointer++;
 					}
 					return;
 				}
 				if(M.Mismatches_Forward_Pointer < M.ARRAY_BOUND)
 				{
-					M.Mismatches_Forward[M.Mismatches_Forward_Pointer]=Tag;
+					assert(M.Mismatches_Forward.size()==M.Mismatches_Forward_Pointer);
+					M.Mismatches_Forward.push_back(Tag);
 					M.Mismatches_Forward_Pointer++;
 				}
 			}
@@ -4003,6 +4019,8 @@ void Print_LocationX(SARange & Tag, MEMX & M)
 			else Tag.Start=Conversion_Factor-BWTSaValue(revfmi,Tag.Start);
 			Tag.End=Tag.Start;
 		}
+		//assert(M.Hit_Array.size()==M.Hit_Array_Ptr);
+		//M.Hit_Array.push_back(Tag);M.Hit_Array_Ptr++;
 		M.Hit_Array[M.Hit_Array_Ptr++]=Tag;
 		Gap++;M.Hits += Gap;
 		M.Stats[In_Mismatch] +=Gap;
@@ -4687,6 +4705,16 @@ int Scan(MEMX & MF,MEMX & MC,int MAX_MISMATCHES, LEN & L,BWT* fwfmi,BWT* revfmi,
 	int In_Mis=0,Hits=0;MF.Hits=MC.Hits=0;
 	if (Next_Mis == 0) goto Zero; else if (Next_Mis ==1) goto One;else if (Next_Mis ==2) goto Two;else if (Next_Mis ==3) goto Three;else if (Next_Mis ==4) goto Four; else goto Five;
 Zero:
+	MF.Left_Mishits.clear();MC.Left_Mishits.clear();
+	MF.Right_Mishits.clear();MC.Right_Mishits.clear();
+	MF.Mismatches_Backward.clear();MC.Mismatches_Backward.clear();
+	MF.Mismatches_Forward.clear();MC.Mismatches_Forward.clear();
+	MF.Two_Mismatches_At_End_Forward.clear();MC.Two_Mismatches_At_End_Forward.clear();
+	MF.Two_Mismatches_At_End.clear();MC.Two_Mismatches_At_End.clear();
+	MF.Possible_20.clear();MC.Possible_20.clear();
+	MF.Possible_02.clear();MC.Possible_02.clear();
+	//MF.Hit_Array.clear();MC.Hit_Array.clear();
+
 	Hits+=Zero_Mismatch(MF.Current_Tag,L,revfmi,MF);
 	Hits+=Zero_Mismatch(MC.Current_Tag,L,revfmi,MC);
 One:
