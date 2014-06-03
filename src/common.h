@@ -286,8 +286,8 @@ struct HEADER
 struct SARange
 {
 
-	unsigned long Start;
-	unsigned long End;
+	unsigned Start;
+	unsigned End;
 	int Level;//at what relative node are we?
 	char Mismatches;//number of mismatches at this level
 	unsigned char Skip;
@@ -335,11 +335,6 @@ struct Output_Record
 	char Mismatches;
 	int Gap;
 }__attribute__((__packed__));
-
-struct Branches
-{
-	long Is_Branch [4];
-};
 
 struct MEMLOOK
 {

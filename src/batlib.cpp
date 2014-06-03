@@ -245,28 +245,6 @@ void Copy_MEM(MEMLOOK & M,MEMX & F,MEMX & C,char MAX_MISMATCHES)
 
 }
 
-/*void Copy_MEM(MEM & M,MEMX & F,char MAX_MISMATCHES)
-{
-	M.Forward_Start_LookupX=(unsigned*)malloc(sizeof(unsigned)*(2<<2*M.Lookupsize));
-	M.Forward_End_LookupX=(unsigned*)malloc(sizeof(unsigned)*(2<<2*M.Lookupsize));
-	M.Backward_Start_LookupX=(unsigned*)malloc(sizeof(unsigned)*(2<<2*M.Lookupsize));
-	M.Backward_End_LookupX=(unsigned*)malloc(sizeof(unsigned)*(2<<2*M.Lookupsize));
-
-	F.Forward_Start_LookupX=M.Forward_Start_LookupX;
-	F.Forward_End_LookupX=M.Forward_End_LookupX;
-	F.Backward_Start_LookupX=M.Backward_Start_LookupX;
-	F.Backward_End_LookupX=M.Backward_End_LookupX;
-
-	if (MAX_MISMATCHES >5) F.Stat_Size=7; else F.Stat_Size=MAX_MISMATCHES+1;
-	Allocate_Memory(F);
-
-	unsigned Write_Buf_Size=((sizeof(Mismatches_Record)+sizeof(Output_Record)+3+100)*1500);//(MAXHITS+1));
-	if(!(M.Write_Buffer=(char*)malloc(Write_Buf_Size))) 
-	{
-		printf("Copy_MEM():out of memory\n");exit(1);
-	}
-
-}*/
 //}-----------------------------------  INIT ---------------------------------------------------------
 
 //{----------------------------------- FM INDEX ROUTINES ---------------------------------------------------------
@@ -960,7 +938,7 @@ void Search_Backwards(char* Current_Tag,struct SARange & Tag,int Count,int Start
 
 void Search_Backwards_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Start,int StringLength,BWT *fmi,MEMX & M)
 {
-	unsigned long Index,Now;
+	unsigned Index,Now;
 	if (Tag.Start==0) return;
 	if(Tag.Start % SAINTERVAL == 0 && !Tag.Skip) 
 	{
@@ -1300,7 +1278,7 @@ void Search_X01(char* Current_Tag,const struct SARange & Tag,int Count,int Start
 
 void Search_X01_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Start,int StringLength,int MAXHITS,LEN & L,BWT *fwfmi,BWT *revfmi,MEMX & M)
 {
-	unsigned long Index,Now;
+	unsigned Index,Now;
 	if (Tag.Start==0) return;
 	if(Tag.Start % SAINTERVAL == 0 && !Tag.Skip) 
 	{
@@ -1464,7 +1442,7 @@ void Search_Backwards_X10(char* Current_Tag,const struct SARange & Tag,int Count
 void Search_Backwards_X10_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Start,int StringLength,int MAXHITS,LEN & L,BWT *fmi,MEMX & M)
 {
 
-	unsigned long Index,Now;
+	unsigned Index,Now;
 	if (Tag.Start==0) return;
 	if(Tag.Start % SAINTERVAL == 0 && !Tag.Skip) 
 	{
@@ -1549,7 +1527,7 @@ void Search_Backwards_Exact_X0(char* Current_Tag,struct SARange & Tag,int Start,
 void Search_Exact(char* Current_Tag,struct SARange & Tag,int Start,int StringLength,BWT *fmi)
 {
 	int Level;
-	unsigned long Index,Now,First,Last;
+	unsigned Index,Now,First,Last;
 	unsigned Branch_Characters[4];
 	if (!Tag.Start) return;
 
@@ -1596,7 +1574,7 @@ void Search_Exact(char* Current_Tag,struct SARange & Tag,int Start,int StringLen
 				Branch_Characters[0]=0;Branch_Characters[1]=0;Branch_Characters[2]=0;Branch_Characters[3]=0;
 
 				if (Tag.Start+1 >= fmi->inverseSa0) {First=Tag.Start;Last=Tag.End;} else {First=Tag.Start+1;Last=Tag.End+1;} 
-				for (unsigned long Pos=First;Pos<=Last;Pos++)
+				for (unsigned Pos=First;Pos<=Last;Pos++)
 				{
 					Now=fmi->bwtCode[(Pos-1) / 16] << (((Pos-1) % 16) * 2)>> (BITS_IN_WORD - 2);
 					Branch_Characters[Now]++;	
@@ -1846,7 +1824,7 @@ unsigned Three_Mismatch(char* Current_Tag,LEN L, int MAXHITS, BWT* fwfmi, BWT* r
 void Search_10X_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Start,int StringLength,LEN & L,int MAXHITS,BWT *fmi,BWT *revfmi,MEMX & M)
 {
 
-	unsigned long Index,Now;
+	unsigned Index,Now;
 	if (Tag.Start==0) return;
 	if(Tag.Start % SAINTERVAL == 0 && !Tag.Skip) 
 	{
@@ -2075,7 +2053,7 @@ void Search_01X(char* Current_Tag,const struct SARange & Tag,int Count,int Start
 
 void Search_01X_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Start,int StringLength,LEN & L,int MAXHITS,BWT *fmi,MEMX & M)
 {
-	unsigned long Index,Now;
+	unsigned Index,Now;
 	if (Tag.Start==0) return;
 	if(Tag.Start % SAINTERVAL == 0 && !Tag.Skip) 
 	{
@@ -2309,7 +2287,7 @@ unsigned Four_Mismatch(char* Current_Tag,LEN L, int MAXHITS, BWT* fwfmi, BWT* re
 void Search_10LX_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Start,int StringLength,int MAXHITS,BWT *fwfmi,BWT *revfmi,LEN & L,MEMX & M)
 {
 
-	unsigned long Index,Now;
+	unsigned Index,Now;
 	if (Tag.Start==0) return;
 	if(Tag.Start % SAINTERVAL == 0 && !Tag.Skip) 
 	{
@@ -2439,7 +2417,7 @@ void Search_10LX(char* Current_Tag,const struct SARange & Tag,int Count,int Star
 }
 void Search_01LX_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Start,int StringLength,int MAXHITS,BWT *fmi,LEN & L,MEMX & M)
 {
-	unsigned long Index,Now;
+	unsigned Index,Now;
 	if (Tag.Start==0) return;
 	if(Tag.Start % SAINTERVAL == 0 && !Tag.Skip) 
 	{
@@ -2617,7 +2595,7 @@ void Search_11X(char* Current_Tag,const struct SARange & Tag,int Count,int Start
 
 void Search_Half_Tag_11X_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Start,int StringLength,LEN & L,int MAXHITS,BWT *fmi,MEMX & M)
 {
-	unsigned long Index,Now;
+	unsigned Index,Now;
 	if (Tag.Start==0) return;
 	if(Tag.Start % SAINTERVAL == 0 && !Tag.Skip) 
 	{
@@ -2929,7 +2907,7 @@ unsigned Five_Mismatch(char* Current_Tag,LEN L, int MAXHITS, BWT* fwfmi, BWT* re
 
 void Search_XL01_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Start,int StringLength,int MAXHITS,BWT* fwfmi,BWT *revfmi,LEN & L,MEMX & M)
 {
-	unsigned long Index,Now;
+	unsigned Index,Now;
 	if (Tag.Start==0) return;
 	if(Tag.Start % SAINTERVAL == 0 && !Tag.Skip) 
 	{
@@ -3080,7 +3058,7 @@ void Search_XL01(char* Current_Tag,const struct SARange & Tag,int Count,int Star
 void Search_Backwards_XL10_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Start,int StringLength,int MAXHITS,BWT *fmi,LEN & L, MEMX & M)
 {
 
-	unsigned long Index,Now;
+	unsigned Index,Now;
 	if (Tag.Start==0) return;
 	if(Tag.Start % SAINTERVAL == 0 && !Tag.Skip) 
 	{
@@ -3277,7 +3255,7 @@ void Search_X11(char* Current_Tag,const struct SARange & Tag,int Count,int Start
 
 void Search_Half_Tag_X11_OneSA(char* Current_Tag,struct SARange & Tag,int Count,int Start,int StringLength,LEN & L,int MAXHITS,BWT *fmi,MEMX & M)
 {
-	unsigned long Index,Now;
+	unsigned Index,Now;
 	if (Tag.Start==0) return;
 	if(Tag.Start % SAINTERVAL == 0 && !Tag.Skip) 
 	{
@@ -3495,7 +3473,7 @@ void Search_Forwards_Exact(char* Current_Tag,struct SARange & Tag,int Start,int 
 {
 	int Level;
 	unsigned Branch_Characters[4];
-	unsigned long Index,Now,First,Last;
+	unsigned Index,Now,First,Last;
 
 	M.Exact_Match_Forward[Start+LH].Start=0;
 	for(;;)	
@@ -3549,7 +3527,7 @@ void Search_Forwards_Exact(char* Current_Tag,struct SARange & Tag,int Start,int 
 				Branch_Characters[0]=0;Branch_Characters[1]=0;Branch_Characters[2]=0;Branch_Characters[3]=0;
 
 				if (Tag.Start+1 >= fmi->inverseSa0) {First=Tag.Start;Last=Tag.End;} else {First=Tag.Start+1;Last=Tag.End+1;} 
-				for (unsigned long Pos=First;Pos<=Last;Pos++)
+				for (unsigned Pos=First;Pos<=Last;Pos++)
 				{
 					Now=fmi->bwtCode[(Pos-1) / 16] << (((Pos-1) % 16) * 2)>> (BITS_IN_WORD - 2);
 					Branch_Characters[Now]++;	
@@ -3686,7 +3664,7 @@ void Search_Forwards(const char* Current_Tag,const struct SARange & Tag,int Coun
 
 void Search_Forwards_OneSA(const char* Current_Tag,struct SARange & Tag,int Count,int Start,int StringLength,BWT *fmi,MEMX & M)
 {
-	unsigned long Index,Now;
+	unsigned Index,Now;
 	if (Tag.Start==0) return;
 	if(Tag.Start % SAINTERVAL == 0 && !Tag.Skip) 
 	{
@@ -3772,7 +3750,7 @@ void Branch_Detect (const struct SARange Tag,BWT *fmi,int Start,unsigned* Branch
 
 		if (Tag.Start+1 >= fmi->inverseSa0) {First=Tag.Start;Last=Tag.End;} else {First=Tag.Start+1;Last=Tag.End+1;} 
 
-		for (unsigned long Pos=First;Pos<=Last;Pos++)
+		for (unsigned Pos=First;Pos<=Last;Pos++)
 		{
 			Now=fmi->bwtCode[(Pos-1) / 16] << (((Pos-1) % 16) * 2)>> (BITS_IN_WORD - 2);
 			Branch_Characters[Now]++;	
@@ -3815,7 +3793,7 @@ void Search_Backwards_Exact(const char* Current_Tag,struct SARange & Tag,int Sta
 {
 
 	int Level;
-	unsigned long Index,Now,First,Last;
+	unsigned Index,Now,First,Last;
 	if (!Tag.Start) return;
 	unsigned Branch_Characters[4];
 
@@ -4458,7 +4436,7 @@ SARange Seed_ExtendF(const char* Current_Tag,const struct SARange & Tag,int Coun
 
 bool Seed_Forwards_OneSA(const char* Current_Tag,struct SARange & Tag,int Count,int Start,int StringLength,BWT *fmi,MEMX & M,int & Least_Mis,bool & Unique)
 {
-	unsigned long Index,Now;
+	unsigned Index,Now;
 	if (Tag.Start==0) return false;
 	if(Tag.Start % SAINTERVAL == 0 && !Tag.Skip) 
 	{
@@ -4594,7 +4572,7 @@ SARange Seed_ExtendB(const char* Current_Tag,const struct SARange & Tag,int Coun
 
 bool Seed_Backwards_OneSA(const char* Current_Tag,struct SARange & Tag,int Count,int Start,int StringLength,BWT *fmi,MEMX & M,int & Least_Mis,bool & Unique)
 {
-	unsigned long Index,Now;
+	unsigned Index,Now;
 	/*char Now_Dbg[MAXDES];int Now_Dbg_Ptr=0;
 	char CT_Dbg[MAXDES];int CT_Dbg_Ptr=0;*/
 
