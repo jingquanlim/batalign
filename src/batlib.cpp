@@ -33,6 +33,15 @@ extern char* LOG_SUCCESS_FILE;
 extern FILE* Log_SFile;
 extern bool PAIRED;
 
+template <typename T>
+inline void really_free(std::vector<T>& to_clear)
+{
+    std::vector<T> v;
+    v.swap(to_clear);
+}
+
+
+
 //{-----------------------------------  INIT ---------------------------------------------------------
 
 /* 
@@ -4683,14 +4692,14 @@ int Scan(MEMX & MF,MEMX & MC,int MAX_MISMATCHES, LEN & L,BWT* fwfmi,BWT* revfmi,
 	int In_Mis=0,Hits=0;MF.Hits=MC.Hits=0;
 	if (Next_Mis == 0) goto Zero; else if (Next_Mis ==1) goto One;else if (Next_Mis ==2) goto Two;else if (Next_Mis ==3) goto Three;else if (Next_Mis ==4) goto Four; else goto Five;
 Zero:
-	MF.Left_Mishits.clear();MC.Left_Mishits.clear();
-	MF.Right_Mishits.clear();MC.Right_Mishits.clear();
-	MF.Mismatches_Backward.clear();MC.Mismatches_Backward.clear();
-	MF.Mismatches_Forward.clear();MC.Mismatches_Forward.clear();
-	MF.Two_Mismatches_At_End_Forward.clear();MC.Two_Mismatches_At_End_Forward.clear();
-	MF.Two_Mismatches_At_End.clear();MC.Two_Mismatches_At_End.clear();
-	MF.Possible_20.clear();MC.Possible_20.clear();
-	MF.Possible_02.clear();MC.Possible_02.clear();
+	really_free(MF.Left_Mishits);really_free(MC.Left_Mishits);
+	really_free(MF.Right_Mishits);really_free(MC.Right_Mishits);
+	really_free(MF.Mismatches_Backward);really_free(MC.Mismatches_Backward);
+	really_free(MF.Mismatches_Forward);really_free(MC.Mismatches_Forward);
+	really_free(MF.Two_Mismatches_At_End_Forward);really_free(MC.Two_Mismatches_At_End_Forward);
+	really_free(MF.Two_Mismatches_At_End);really_free(MC.Two_Mismatches_At_End);
+	really_free(MF.Possible_20);really_free(MC.Possible_20);
+	really_free(MF.Possible_02);really_free(MC.Possible_02);
 	//MF.Hit_Array.clear();MC.Hit_Array.clear();
 
 	Hits+=Zero_Mismatch(MF.Current_Tag,L,revfmi,MF);

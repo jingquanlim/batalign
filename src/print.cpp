@@ -2,6 +2,7 @@
 #include <cstdio>
 #include "stdlib.h"
 #include "assert.h"
+
 const int SOFTCLIPLENGTH=10;
 extern int INDELGAP;
 extern bool STACK_LOWQ;

@@ -96,6 +96,11 @@ int INDELGAP=21;//15 good for //17 for 8, 19=g00d for 9
 FMFILES FMFiles;
 
 typedef std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> ALIGNMENT_Q;
+inline void really_free(std::map<unsigned,Alignment>& to_clear)
+{
+    std::map<unsigned,Alignment> v;
+    v.swap(to_clear);
+}
 
 //{-----------------------------  FUNCTION PRTOTYPES  -------------------------------------------------/*
 unsigned uabs(unsigned A,unsigned B);
@@ -561,6 +566,8 @@ void *Map_And_Pair_Solexa(void *T)
 				if(MapQ1 != -1 && MapQ1_P!= -1)//both mapped, maybe multiply or discordantly..
 				{
 					Full_Rescue(RTemp,RTemp_P,BTemp,BTemp_P,Read_Length,Alignments,Alignments_P,Good_Alignments,Good_Alignments_P,H1,H1_P,Single_File,Quality_Score1,Quality_Score1_P,A1,A1_P,MapQ1,MapQ1_P,Max_Pass);
+					FreeQ(Alignments_P);FreeQ(Good_Alignments_P);
+					FreeQ(Alignments);;FreeQ(Good_Alignments);
 				}	
 				else if(MapQ1!= -1)//Oneside mapped..
 				{
@@ -1451,6 +1458,10 @@ void Init(In_File & IN,FMFILES F,RQINDEX R,BATPARAMETERS & BP,char Solid,char Np
 void FreeQ(std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment>  & t ) 
 {
 	std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> tmp; 
+	while(!t.empty())
+	{
+		t.pop();
+	}
 	std::swap(t,tmp );
 }
 
@@ -2903,6 +2914,8 @@ bool Rescue_Mate(unsigned Loc,char Sign,int StringLength,char* Current_Tag,char*
 		A.Loc=Loc+Shift+Aln->ref_begin1;//+Offset;
 		if((Shift<0) && (A.Loc>Loc))//Wrong pairing..
 		{
+			align_destroy(Aln);
+			init_destroy(p); 
 			return false;
 		}
 		assert(!(Shift>0 && A.Loc<Loc));//Wrong pairing..
@@ -3072,7 +3085,6 @@ bool Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 	
 	Rescue_One_Side(D,Alignments,Alignments_P,RTemp_P,BTemp_P);
 	Rescue_One_Side(D_P,Alignments_P,Alignments,RTemp,BTemp);
-	D.clear();D_P.clear();
 	Alignment B1,B1_P;
 	if(!Alignments.empty() && !Alignments_P.empty() && Find_Paired(Alignments,Alignments_P,D,D_P,Read_Length))
 	{
@@ -3136,6 +3148,7 @@ bool Full_Rescue(READ & RTemp,READ & RTemp_P,BATREAD & BTemp,BATREAD & BTemp_P,i
 			Alignments_P=T_P;
 		}
 	}
+really_free(D);really_free(D_P);
 
 	Final_Hit Head_Hit,Mate_Hit;
 	bool Hit1=Report_SW_Hits(0,RTemp,Head_Hit,Read_Length,BTemp,H1,Quality_Score1,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
@@ -3664,3 +3677,4 @@ void Estimate_Insert(int & INSERTSIZE,int & STD)
 
 	printf ("Mean Insert Size detected: %u\nStandard deviation: %u\n",INSERTSIZE,STD);
 }
+
