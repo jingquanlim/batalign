@@ -132,7 +132,7 @@ Alignment RealignX(Hit_Info &  H,BATREAD & Read,int StringLength, READ & R,bool 
 bool Remove_Duplicates_And_Filter_Top_Hits(Hit_Info *Hit_List,int & Hit_Count,int StringLength);
 float Calc_Top_Score(MEMX & MF,MEMX & MC,float & Top_BQ,int Top_Mis,int StringLength,int Plus_Hits,int Minus_Hits,READ & R);
 bool Recover_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int StringLength,MEMX & MF,MEMX & MC,unsigned Conversion_Factor,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Hit_Info & H);
-bool Extend_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int StringLength,MEMX & MF,MEMX & MC,unsigned Conversion_Factor,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Hit_Info & H);
+bool Extend_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int StringLength,MEMX & MF,MEMX & MC,unsigned Conversion_Factor,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Hit_Info & H,bool Mismatch_Scan=true);
 void Map_One_Seg(READ & R,BATREAD & B,unsigned & Conversion_Factor,MEMX & MF,MEMX & MC,MEMX & MFLH,MEMX & MCLH,MEMX & MFLT,MEMX & MCLT,MEMX & MFH,MEMX & MCH,MEMX & MFT,MEMX & MCT,LEN & L,LEN & L_Main,LEN & L_Half,LEN & L_Third,unsigned & Actual_Tag,Final_Hit &  Single_File,FILE* Mishit_File,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Pair* & Pairs,bool PRINT,Hit_Info & H,int & Quality_Score,int Segment_Length,int SEG_SIZE,int SHIFT_SEG_SIZE);
 unsigned SA2Loc(SARange S,int Pos,unsigned Conversion_Factor);
 void Mode_Parameters(BATPARAMETERS BP);
@@ -2111,13 +2111,13 @@ inline void Copy_A_to_H(Alignment & A,Hit_Info & H)
 
 }
 
-bool Extend_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int StringLength,MEMX & MF,MEMX & MC,unsigned Conversion_Factor,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Hit_Info & H)
+bool Extend_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int StringLength,MEMX & MF,MEMX & MC,unsigned Conversion_Factor,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Alignments,std::priority_queue <Alignment,std::vector <Alignment>,Comp_Alignment> & Good_Alignments,Hit_Info & H,bool Mismatch_Scan)
 {
 	int Hits=0,Clip_T,Clip_H;
 	int Filter=0;
 	if(Plus_Hits)
 	{
-		assert(!Minus_Hits);
+		if(Mismatch_Scan) assert(!Minus_Hits);
 		for(int i=0;MF.Hit_Array[i].Start;i++)
 		{
 			SARange SA=MF.Hit_Array[i];
@@ -2146,7 +2146,7 @@ bool Extend_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int Stri
 	}
 	if(Minus_Hits)
 	{
-		assert(!Plus_Hits);
+		if(Mismatch_Scan) assert(!Plus_Hits);
 		for(int i=0;MC.Hit_Array[i].Start;i++)
 		{
 			SARange SA=MC.Hit_Array[i];
@@ -2176,7 +2176,7 @@ bool Extend_With_SW(int Plus_Hits,int Minus_Hits,READ & R,BATREAD & BR, int Stri
 	if(!Good_Alignments.empty())
 	{
 		Alignment A=Good_Alignments.top();
-		assert(Good_Alignments.size()==1);//there is a unique best alignment
+		assert(!Mismatch_Scan || Good_Alignments.size()==1);//there is a unique best alignment
 		Copy_A_to_H(A,H);
 		Alignments.push(A);
 		return true;
@@ -3782,7 +3782,7 @@ bool Map_Clip(MEMX & MF,MEMX & MC,BWT* fwfmi,BWT* revfmi,Final_Hit & H,READ & R1
 	B.IGNOREHEAD=0;B.StringLength=L.STRINGLENGTH;
 	Process_Read(R,B,MF,MC);
 
-	int Last_Mis=Scan(MF,MC,0,L,fwfmi,revfmi,0,Hits,INT_MAX);
+	int Last_Mis=Scan(MF,MC,1,L,fwfmi,revfmi,0,Hits,INT_MAX);
 	int Plus_Hits=MF.Hit_Array_Ptr-1,Minus_Hits=MC.Hit_Array_Ptr-1;
 
 	
@@ -3793,7 +3793,7 @@ bool Map_Clip(MEMX & MF,MEMX & MC,BWT* fwfmi,BWT* revfmi,Final_Hit & H,READ & R1
 		Split_Read(H.Tag.length(),L);
 		Process_Read_Basic(R,B);
 		R=R1;B.StringLength=L.STRINGLENGTH;
-		if(Extend_With_SW(Plus_Hits,Minus_Hits,R,B,L.STRINGLENGTH,MF,MC,revfmi->textLength-20,Alignments,Good_Alignments,HI))
+		if(Extend_With_SW(Plus_Hits,Minus_Hits,R,B,L.STRINGLENGTH,MF,MC,revfmi->textLength-20,Alignments,Good_Alignments,HI,false))
 		{
 			int Quality_Score=0;
 			bool Hit1=Report_SW_Hits(0,R,Aux_Hit,R.Real_Len,B,HI,Quality_Score,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
