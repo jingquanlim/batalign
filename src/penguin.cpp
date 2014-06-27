@@ -81,6 +81,7 @@ bool Hard_Penalty=true;
 //extern const int QUALITYCONVERSIONFACTOR=64;
 //extern const int QUALITYSCALEFACTOR=33;
 
+bool DASH_DEL=true;
 bool ESTIMATE=true;//false;
 bool FASTDECODE=false;
 bool DEB=false;
@@ -3523,7 +3524,17 @@ void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & 
 			}
 		}
 		H.Flag|=Proper_Pair;T.Flag|=Proper_Pair;
-
+if(DASH_DEL)
+{
+	if(R1.Description[strlen(R1.Description)-2]=='/')
+	{
+		R1.Description[strlen(R1.Description)-2]=0;
+	}
+	if(R2.Description[strlen(R2.Description)-2]=='/')
+	{
+		R2.Description[strlen(R2.Description)-2]=0;
+	}
+}
 		fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\tRG:Z:%s\n",R1.Description+1,H.Flag,Ann1.Name,H.Loc,H.Quality_Score,H.CIG.c_str(),(Same_Chrome? "=":Ann2.Name),T.Loc,Insert_Size,H.Tag.c_str(),H.Qual.c_str(),H.Mismatch,H.Score,H.Sub_Opt_Score,H.QScore,H.SW_Score,H.SW_Sub_Opt_Score,RGID.c_str());
 		fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\tRG:Z:%s\n",R2.Description+1,T.Flag,Ann2.Name,T.Loc,T.Quality_Score,T.CIG.c_str(),(Same_Chrome? "=":Ann1.Name),H.Loc,-Insert_Size,T.Tag.c_str(),T.Qual.c_str(),T.Mismatch,T.Score,T.Sub_Opt_Score,T.QScore,T.SW_Score,T.SW_Sub_Opt_Score,RGID.c_str());
 
@@ -3797,7 +3808,6 @@ bool Map_Clip(MEMX & MF,MEMX & MC,BWT* fwfmi,BWT* revfmi,Final_Hit & H,READ & R1
 		{
 			int Quality_Score=0;
 			bool Hit1=Report_SW_Hits(0,R,Aux_Hit,R.Real_Len,B,HI,Quality_Score,Alignments,Good_Alignments,0/*Force_Indel*/,true,true);
-			Quality_Score=0;
 		}
 	}
 	if (Last_Mis!= -1)
@@ -3819,6 +3829,8 @@ void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R)
 	}
 
 
+	if(Aux.Quality_Score<H.Quality_Score)
+		Aux.Quality_Score=H.Quality_Score;
 	fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\tRG:Z:%s\n",R.Description+1,Aux.Flag,Ann1.Name,Aux.Loc,Aux.Quality_Score,Aux.CIG.c_str(),"*",0,0,H.Tag.c_str(),H.Qual.c_str(),Aux.Mismatch,Aux.Score,Aux.Sub_Opt_Score,Aux.QScore,Aux.SW_Score,Aux.SW_Sub_Opt_Score,RGID.c_str());
 
 }
