@@ -55,6 +55,7 @@ const unsigned QUERY_MINUS    =0x10;
 const unsigned MATE_MINUS     =0x20;
 const unsigned FIRST_READ     =0x40;
 const unsigned SECOND_READ    =0x80;
+const unsigned AUX	      =0x800;
 
 //}-----------------------------  INCLUDE FILES  -------------------------------------------------/
 int CLIP_SAVE_LENGTH=20;
@@ -3823,7 +3824,7 @@ void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R)
 	Ann_Info Ann1;
 	Aux.Skip=Get_Skip(Aux.CIG);
 	Location_To_Genome(Aux.Loc,Ann1);//H.Chr=Ann1.Name;
-	Aux.Flag|=R.Tag_Number;Aux.Flag|=PE_SEQ;
+	Aux.Flag|=R.Tag_Number;Aux.Flag|=PE_SEQ;Aux.Flag|=AUX;
 	if (Aux.Loc+Aux.Skip > Ann1.Size) 
 	{
 		return;
