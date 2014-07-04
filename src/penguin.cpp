@@ -166,7 +166,7 @@ bool Check_Proper_Pair(int S1,int S2,unsigned Loc1, unsigned Loc2,int Extra_Bit)
 void Estimate_Insert(int & INSERTSIZE,int & STD);
 void Rescue_Clip(std::string S,int & P_Clip,int & S_Clip);
 bool Map_Clip(MEMX & MF,MEMX & MC,BWT* fwfmi,BWT* revfmi,Final_Hit & H,READ & R1,bool Is_Suffix,Final_Hit & Aux_Hit);
-void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R);
+void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R,int Clip);
 pthread_mutex_t Lock_Estimate;
 std::vector<int> Estimate;
 //}-----------------------------  FUNCTION PRTOTYPES  -------------------------------------------------/*
@@ -3542,28 +3542,28 @@ void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & 
 		{
 			if(Map_Clip(MF,MC,fwfmi,revfmi,H,R1,false,Aux_Hit))
 			{
-				Print_Aux_Hit(Single_File,H,Aux_Hit,R1);
+				Print_Aux_Hit(Single_File,H,Aux_Hit,R1,HP_Clip);
 			}
 		}
 		if(TP_Clip > CLIP_SAVE_LENGTH)
 		{
 			if(Map_Clip(MF,MC,fwfmi,revfmi,T,R2,false,Aux_Hit))
 			{
-				Print_Aux_Hit(Single_File,T,Aux_Hit,R2);
+				Print_Aux_Hit(Single_File,T,Aux_Hit,R2,TP_Clip);
 			}
 		}
 		if(HS_Clip > CLIP_SAVE_LENGTH)
 		{
 			if(Map_Clip(MF,MC,fwfmi,revfmi,H,R1,true,Aux_Hit))
 			{
-				Print_Aux_Hit(Single_File,H,Aux_Hit,R1);
+				Print_Aux_Hit(Single_File,H,Aux_Hit,R1,HS_Clip);
 			}
 		}
 		if(TS_Clip > CLIP_SAVE_LENGTH)
 		{
 			if(Map_Clip(MF,MC,fwfmi,revfmi,T,R2,true,Aux_Hit))
 			{
-				Print_Aux_Hit(Single_File,T,Aux_Hit,R2);
+				Print_Aux_Hit(Single_File,T,Aux_Hit,R2,TS_Clip);
 			}
 		}
 
@@ -3819,22 +3819,34 @@ bool Map_Clip(MEMX & MF,MEMX & MC,BWT* fwfmi,BWT* revfmi,Final_Hit & H,READ & R1
 	return false;
 }
 
-void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R)
+void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R,int Clip)
 {
 	Ann_Info Ann1;
 	Aux.Skip=Get_Skip(Aux.CIG);
+	
+	int AP_Clip,AS_Clip;
+	Rescue_Clip(Aux.CIG,AP_Clip,AS_Clip);
 	Location_To_Genome(Aux.Loc,Ann1);//H.Chr=Ann1.Name;
 	Aux.Flag|=R.Tag_Number;Aux.Flag|=PE_SEQ;Aux.Flag|=AUX;
+
 	if (Aux.Loc+Aux.Skip > Ann1.Size) 
 	{
 		return;
 	}
 
+	int C1=R.Real_Len-Clip;
+	int C2=R.Real_Len-AP_Clip-AS_Clip;assert(C1>0 && C2>0);
+	int Covered_Percent=100*(C1+C2)/R.Real_Len;
 
-	if(Aux.Quality_Score<H.Quality_Score)
-		Aux.Quality_Score=H.Quality_Score;
-	else
-		H.Quality_Score=Aux.Quality_Score;
+	if(Covered_Percent >=80)
+	{
+		if(H.Quality_Score==0 && Aux.Quality_Score==0)
+			H.Quality_Score=20;
+		if(Aux.Quality_Score<H.Quality_Score)
+			Aux.Quality_Score=H.Quality_Score;
+		else
+			H.Quality_Score=Aux.Quality_Score;
+	}
 
 	fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\tRG:Z:%s\n",R.Description+1,Aux.Flag,Ann1.Name,Aux.Loc,Aux.Quality_Score,Aux.CIG.c_str(),"*",0,0,H.Tag.c_str(),H.Qual.c_str(),Aux.Mismatch,Aux.Score,Aux.Sub_Opt_Score,Aux.QScore,Aux.SW_Score,Aux.SW_Sub_Opt_Score,RGID.c_str());
 

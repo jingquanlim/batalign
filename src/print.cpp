@@ -4,6 +4,7 @@
 #include "assert.h"
 
 const int SOFTCLIPLENGTH=10;
+extern bool DASH_DEL;
 extern int INDELGAP;
 extern bool STACK_LOWQ;
 int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count);
@@ -549,5 +550,12 @@ void Print_Unmapped(FILE* Single_File,READ & R,bool Mate_Mapped,unsigned Paired,
 		Flag|=8;
 	}
 	R.Tag_Copy[Read_Len]=R.Quality[Read_Len]=0;
+	if(DASH_DEL)
+	{
+		if(R.Description[strlen(R.Description)-2]=='/')
+		{
+			R.Description[strlen(R.Description)-2]=0;
+		}
+	}
 	fprintf(Single_File,"%s\t%u\t*\t0\t0\t*\t*\t0\t0\t%s\t%s\tRG:Z:%s\n",R.Description+1,Flag,R.Tag_Copy,R.Quality,RGID.c_str());
 }
