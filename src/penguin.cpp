@@ -166,7 +166,7 @@ bool Check_Proper_Pair(int S1,int S2,unsigned Loc1, unsigned Loc2,int Extra_Bit)
 void Estimate_Insert(int & INSERTSIZE,int & STD);
 void Rescue_Clip(std::string S,int & P_Clip,int & S_Clip);
 bool Map_Clip(MEMX & MF,MEMX & MC,BWT* fwfmi,BWT* revfmi,Final_Hit & H,READ & R1,bool Is_Suffix,Final_Hit & Aux_Hit);
-void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R,int Clip);
+void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R,int Clip1,int Clip2);
 pthread_mutex_t Lock_Estimate;
 std::vector<int> Estimate;
 //}-----------------------------  FUNCTION PRTOTYPES  -------------------------------------------------/*
@@ -3542,28 +3542,29 @@ void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & 
 		{
 			if(Map_Clip(MF,MC,fwfmi,revfmi,H,R1,false,Aux_Hit))
 			{
-				Print_Aux_Hit(Single_File,H,Aux_Hit,R1,HP_Clip);
-			}
-		}
-		if(TP_Clip > CLIP_SAVE_LENGTH)
-		{
-			if(Map_Clip(MF,MC,fwfmi,revfmi,T,R2,false,Aux_Hit))
-			{
-				Print_Aux_Hit(Single_File,T,Aux_Hit,R2,TP_Clip);
+				Print_Aux_Hit(Single_File,H,Aux_Hit,R1,HP_Clip,HS_Clip);
 			}
 		}
 		if(HS_Clip > CLIP_SAVE_LENGTH)
 		{
 			if(Map_Clip(MF,MC,fwfmi,revfmi,H,R1,true,Aux_Hit))
 			{
-				Print_Aux_Hit(Single_File,H,Aux_Hit,R1,HS_Clip);
+				Print_Aux_Hit(Single_File,H,Aux_Hit,R1,HP_Clip,HS_Clip);
+			}
+		}
+		
+		if(TP_Clip > CLIP_SAVE_LENGTH)
+		{
+			if(Map_Clip(MF,MC,fwfmi,revfmi,T,R2,false,Aux_Hit))
+			{
+				Print_Aux_Hit(Single_File,T,Aux_Hit,R2,TP_Clip,TS_Clip);
 			}
 		}
 		if(TS_Clip > CLIP_SAVE_LENGTH)
 		{
 			if(Map_Clip(MF,MC,fwfmi,revfmi,T,R2,true,Aux_Hit))
 			{
-				Print_Aux_Hit(Single_File,T,Aux_Hit,R2,TS_Clip);
+				Print_Aux_Hit(Single_File,T,Aux_Hit,R2,TP_Clip,TS_Clip);
 			}
 		}
 
@@ -3819,10 +3820,11 @@ bool Map_Clip(MEMX & MF,MEMX & MC,BWT* fwfmi,BWT* revfmi,Final_Hit & H,READ & R1
 	return false;
 }
 
-void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R,int Clip)
+void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R,int Clip1,int Clip2)
 {
 	Ann_Info Ann1;
 	Aux.Skip=Get_Skip(Aux.CIG);
+	int Clip=Clip1+Clip2;
 	
 	int AP_Clip,AS_Clip;
 	Rescue_Clip(Aux.CIG,AP_Clip,AS_Clip);
@@ -3838,15 +3840,44 @@ void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R,int 
 	int C2=R.Real_Len-AP_Clip-AS_Clip;assert(C1>0 && C2>0);
 	int Covered_Percent=100*(C1+C2)/R.Real_Len;
 
-	if(Covered_Percent >=80)
+	if(Clip1 && Clip2)//Both ends bad..
 	{
-		if(H.Quality_Score==0 && Aux.Quality_Score==0)
-			H.Quality_Score=20;
-		if(Aux.Quality_Score<H.Quality_Score)
-			Aux.Quality_Score=H.Quality_Score;
-		else
-			H.Quality_Score=Aux.Quality_Score;
+		if((R.Real_Len-AS_Clip)-Clip1>8)//Rescue and aux overlap too much..
+		{
+			H.Quality_Score=INT_MAX;
+		}
+		if((R.Real_Len-AP_Clip)-Clip2>8)//Rescue and aux overlap too much..
+		{
+			H.Quality_Score=INT_MAX;
+		}
+		/*if(C1 <10) //very short recovery by SW..
+		{
+			H.Quality_Score=INT_MAX;
+		}
+		if(std::min(Clip2,Clip1)>=5)
+			H.Quality_Score=INT_MAX;*/
 	}
+	if(H.Quality_Score!=INT_MAX)	
+	{
+		if(Covered_Percent >=80)
+		{
+			if(H.Quality_Score==0 && Aux.Quality_Score==0)
+				H.Quality_Score=20;
+			if(Aux.Quality_Score<H.Quality_Score)
+				Aux.Quality_Score=H.Quality_Score;
+			else
+				H.Quality_Score=Aux.Quality_Score;
+		}
+		else
+		{
+			if(C2<R.Real_Len/2)
+			{
+				Aux.Quality_Score=0;
+			}
+		}
+	}
+	else
+		H.Quality_Score=0;
 
 	fprintf(Single_File,"%s\t%d\t%s\t%u\t%d\t%s\t%s\t%u\t%d\t%s\t%s\tNM:i:%d\tMM:i:0\tAS:i:%d\tSS:i:%d\tQS:i:%d\tSW:i:%d\tSO:i:%d\tRG:Z:%s\n",R.Description+1,Aux.Flag,Ann1.Name,Aux.Loc,Aux.Quality_Score,Aux.CIG.c_str(),"*",0,0,H.Tag.c_str(),H.Qual.c_str(),Aux.Mismatch,Aux.Score,Aux.Sub_Opt_Score,Aux.QScore,Aux.SW_Score,Aux.SW_Sub_Opt_Score,RGID.c_str());
 
