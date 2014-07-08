@@ -3850,12 +3850,18 @@ void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R,int 
 		{
 			H.Quality_Score=INT_MAX;
 		}
-		/*if(C1 <10) //very short recovery by SW..
+		if(C1 <10) //very short recovery by SW..
 		{
 			H.Quality_Score=INT_MAX;
 		}
 		if(std::min(Clip2,Clip1)>=5)
-			H.Quality_Score=INT_MAX;*/
+			H.Quality_Score=INT_MAX;
+		if(Clip1>=CLIP_SAVE_LENGTH && Clip2>=CLIP_SAVE_LENGTH)//Both sides are searched for aux hit..
+		{
+			H.Quality_Score=0;
+			return;
+		}
+			
 	}
 	if(H.Quality_Score!=INT_MAX)	
 	{
