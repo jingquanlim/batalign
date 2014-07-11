@@ -3449,6 +3449,19 @@ void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & 
 	int Insert_Size;
 	unsigned Proper_Pair=0;
 	int HP_Clip,HS_Clip,TP_Clip,TS_Clip;
+
+	if(DASH_DEL)
+	{
+		if(R1.Description[strlen(R1.Description)-2]=='/')
+		{
+			R1.Description[strlen(R1.Description)-2]=0;
+		}
+		if(R2.Description[strlen(R2.Description)-2]=='/')
+		{
+			R2.Description[strlen(R2.Description)-2]=0;
+		}
+	}
+
 	if (H.Loc != INT_MAX && T.Loc != INT_MAX)
 	{
 		Ann_Info Ann1,Ann2;
@@ -3525,17 +3538,6 @@ void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & 
 			}
 		}
 		H.Flag|=Proper_Pair;T.Flag|=Proper_Pair;
-		if(DASH_DEL)
-		{
-			if(R1.Description[strlen(R1.Description)-2]=='/')
-			{
-				R1.Description[strlen(R1.Description)-2]=0;
-			}
-			if(R2.Description[strlen(R2.Description)-2]=='/')
-			{
-				R2.Description[strlen(R2.Description)-2]=0;
-			}
-		}
 
 		Final_Hit Aux_Hit;
 		if(HP_Clip > CLIP_SAVE_LENGTH)
@@ -3838,7 +3840,9 @@ void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R,int 
 
 	int C1=R.Real_Len-Clip;
 	int C2=R.Real_Len-AP_Clip-AS_Clip;assert(C1>0 && C2>0);
-	int Covered_Percent=100*(C1+C2)/R.Real_Len;
+	//int Covered_Percent=100*(C1+C2)/R.Real_Len;
+	int Real_Cover=(R.Real_Len-(std::max(Clip1,AP_Clip))-(std::max(Clip2,AS_Clip)));
+	int Covered_Percent=100*(Real_Cover)/R.Real_Len;
 
 	if(Clip1 && Clip2)//Both ends bad..
 	{
@@ -3854,8 +3858,26 @@ void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R,int 
 		{
 			H.Quality_Score=INT_MAX;
 		}
-		if(std::min(Clip2,Clip1)>=5)
-			H.Quality_Score=INT_MAX;
+		//if(std::min(Clip2,Clip1)>=5)
+		//	H.Quality_Score=INT_MAX;
+
+		if(Covered_Percent >=80)
+		{
+			if(H.Quality_Score==0 && Aux.Quality_Score==0)
+				H.Quality_Score=20;
+			if(Aux.Quality_Score<H.Quality_Score)
+				Aux.Quality_Score=H.Quality_Score;
+			else
+				H.Quality_Score=Aux.Quality_Score;
+		}
+		else
+		{
+			if(C2<20)//R.Real_Len/2)
+			{
+				Aux.Quality_Score=0;
+			}
+		}
+
 		if(Clip1>=CLIP_SAVE_LENGTH && Clip2>=CLIP_SAVE_LENGTH)//Both sides are searched for aux hit..
 		{
 			H.Quality_Score=0;
@@ -3876,7 +3898,7 @@ void Print_Aux_Hit(FILE* Single_File,Final_Hit & H,Final_Hit & Aux,READ & R,int 
 		}
 		else
 		{
-			if(C2<R.Real_Len/2)
+			if(C2<20)//R.Real_Len/2)
 			{
 				Aux.Quality_Score=0;
 			}

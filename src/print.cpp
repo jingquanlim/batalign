@@ -285,7 +285,7 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 	}
 }
 
-void Print_Mishit(READ & R,FILE* Mishit_File)
+/*void Print_Mishit(READ & R,FILE* Mishit_File)
 {
 	if(PRINT_MISHIT) fprintf(Mishit_File,"@%s\n%s\n+\n%s\n",R.Description+1,R.Tag_Copy,R.Quality);	
 }
@@ -294,7 +294,7 @@ void Print_Blank_Line(FILE* Single_File,READ & R)
 {
 	R.Tag_Copy[R.Real_Len]=R.Quality[R.Real_Len]=0;
 	fprintf(Single_File,"%s\t4\t*\t0\t0\t*\t*\t0\t0\t%s\t%s\n",R.Description+1,R.Tag_Copy,R.Quality);
-}
+}*/
 
 int Calc_MapQ(Hit_Info & H,Alignment & A,int Clip_Count)
 {
