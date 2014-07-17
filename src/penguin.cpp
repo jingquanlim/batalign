@@ -59,6 +59,7 @@ const unsigned AUX	      =0x800;
 
 //}-----------------------------  INCLUDE FILES  -------------------------------------------------/
 int CLIP_SAVE_LENGTH=20;
+int MIS_IN_AUX=0;
 int TOP_TEN=0;
 int SW_SIMILARITY_FOR_RESCUE=60;
 int DISC_THRESHOLD=10;
@@ -3798,7 +3799,7 @@ bool Map_Clip(MEMX & MF,MEMX & MC,BWT* fwfmi,BWT* revfmi,Final_Hit & H,READ & R1
 	B.IGNOREHEAD=0;B.StringLength=L.STRINGLENGTH;
 	Process_Read(R,B,MF,MC);
 
-	int Last_Mis=Scan(MF,MC,1,L,fwfmi,revfmi,0,Hits,INT_MAX);
+	int Last_Mis=Scan(MF,MC,MIS_IN_AUX,L,fwfmi,revfmi,0,Hits,INT_MAX);
 	int Plus_Hits=MF.Hit_Array_Ptr-1,Minus_Hits=MC.Hit_Array_Ptr-1;
 
 	
