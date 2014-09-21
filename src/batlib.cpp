@@ -358,6 +358,10 @@ void Get_SARange_Fast_2( long New_Char,struct SARange & Start_Range, struct SARa
 FILE* File_Open(const char* File_Name,const char* Mode)
 {
 	FILE* Handle;
+	if(strcmp(File_Name,"-")==0)
+	{
+		return stdout;
+	}	
 	Handle=fopen64(File_Name,Mode);
 	if (Handle==NULL)
 	{
