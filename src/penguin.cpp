@@ -276,7 +276,7 @@ int main(int argc, char* argv[])
 	Thread_Arg T;
 	if (THREAD)
 	{
-		printf("Estimating insert size..\n");
+		fprintf(stderr,"Estimating insert size..\n");
 		READS_TO_ESTIMATE=READS_TO_ESTIMATE/THREAD;
 		Launch_Threads(THREAD, Map_And_Pair_Solexa,T);
 		Estimate_Insert(INSERTSIZE,STD);
@@ -1436,7 +1436,7 @@ void Init(In_File & IN,FMFILES F,RQINDEX R,BATPARAMETERS & BP,char Solid,char Np
 		BP.SW_FLANKSIZE= IN.STRINGLENGTH/2+50;//check 50 bp either side if not specified...
 		if (BP.SW_FLANKSIZE > BP.INSERTSIZE) BP.SW_FLANKSIZE=BP.INSERTSIZE;
 	}
-	if (BP.SW_FLANKSIZE>=SW_STRING_BUFFER) {printf("SW Flank too large.. Defaulting\n");BP.SW_FLANKSIZE= IN.STRINGLENGTH/2+50;}
+	if (BP.SW_FLANKSIZE>=SW_STRING_BUFFER) {fprintf(stderr,"SW Flank too large.. Defaulting\n");BP.SW_FLANKSIZE= IN.STRINGLENGTH/2+50;}
 	if (BP.PLUSSTRAND) BP.PLUSSTRAND=IN.STRINGLENGTH;
 	IN.Positive_Head=IN.Tag_Copy;
 
@@ -2357,9 +2357,9 @@ void Launch_Threads(int NTHREAD, void* (*Map_t)(void*),Thread_Arg T)
 		Thread_Info[i].Arg=T;
 		//if(!(Thread_Info[i].r=pthread_create(&Thread_Info[i].Thread,NULL,Map_t,(void*) &Thread_Info[i].Arg))) Thread_Num++;
 		Thread_Info[i].r=pthread_create(&Thread_Info[i].Thread,&Attrib,Map_t,(void*) &Thread_Info[i].Arg);
-		if(Thread_Info[i].r) {printf("Launch_Threads():Cannot create thread..\n");exit(-1);} else Thread_Num++;
+		if(Thread_Info[i].r) {fprintf(stderr,"Launch_Threads():Cannot create thread..\n");exit(-1);} else Thread_Num++;
 	}
-	printf("%d Threads runnning ...\n",Thread_Num);
+	fprintf(stderr,"%d Threads runnning ...\n",Thread_Num);
 	pthread_attr_destroy(&Attrib);
 
 	for (int i=0;i<NTHREAD;i++)
@@ -2449,7 +2449,7 @@ void Set_Affinity()
 
 	if(sched_getaffinity(0,sizeof(cpu_set_t),&Set)<0)
 	{
-		printf("Affinity could not be get..\n");
+		fprintf(stderr,"Affinity could not be get..\n");
 	}
 	else
 	{
@@ -2457,12 +2457,12 @@ void Set_Affinity()
 		{
 			if(CPU_ISSET(i,&Set))
 			{
-				printf("Bound to %d\n",i);
+				fprintf(stderr,"Bound to %d\n",i);
 				CPU_ZERO(&Set);
 				CPU_SET(i, &Set);
 				if(sched_setaffinity(0, sizeof(Set), &Set)<0)
 				{
-					printf("Affinity could not be set..\n");
+					fprintf(stderr,"Affinity could not be set..\n");
 				}
 				return;
 			}
@@ -3681,7 +3681,7 @@ void Estimate_Insert(int & INSERTSIZE,int & STD)
 
 	if(Size<15*(READS_TO_ESTIMATE/100))
 	{
-		printf("Variability of insert size is high: Assuming wild distribution..\n");
+		fprintf(stderr,"Variability of insert size is high: Assuming wild distribution..\n");
 		INSERTSIZE=1000;
 		STD=250;
 		SW_STRING_BUFFER=2400;
@@ -3723,7 +3723,7 @@ void Estimate_Insert(int & INSERTSIZE,int & STD)
 
 	if(j<15*(READS_TO_ESTIMATE/100))
 	{
-		printf("Variability of insert size is high: Assuming wild distribution..\n");
+		fprintf(stderr,"Variability of insert size is high: Assuming wild distribution..\n");
 		INSERTSIZE=1000;
 		STD=250;
 		SW_STRING_BUFFER=2400;
@@ -3735,7 +3735,7 @@ void Estimate_Insert(int & INSERTSIZE,int & STD)
 		STD=Standard_Deviation;
 	INSERTSIZE=int(Mean);
 
-	printf ("Mean Insert Size detected: %u\nStandard deviation: %u\n",INSERTSIZE,STD);
+	fprintf (stderr,"Mean Insert Size detected: %u\nStandard deviation: %u\n",INSERTSIZE,STD);
 }
 
 void Rescue_Clip(std::string S,int & P_Clip,int & S_Clip)
