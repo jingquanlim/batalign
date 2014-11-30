@@ -1,4 +1,4 @@
-#include "fastsw.h"
+#include "fastsw-s.h"
 
 extern int SEEDSIZE;
 extern int QUALITYCONVERSIONFACTOR;

@@ -11,7 +11,7 @@
 #include <queue>
 #include <ctype.h>
 
-#include "batlib.h"
+#include "batlib-s.h"
 extern int LEAST_MIS;
 extern unsigned Genome_Count;
 extern int NCOUNT;

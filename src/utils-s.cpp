@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "utils.h"
+#include "utils-s.h"
 unsigned Get_File_Size(FILE* File)
 {
 	fseek (File , 0 , SEEK_END);

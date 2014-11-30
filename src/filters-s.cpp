@@ -1,4 +1,4 @@
-#include "filters.h"
+#include "filters-s.h"
 #include "math.h"
 #include <cstdio>
 #include "stdlib.h"

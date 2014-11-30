@@ -17,10 +17,10 @@
 
 
 
-pkgdatadir = $(datadir)/BatINDEL
-pkgincludedir = $(includedir)/BatINDEL
-pkglibdir = $(libdir)/BatINDEL
-pkglibexecdir = $(libexecdir)/BatINDEL
+pkgdatadir = $(datadir)/BatAlign
+pkgincludedir = $(includedir)/BatAlign
+pkglibdir = $(libdir)/BatAlign
+pkglibexecdir = $(libexecdir)/BatAlign
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 install_sh_DATA = $(install_sh) -c -m 644
 install_sh_PROGRAM = $(install_sh) -c
@@ -33,7 +33,9 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = index$(EXEEXT) penguin$(EXEEXT)
+bin_PROGRAMS = batalignindex$(EXEEXT) penguin$(EXEEXT) \
+	bwtformatdb$(EXEEXT) reverse$(EXEEXT) filter$(EXEEXT) \
+	penguin-s$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -57,14 +59,26 @@ am_libz_a_OBJECTS = adler32.$(OBJEXT) compress.$(OBJEXT) \
 libz_a_OBJECTS = $(am_libz_a_OBJECTS)
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_index_OBJECTS = bfix.$(OBJEXT) index.$(OBJEXT) BWT.$(OBJEXT) \
-	MiscUtilities.$(OBJEXT) MemManager.$(OBJEXT) \
+am_batalignindex_OBJECTS = bfix.$(OBJEXT) index.$(OBJEXT) \
+	BWT.$(OBJEXT) MiscUtilities.$(OBJEXT) MemManager.$(OBJEXT) \
 	TextConverter.$(OBJEXT) r250.$(OBJEXT) QSufSort.$(OBJEXT) \
 	iniparser.$(OBJEXT) inistrlib.$(OBJEXT) dictionary.$(OBJEXT) \
 	DNACount.$(OBJEXT) Timing.$(OBJEXT) Socket.$(OBJEXT) \
 	HSP.$(OBJEXT) HSPstatistic.$(OBJEXT) karlin.$(OBJEXT)
-index_OBJECTS = $(am_index_OBJECTS)
-index_LDADD = $(LDADD)
+batalignindex_OBJECTS = $(am_batalignindex_OBJECTS)
+batalignindex_LDADD = $(LDADD)
+am_bwtformatdb_OBJECTS = bwtformatdb.$(OBJEXT) BWT.$(OBJEXT) \
+	BWTConstruct.$(OBJEXT) MiscUtilities.$(OBJEXT) \
+	MemManager.$(OBJEXT) TextConverter.$(OBJEXT) r250.$(OBJEXT) \
+	QSufSort.$(OBJEXT) iniparser.$(OBJEXT) inistrlib.$(OBJEXT) \
+	dictionary.$(OBJEXT) DNACount.$(OBJEXT) Timing.$(OBJEXT) \
+	Socket.$(OBJEXT) HSP.$(OBJEXT) HSPstatistic.$(OBJEXT) \
+	karlin.$(OBJEXT)
+bwtformatdb_OBJECTS = $(am_bwtformatdb_OBJECTS)
+bwtformatdb_LDADD = $(LDADD)
+am_filter_OBJECTS = filter.$(OBJEXT)
+filter_OBJECTS = $(am_filter_OBJECTS)
+filter_LDADD = $(LDADD)
 am_penguin_OBJECTS = print.$(OBJEXT) filters.$(OBJEXT) utils.$(OBJEXT) \
 	batlib.$(OBJEXT) rqindex.$(OBJEXT) penguin.$(OBJEXT) \
 	map.$(OBJEXT) bfix.$(OBJEXT) BWT.$(OBJEXT) \
@@ -77,6 +91,22 @@ am_penguin_OBJECTS = print.$(OBJEXT) filters.$(OBJEXT) utils.$(OBJEXT) \
 	fastsw.$(OBJEXT)
 penguin_OBJECTS = $(am_penguin_OBJECTS)
 penguin_LDADD = $(LDADD)
+am_penguin_s_OBJECTS = print-s.$(OBJEXT) filters-s.$(OBJEXT) \
+	utils-s.$(OBJEXT) batlib-s.$(OBJEXT) rqindex-s.$(OBJEXT) \
+	penguin-s.$(OBJEXT) map-s.$(OBJEXT) bfix.$(OBJEXT) \
+	BWT-s.$(OBJEXT) MiscUtilities-s.$(OBJEXT) \
+	MemManager-s.$(OBJEXT) TextConverter-s.$(OBJEXT) \
+	r250-s.$(OBJEXT) QSufSort-s.$(OBJEXT) ssw-s.$(OBJEXT) \
+	command-s.$(OBJEXT) swroutines-s.$(OBJEXT) \
+	iniparser-s.$(OBJEXT) inistrlib-s.$(OBJEXT) \
+	dictionary-s.$(OBJEXT) DNACount-s.$(OBJEXT) Timing-s.$(OBJEXT) \
+	Socket-s.$(OBJEXT) HSP-s.$(OBJEXT) HSPstatistic-s.$(OBJEXT) \
+	karlin-s.$(OBJEXT) fastsw-s.$(OBJEXT)
+penguin_s_OBJECTS = $(am_penguin_s_OBJECTS)
+penguin_s_LDADD = $(LDADD)
+am_reverse_OBJECTS = reverse.$(OBJEXT)
+reverse_OBJECTS = $(am_reverse_OBJECTS)
+reverse_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I. -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -90,16 +120,20 @@ CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
-SOURCES = $(libz_a_SOURCES) $(index_SOURCES) $(penguin_SOURCES)
-DIST_SOURCES = $(libz_a_SOURCES) $(index_SOURCES) $(penguin_SOURCES)
+SOURCES = $(libz_a_SOURCES) $(batalignindex_SOURCES) \
+	$(bwtformatdb_SOURCES) $(filter_SOURCES) $(penguin_SOURCES) \
+	$(penguin_s_SOURCES) $(reverse_SOURCES)
+DIST_SOURCES = $(libz_a_SOURCES) $(batalignindex_SOURCES) \
+	$(bwtformatdb_SOURCES) $(filter_SOURCES) $(penguin_SOURCES) \
+	$(penguin_s_SOURCES) $(reverse_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/chandana/repo/batindel/missing --run aclocal-1.11
-AMTAR = ${SHELL} /home/chandana/repo/batindel/missing --run tar
-AUTOCONF = ${SHELL} /home/chandana/repo/batindel/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/chandana/repo/batindel/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/chandana/repo/batindel/missing --run automake-1.11
+ACLOCAL = ${SHELL} /home/Ken/batindel/batindel/missing --run aclocal-1.11
+AMTAR = ${SHELL} /home/Ken/batindel/batindel/missing --run tar
+AUTOCONF = ${SHELL} /home/Ken/batindel/batindel/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/Ken/batindel/batindel/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/Ken/batindel/batindel/missing --run automake-1.11
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -127,24 +161,24 @@ LDFLAGS =
 LIBOBJS = 
 LIBS = 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/chandana/repo/batindel/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/Ken/batindel/batindel/missing --run makeinfo
 MKDIR_P = /bin/mkdir -p
 OBJEXT = o
-PACKAGE = BatINDEL
+PACKAGE = BatAlign
 PACKAGE_BUGREPORT = bwtbatman@gmail.com
-PACKAGE_NAME = BatINDEL
-PACKAGE_STRING = BatINDEL 1.00(mmx)
-PACKAGE_TARNAME = batindel
+PACKAGE_NAME = BatAlign
+PACKAGE_STRING = BatAlign 1.00(mmx)
+PACKAGE_TARNAME = batalign
 PACKAGE_VERSION = 1.00(mmx)
 PATH_SEPARATOR = :
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
 VERSION = 1.00_mmx
-abs_builddir = /home/chandana/repo/batindel/src
-abs_srcdir = /home/chandana/repo/batindel/src
-abs_top_builddir = /home/chandana/repo/batindel
-abs_top_srcdir = /home/chandana/repo/batindel
+abs_builddir = /home/Ken/batindel/batindel/src
+abs_srcdir = /home/Ken/batindel/batindel/src
+abs_top_builddir = /home/Ken/batindel/batindel
+abs_top_srcdir = /home/Ken/batindel/batindel
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 am__include = include
@@ -164,7 +198,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/chandana/repo/batindel/install-sh
+install_sh = ${SHELL} /home/Ken/batindel/batindel/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -184,8 +218,7 @@ target_alias =
 top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
-
-#EXTRA_DIST =  batman.ini 
+EXTRA_DIST = batalign
 AM_CFLAGS = -w -O3 -funroll-loops -maccumulate-outgoing-args -msse2 -lm -pthread
 AM_CXXFLAGS = -w -O3 -funroll-loops -maccumulate-outgoing-args -msse2 -lm -pthread
 RANLIB = ranlib
@@ -195,7 +228,7 @@ libz_a_SOURCES = adler32.c compress.c crc32.c gzio.c uncompr.c deflate.c trees.c
        zutil.c inflate.c infback.c inftrees.c inffast.c\
        zlib.h zconf.h crc32.h  deflate.h zutil.h inftrees.h inflate.h inffast.h trees.h inffixed.h
 
-index_SOURCES = bfix.cpp index.cpp BWT.c MiscUtilities.c MemManager.c TextConverter.c r250.c QSufSort.c\
+batalignindex_SOURCES = bfix.cpp index.cpp BWT.c MiscUtilities.c MemManager.c TextConverter.c r250.c QSufSort.c\
  iniparser.c inistrlib.c dictionary.c DNACount.c Timing.c Socket.c HSP.c HSPstatistic.c karlin.c\
  BWT.h TypeNLimit.h MemManager.h TextConverter.h HSP.h MiscUtilities.h DNACount.h r250.h HSPstatistic.h\
  BWTConstruct.h QSufSort.h r250.h dictionary.h inistrlib.h iniparser.h Timing.h Socket.h karlin.h\
@@ -208,6 +241,20 @@ penguin_SOURCES = print.cpp filters.cpp utils.cpp batlib.cpp rqindex.cpp penguin
  BWTConstruct.h QSufSort.h r250.h dictionary.h inistrlib.h iniparser.h Timing.h Socket.h karlin.h\
  bfix.h rqindex.h utils.h batlib.h common.h map.h fastsw.h
 
+bwtformatdb_SOURCES = bwtformatdb.c BWT.c BWTConstruct.c MiscUtilities.c MemManager.c TextConverter.c r250.c QSufSort.c\
+ iniparser.c inistrlib.c dictionary.c DNACount.c Timing.c Socket.c HSP.c HSPstatistic.c karlin.c\
+ BWT.h TypeNLimit.h MemManager.h TextConverter.h HSP.h MiscUtilities.h DNACount.h r250.h HSPstatistic.h\
+ BWTConstruct.h QSufSort.h r250.h dictionary.h inistrlib.h iniparser.h Timing.h Socket.h karlin.h
+
+penguin_s_SOURCES = print-s.cpp filters-s.cpp utils-s.cpp batlib-s.cpp rqindex-s.cpp penguin-s.cpp map-s.cpp ssw-s.h command-s.h global-s.h swroutines-s.h kseq.h\
+ bfix.cpp BWT-s.c MiscUtilities-s.c MemManager-s.c TextConverter-s.c r250-s.c QSufSort-s.c ssw-s.c command-s.cpp swroutines-s.cpp\
+ iniparser-s.c inistrlib-s.c dictionary-s.c DNACount-s.c Timing-s.c Socket-s.c HSP-s.c HSPstatistic-s.c karlin-s.c fastsw-s.cpp\
+ print-s.h filters-s.h BWT-s.h TypeNLimit-s.h MemManager-s.h TextConverter-s.h HSP-s.h MiscUtilities-s.h DNACount-s.h r250-s.h HSPstatistic-s.h\
+ BWTConstruct-s.h QSufSort-s.h r250-s.h dictionary-s.h inistrlib-s.h iniparser-s.h Timing-s.h Socket-s.h karlin-s.h\
+ bfix.h rqindex-s.h utils-s.h batlib-s.h common-s.h map-s.h fastsw-s.h
+
+reverse_SOURCES = reverse.cpp 
+filter_SOURCES = filter.cpp 
 all: all-am
 
 .SUFFIXES:
@@ -221,9 +268,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign src/Makefile
+	  $(AUTOMAKE) --gnu src/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -286,12 +333,24 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
-index$(EXEEXT): $(index_OBJECTS) $(index_DEPENDENCIES) 
-	@rm -f index$(EXEEXT)
-	$(CXXLINK) $(index_OBJECTS) $(index_LDADD) $(LIBS)
+batalignindex$(EXEEXT): $(batalignindex_OBJECTS) $(batalignindex_DEPENDENCIES) 
+	@rm -f batalignindex$(EXEEXT)
+	$(CXXLINK) $(batalignindex_OBJECTS) $(batalignindex_LDADD) $(LIBS)
+bwtformatdb$(EXEEXT): $(bwtformatdb_OBJECTS) $(bwtformatdb_DEPENDENCIES) 
+	@rm -f bwtformatdb$(EXEEXT)
+	$(LINK) $(bwtformatdb_OBJECTS) $(bwtformatdb_LDADD) $(LIBS)
+filter$(EXEEXT): $(filter_OBJECTS) $(filter_DEPENDENCIES) 
+	@rm -f filter$(EXEEXT)
+	$(CXXLINK) $(filter_OBJECTS) $(filter_LDADD) $(LIBS)
 penguin$(EXEEXT): $(penguin_OBJECTS) $(penguin_DEPENDENCIES) 
 	@rm -f penguin$(EXEEXT)
 	$(CXXLINK) $(penguin_OBJECTS) $(penguin_LDADD) $(LIBS)
+penguin-s$(EXEEXT): $(penguin_s_OBJECTS) $(penguin_s_DEPENDENCIES) 
+	@rm -f penguin-s$(EXEEXT)
+	$(CXXLINK) $(penguin_s_OBJECTS) $(penguin_s_LDADD) $(LIBS)
+reverse$(EXEEXT): $(reverse_OBJECTS) $(reverse_DEPENDENCIES) 
+	@rm -f reverse$(EXEEXT)
+	$(CXXLINK) $(reverse_OBJECTS) $(reverse_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -299,25 +358,43 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+include ./$(DEPDIR)/BWT-s.Po
 include ./$(DEPDIR)/BWT.Po
+include ./$(DEPDIR)/BWTConstruct.Po
+include ./$(DEPDIR)/DNACount-s.Po
 include ./$(DEPDIR)/DNACount.Po
+include ./$(DEPDIR)/HSP-s.Po
 include ./$(DEPDIR)/HSP.Po
+include ./$(DEPDIR)/HSPstatistic-s.Po
 include ./$(DEPDIR)/HSPstatistic.Po
+include ./$(DEPDIR)/MemManager-s.Po
 include ./$(DEPDIR)/MemManager.Po
+include ./$(DEPDIR)/MiscUtilities-s.Po
 include ./$(DEPDIR)/MiscUtilities.Po
+include ./$(DEPDIR)/QSufSort-s.Po
 include ./$(DEPDIR)/QSufSort.Po
+include ./$(DEPDIR)/Socket-s.Po
 include ./$(DEPDIR)/Socket.Po
+include ./$(DEPDIR)/TextConverter-s.Po
 include ./$(DEPDIR)/TextConverter.Po
+include ./$(DEPDIR)/Timing-s.Po
 include ./$(DEPDIR)/Timing.Po
 include ./$(DEPDIR)/adler32.Po
+include ./$(DEPDIR)/batlib-s.Po
 include ./$(DEPDIR)/batlib.Po
 include ./$(DEPDIR)/bfix.Po
+include ./$(DEPDIR)/bwtformatdb.Po
+include ./$(DEPDIR)/command-s.Po
 include ./$(DEPDIR)/command.Po
 include ./$(DEPDIR)/compress.Po
 include ./$(DEPDIR)/crc32.Po
 include ./$(DEPDIR)/deflate.Po
+include ./$(DEPDIR)/dictionary-s.Po
 include ./$(DEPDIR)/dictionary.Po
+include ./$(DEPDIR)/fastsw-s.Po
 include ./$(DEPDIR)/fastsw.Po
+include ./$(DEPDIR)/filter.Po
+include ./$(DEPDIR)/filters-s.Po
 include ./$(DEPDIR)/filters.Po
 include ./$(DEPDIR)/gzio.Po
 include ./$(DEPDIR)/index.Po
@@ -325,18 +402,30 @@ include ./$(DEPDIR)/infback.Po
 include ./$(DEPDIR)/inffast.Po
 include ./$(DEPDIR)/inflate.Po
 include ./$(DEPDIR)/inftrees.Po
+include ./$(DEPDIR)/iniparser-s.Po
 include ./$(DEPDIR)/iniparser.Po
+include ./$(DEPDIR)/inistrlib-s.Po
 include ./$(DEPDIR)/inistrlib.Po
+include ./$(DEPDIR)/karlin-s.Po
 include ./$(DEPDIR)/karlin.Po
+include ./$(DEPDIR)/map-s.Po
 include ./$(DEPDIR)/map.Po
+include ./$(DEPDIR)/penguin-s.Po
 include ./$(DEPDIR)/penguin.Po
+include ./$(DEPDIR)/print-s.Po
 include ./$(DEPDIR)/print.Po
+include ./$(DEPDIR)/r250-s.Po
 include ./$(DEPDIR)/r250.Po
+include ./$(DEPDIR)/reverse.Po
+include ./$(DEPDIR)/rqindex-s.Po
 include ./$(DEPDIR)/rqindex.Po
+include ./$(DEPDIR)/ssw-s.Po
 include ./$(DEPDIR)/ssw.Po
+include ./$(DEPDIR)/swroutines-s.Po
 include ./$(DEPDIR)/swroutines.Po
 include ./$(DEPDIR)/trees.Po
 include ./$(DEPDIR)/uncompr.Po
+include ./$(DEPDIR)/utils-s.Po
 include ./$(DEPDIR)/utils.Po
 include ./$(DEPDIR)/zutil.Po
 

@@ -44,7 +44,6 @@
 #include "r250.h"
 #include "HSP.h"
 #include "HSPstatistic.h"
-extern char* LOG_SUCCESS_FILE;
 extern FILE* Log_SFile;
 
 // static functions
@@ -122,14 +121,12 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 
 	bwtCodeFile = (FILE*)fopen64(bwtCodeFileName, "rb");
 	if (bwtCodeFile == NULL) {
-		if(LOG_SUCCESS_FILE)fprintf(Log_SFile, "BWTLoad() : cannot open bwtCodeFile!\n");
 		fprintf(stderr, "BWTLoad() : cannot open bwtCodeFile!\n");
 		exit(1);
 	}
 
 	occValueFile = (FILE*)fopen64(occValueFileName, "rb");
 	if (occValueFile == NULL) {
-		if(LOG_SUCCESS_FILE)fprintf(Log_SFile, "BWTLoad() : cannot open occValueFile!\n");
 		fprintf(stderr, "BWTLoad() : cannot open occValueFile!\n");
 		exit(1);
 	}
@@ -137,7 +134,6 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 	if (saValueFileName != NULL && saValueFileName[0] != '\0' && saValueFileName[0] != '-') {
 		saValueFile = (FILE*)fopen64(saValueFileName, "rb");
 		if (saValueFile == NULL) {
-			if(LOG_SUCCESS_FILE)fprintf(Log_SFile, "BWTLoad() : cannot open saValueFile!\n");
 			fprintf(stderr, "BWTLoad() : cannot open saValueFile!\n");
 			exit(1);
 		}
@@ -146,7 +142,6 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 	if (inverseSaFileName != NULL && inverseSaFileName[0] != '\0' && inverseSaFileName[0] != '-') {
 		inverseSaFile = (FILE*)fopen64(inverseSaFileName, "rb");
 		if (inverseSaFile == NULL) {
-			if(LOG_SUCCESS_FILE)fprintf(Log_SFile, "BWTLoad() : cannot open inverseSaFile!\n");
 			fprintf(stderr, "BWTLoad() : cannot open inverseSaFile!\n");
 			exit(1);
 		}
@@ -155,7 +150,6 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 	if (cachedSaIndexFileName != NULL && cachedSaIndexFileName[0] != '\0' && cachedSaIndexFileName[0] != '-') {
 		cachedSaIndexFile = (FILE*)fopen64(cachedSaIndexFileName, "rb");
 		if (cachedSaIndexFile == NULL) {
-			if(LOG_SUCCESS_FILE) fprintf(Log_SFile, "BWTLoad() : cannot open cachedSaIndexFile!\n");
 			fprintf(stderr, "BWTLoad() : cannot open cachedSaIndexFile!\n");
 			exit(1);
 		}
@@ -172,14 +166,12 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 
 	fread(&tmp, sizeof(unsigned int), 1, occValueFile);
 	if (tmp != bwt->inverseSa0) {
-		if(LOG_SUCCESS_FILE) fprintf(Log_SFile, "BWTLoad(): OccValue inverseSa0 not match!\n");
 		fprintf(stderr, "BWTLoad(): OccValue inverseSa0 not match!\n");
 		exit(1);
 	}
 	for (i=1; i<=ALPHABET_SIZE; i++) {
 		fread(&tmp, sizeof(unsigned int), 1, occValueFile);
 		if (tmp != bwt->cumulativeFreq[i]) {
-			if(LOG_SUCCESS_FILE)fprintf(Log_SFile, "BWTLoad(): OccValue cumulativeFreq not match!\n");
 			fprintf(stderr, "BWTLoad(): OccValue cumulativeFreq not match!\n");
 			exit(1);
 		}
@@ -217,14 +209,12 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 	} else {
 		fread(&tmp, sizeof(unsigned int), 1, saValueFile);
 		if (tmp != bwt->inverseSa0) {
-			if(LOG_SUCCESS_FILE) fprintf(Log_SFile, "BWTLoad(): SaValue inverseSa0 not match!\n");
 			fprintf(stderr, "BWTLoad(): SaValue inverseSa0 not match!\n");
 			exit(1);
 		}
 		for (i=1; i<=ALPHABET_SIZE; i++) {
 			fread(&tmp, sizeof(unsigned int), 1, saValueFile);
 			if (tmp != bwt->cumulativeFreq[i]) {
-				if(LOG_SUCCESS_FILE)fprintf(Log_SFile, "BWTLoad(): SaValue cumulativeFreq not match!\n");
 				fprintf(stderr, "BWTLoad(): SaValue cumulativeFreq not match!\n");
 				exit(1);
 			}
@@ -246,14 +236,12 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 	} else {
 		fread(&tmp, sizeof(unsigned int), 1, inverseSaFile);
 		if (tmp != bwt->inverseSa0) {
-			if(LOG_SUCCESS_FILE) fprintf(Log_SFile, "BWTLoad(): InverseSaValue inverseSa0 not match!\n");
 			fprintf(stderr, "BWTLoad(): InverseSaValue inverseSa0 not match!\n");
 			exit(1);
 		}
 		for (i=1; i<=ALPHABET_SIZE; i++) {
 			fread(&tmp, sizeof(unsigned int), 1, inverseSaFile);
 			if (tmp != bwt->cumulativeFreq[i]) {
-				if(LOG_SUCCESS_FILE)fprintf(Log_SFile, "BWTLoad(): InverseSaValue cumulativeFreq not match!\n");
 				fprintf(stderr, "BWTLoad(): InverseSaValue cumulativeFreq not match!\n");
 				exit(1);
 			}
@@ -279,14 +267,12 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 	} else {
 		fread(&tmp, sizeof(unsigned int), 1, cachedSaIndexFile);
 		if (tmp != bwt->inverseSa0) {
-			if(LOG_SUCCESS_FILE)fprintf(Log_SFile, "BWTLoad(): SaIndex inverseSa0 not match!\n");
 			fprintf(stderr, "BWTLoad(): SaIndex inverseSa0 not match!\n");
 			exit(1);
 		}
 		for (i=1; i<=ALPHABET_SIZE; i++) {
 			fread(&tmp, sizeof(unsigned int), 1, cachedSaIndexFile);
 			if (tmp != bwt->cumulativeFreq[i]) {
-				if(LOG_SUCCESS_FILE) fprintf(Log_SFile, "BWTLoad(): SaIndex cumulativeFreq not match!\n");
 				fprintf(stderr, "BWTLoad(): SaIndex cumulativeFreq not match!\n");
 				exit(1);
 			}
@@ -6211,21 +6197,18 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 
 	bwtCodeFile = (FILE*)fopen64(bwtCodeFileName, "rb");
 	if (bwtCodeFile == NULL) {
-		if(LOG_SUCCESS_FILE) fprintf(Log_SFile, "BWTLoad() : cannot open bwtCodeFile!\n");
 		fprintf(stderr, "BWTLoad() : cannot open bwtCodeFile!\n");
 		exit(1);
 	}
 
 	occValueFile = (FILE*)fopen64(occValueFileName, "rb");
 	if (occValueFile == NULL) {
-		if(LOG_SUCCESS_FILE) fprintf(Log_SFile, "BWTLoad() : cannot open occValueFile!\n");
 		exit(1);
 	}
 
 	if (saValueFileName != NULL && saValueFileName[0] != '\0' && saValueFileName[0] != '-') {
 		saValueFile = (FILE*)fopen64(saValueFileName, "rb");
 		if (saValueFile == NULL) {
-			if(LOG_SUCCESS_FILE) fprintf(Log_SFile, "BWTLoad() : cannot open saValueFile!\n");
 			exit(1);
 		}
 	}
@@ -6233,7 +6216,6 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 	if (inverseSaFileName != NULL && inverseSaFileName[0] != '\0' && inverseSaFileName[0] != '-') {
 		inverseSaFile = (FILE*)fopen64(inverseSaFileName, "rb");
 		if (inverseSaFile == NULL) {
-			if(LOG_SUCCESS_FILE)fprintf(Log_SFile, "BWTLoad() : cannot open inverseSaFile!\n");
 			exit(1);
 		}
 	}
@@ -6241,7 +6223,6 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 	if (saIndexRangeFileName != NULL && saIndexRangeFileName[0] != '\0' && saIndexRangeFileName[0] != '-') {
 		saIndexRangeFile = (FILE*)fopen64(saIndexRangeFileName, "rb");
 		if (saIndexRangeFile == NULL) {
-			if(LOG_SUCCESS_FILE)fprintf(Log_SFile, "BWTLoad() : cannot open saIndexRangeFile!\n");
 			fprintf(stderr, "BWTLoad() : cannot open saIndexRangeFile!\n");
 			exit(1);
 		}
@@ -6258,14 +6239,12 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 
 	fread(&tmp, sizeof(unsigned int), 1, occValueFile);
 	if (tmp != bwt->inverseSa0) {
-		if(LOG_SUCCESS_FILE) fprintf(Log_SFile, "BWTLoad(): OccValue inverseSa0 not match!\n");
 		fprintf(stderr, "BWTLoad(): OccValue inverseSa0 not match!\n");
 		exit(1);
 	}
 	for (i=1; i<=ALPHABET_SIZE; i++) {
 		fread(&tmp, sizeof(unsigned int), 1, occValueFile);
 		if (tmp != bwt->cumulativeFreq[i]) {
-			if(LOG_SUCCESS_FILE) fprintf(Log_SFile, "BWTLoad(): OccValue cumulativeFreq not match!\n");
 			fprintf(stderr, "BWTLoad(): OccValue cumulativeFreq not match!\n");
 			exit(1);
 		}
@@ -6303,14 +6282,12 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 	} else {
 		fread(&tmp, sizeof(unsigned int), 1, saValueFile);
 		if (tmp != bwt->inverseSa0) {
-			if(LOG_SUCCESS_FILE) fprintf(Log_SFile, "BWTLoad(): SaValue inverseSa0 not match!\n");
 			fprintf(stderr, "BWTLoad(): SaValue inverseSa0 not match!\n");
 			exit(1);
 		}
 		for (i=1; i<=ALPHABET_SIZE; i++) {
 			fread(&tmp, sizeof(unsigned int), 1, saValueFile);
 			if (tmp != bwt->cumulativeFreq[i]) {
-				if(LOG_SUCCESS_FILE)fprintf(Log_SFile, "BWTLoad(): SaValue cumulativeFreq not match!\n");
 				fprintf(stderr, "BWTLoad(): SaValue cumulativeFreq not match!\n");
 				exit(1);
 			}
@@ -6332,14 +6309,12 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 	} else {
 		fread(&tmp, sizeof(unsigned int), 1, inverseSaFile);
 		if (tmp != bwt->inverseSa0) {
-			if(LOG_SUCCESS_FILE) fprintf(Log_SFile, "BWTLoad(): InverseSaValue inverseSa0 not match!\n");
 			fprintf(stderr, "BWTLoad(): InverseSaValue inverseSa0 not match!\n");
 			exit(1);
 		}
 		for (i=1; i<=ALPHABET_SIZE; i++) {
 			fread(&tmp, sizeof(unsigned int), 1, inverseSaFile);
 			if (tmp != bwt->cumulativeFreq[i]) {
-				if(LOG_SUCCESS_FILE)fprintf(Log_SFile, "BWTLoad(): InverseSaValue cumulativeFreq not match!\n");
 				fprintf(stderr, "BWTLoad(): InverseSaValue cumulativeFreq not match!\n");
 				exit(1);
 			}
@@ -6359,14 +6334,12 @@ BWT *BWTLoad(MMPool *mmPool, const char *bwtCodeFileName, const char *occValueFi
 	} else {
 		fread(&tmp, sizeof(unsigned int), 1, saIndexRangeFile);
 		if (tmp != bwt->inverseSa0) {
-			if(LOG_SUCCESS_FILE) fprintf(Log_SFile, "BWTLoad(): SaIndex inverseSa0 not match!\n");
 			fprintf(stderr, "BWTLoad(): SaIndex inverseSa0 not match!\n");
 			exit(1);
 		}
 		for (i=1; i<=ALPHABET_SIZE; i++) {
 			fread(&tmp, sizeof(unsigned int), 1, saIndexRangeFile);
 			if (tmp != bwt->cumulativeFreq[i]) {
-				if(LOG_SUCCESS_FILE)fprintf(Log_SFile, "BWTLoad(): SaIndex cumulativeFreq not match!\n");
 				fprintf(stderr, "BWTLoad(): SaIndex cumulativeFreq not match!\n");
 				exit(1);
 			}

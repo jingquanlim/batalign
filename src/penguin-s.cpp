@@ -16,28 +16,28 @@
 #include <ctype.h> 
 #include "bfix.h" 
 #include "assert.h"
-#include "ssw.h"
-#include "common.h" 
-#include "rqindex.h"
-#include "batlib.h"
+#include "ssw-s.h"
+#include "common-s.h" 
+#include "rqindex-s.h"
+#include "batlib-s.h"
 #include <map>
 #include <queue>
-#include "global.h"
+#include "global-s.h"
 #include "unistd.h"
 #include "swroutines-s.h"
-#include "filters.h"
+#include "filters-s.h"
 #include <pthread.h>
 #include "sched.h"
-#include "fastsw.h"
+#include "fastsw-s.h"
 #include "print-s.h"
 extern "C" 
 {
-	#include "iniparser.h"
+	#include "iniparser-s.h"
 	#include <time.h>
-	#include "MemManager.h"
-	#include "MiscUtilities.h"
-	#include "TextConverter.h"
-	#include "BWT.h"
+	#include "MemManager-s.h"
+	#include "MiscUtilities-s.h"
+	#include "TextConverter-s.h"
+	#include "BWT-s.h"
 }
 
 //}-----------------------------  INCLUDE FILES  -------------------------------------------------/
@@ -262,7 +262,7 @@ void *Map_And_Pair_Solexa(void *T)
 	{
 		Split_Read(L.STRINGLENGTH_ORG,L);SEEDSIZE=L.STRINGLENGTH_ORG;
 	}
-	;GlobL=L;
+	;
 	if (!(Pairs=(Pair*)malloc(sizeof(Pair)*30000))) {if(LOG_SUCCESS_FILE) fprintf(Log_SFile,"Init():malloc error...\n");fprintf(stderr,"Init():malloc error...\n");exit(-1);}
 	Split_Read(IN.STRINGLENGTH/2,L_Half);
 	Split_Read(IN.STRINGLENGTH/3,L_Third);
@@ -376,7 +376,6 @@ void *Map_And_Pair_Solexa(void *T)
 		for(;R.Tag_Copy[R.Real_Len]!=0 && R.Tag_Copy[R.Real_Len]!='\n';R.Real_Len++);
 		int Avg_Q=std::min(13,Calculate_Average_Quality(R));
 		//int Avg_Q=Calculate_Average_Quality(R);
-#define SET_LEN(x) GlobL=(x);Conversion_Factor=revfmi->textLength-(x).STRINGLENGTH;
 		Conversion_Factor=revfmi->textLength-L.STRINGLENGTH;
 		IN.Positive_Head=R.Tag_Copy;
 		R.Tag_Number=1;R.Read_Number=Actual_Tag;

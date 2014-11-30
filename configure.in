@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT(BatINDEL, 1.00(mmx), bwtbatman@gmail.com)
-AM_INIT_AUTOMAKE(BatINDEL,1.00_mmx)
+AC_INIT(BatAlign, 1.00(mmx), bwtbatman@gmail.com)
+AM_INIT_AUTOMAKE(BatAlign,1.00_mmx)
 AC_CONFIG_SRCDIR([src/crc32.h])
 AC_CONFIG_HEADERS([config.h])
 
@@ -40,4 +40,4 @@ AC_TRY_COMPILE(	[#include <emmintrin.h>;#include <mmintrin.h>;],
 		AC_MSG_RESULT(This version of C does not support intrinsics. See the documentation for fixes. Compiling the slower non-MMX version... )
 	      )
 CFLAGS="$save_CFLAGS"
-AC_OUTPUT(Makefile src/Makefile)
+AC_OUTPUT(Makefile src/Makefile scripts/Makefile)

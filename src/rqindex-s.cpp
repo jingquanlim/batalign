@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "bfix.h"
-#include "rqindex.h"
+#include "rqindex-s.h"
 #include <ctype.h>
-#include "common.h"
+#include "common-s.h"
 extern int Genome_Position;
 extern int Genome_Count;
 extern unsigned Conversion_Factor;

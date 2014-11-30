@@ -1,4 +1,4 @@
-#EXTRA_DIST =  batman.ini 
+EXTRA_DIST =  batalign
 AM_CFLAGS = -w -O3 -funroll-loops -maccumulate-outgoing-args -msse2 -lm -pthread
 AM_CXXFLAGS = -w -O3 -funroll-loops -maccumulate-outgoing-args -msse2 -lm -pthread
 RANLIB=ranlib
@@ -9,8 +9,8 @@ libz_a_SOURCES = adler32.c compress.c crc32.c gzio.c uncompr.c deflate.c trees.c
        zutil.c inflate.c infback.c inftrees.c inffast.c\
        zlib.h zconf.h crc32.h  deflate.h zutil.h inftrees.h inflate.h inffast.h trees.h inffixed.h
 
-bin_PROGRAMS = index penguin 
-index_SOURCES= bfix.cpp index.cpp BWT.c MiscUtilities.c MemManager.c TextConverter.c r250.c QSufSort.c\
+bin_PROGRAMS = batalignindex penguin bwtformatdb reverse filter penguin-s 
+batalignindex_SOURCES= bfix.cpp index.cpp BWT.c MiscUtilities.c MemManager.c TextConverter.c r250.c QSufSort.c\
  iniparser.c inistrlib.c dictionary.c DNACount.c Timing.c Socket.c HSP.c HSPstatistic.c karlin.c\
  BWT.h TypeNLimit.h MemManager.h TextConverter.h HSP.h MiscUtilities.h DNACount.h r250.h HSPstatistic.h\
  BWTConstruct.h QSufSort.h r250.h dictionary.h inistrlib.h iniparser.h Timing.h Socket.h karlin.h\
@@ -21,6 +21,18 @@ penguin_SOURCES = print.cpp filters.cpp utils.cpp batlib.cpp rqindex.cpp penguin
  print.h filters.h BWT.h TypeNLimit.h MemManager.h TextConverter.h HSP.h MiscUtilities.h DNACount.h r250.h HSPstatistic.h\
  BWTConstruct.h QSufSort.h r250.h dictionary.h inistrlib.h iniparser.h Timing.h Socket.h karlin.h\
  bfix.h rqindex.h utils.h batlib.h common.h map.h fastsw.h
+bwtformatdb_SOURCES= bwtformatdb.c BWT.c BWTConstruct.c MiscUtilities.c MemManager.c TextConverter.c r250.c QSufSort.c\
+ iniparser.c inistrlib.c dictionary.c DNACount.c Timing.c Socket.c HSP.c HSPstatistic.c karlin.c\
+ BWT.h TypeNLimit.h MemManager.h TextConverter.h HSP.h MiscUtilities.h DNACount.h r250.h HSPstatistic.h\
+ BWTConstruct.h QSufSort.h r250.h dictionary.h inistrlib.h iniparser.h Timing.h Socket.h karlin.h
+penguin_s_SOURCES = print-s.cpp filters-s.cpp utils-s.cpp batlib-s.cpp rqindex-s.cpp penguin-s.cpp map-s.cpp ssw-s.h command-s.h global-s.h swroutines-s.h kseq.h\
+ bfix.cpp BWT-s.c MiscUtilities-s.c MemManager-s.c TextConverter-s.c r250-s.c QSufSort-s.c ssw-s.c command-s.cpp swroutines-s.cpp\
+ iniparser-s.c inistrlib-s.c dictionary-s.c DNACount-s.c Timing-s.c Socket-s.c HSP-s.c HSPstatistic-s.c karlin-s.c fastsw-s.cpp\
+ print-s.h filters-s.h BWT-s.h TypeNLimit-s.h MemManager-s.h TextConverter-s.h HSP-s.h MiscUtilities-s.h DNACount-s.h r250-s.h HSPstatistic-s.h\
+ BWTConstruct-s.h QSufSort-s.h r250-s.h dictionary-s.h inistrlib-s.h iniparser-s.h Timing-s.h Socket-s.h karlin-s.h\
+ bfix.h rqindex-s.h utils-s.h batlib-s.h common-s.h map-s.h fastsw-s.h
+reverse_SOURCES = reverse.cpp 
+filter_SOURCES = filter.cpp 
 #batman_SOURCES= batman.cpp BWT.c BWTConstruct.c MiscUtilities.c MemManager.c TextConverter.c r250.c QSufSort.c\
 # iniparser.c inistrlib.c dictionary.c DNACount.c Timing.c Socket.c HSP.c HSPstatistic.c karlin.c 
 #batman_LDADD = libz.a

@@ -1,9 +1,9 @@
 #include "swroutines-s.h"
 #include "assert.h"
 #include <queue>
-#include "filters.h"
+#include "filters-s.h"
 #include "math.h"
-#include "fastsw.h"
+#include "fastsw-s.h"
 extern bool FASTDECODE;
 extern int SW_STRING_BUFFER;
 extern int Inter_MM;

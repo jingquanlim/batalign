@@ -94,19 +94,19 @@
 #define MMX 1
 
 /* Name of package */
-#define PACKAGE "BatINDEL"
+#define PACKAGE "BatAlign"
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT "bwtbatman@gmail.com"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "BatINDEL"
+#define PACKAGE_NAME "BatAlign"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "BatINDEL 1.00(mmx)"
+#define PACKAGE_STRING "BatAlign 1.00(mmx)"
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "batindel"
+#define PACKAGE_TARNAME "batalign"
 
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "1.00(mmx)"

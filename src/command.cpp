@@ -25,6 +25,7 @@ extern int SCOREGAP;
 extern bool DEBUG_SEGS;
 extern bool PAIRED;
 extern bool Hard_Penalty;
+extern bool REALN;
 //extern bool TESTMODE;
 
 option Long_Options[]=
@@ -59,6 +60,7 @@ option Long_Options[]=
 {"concthreshold",1,NULL,28},
 {"lengthcutoff",1,NULL,29},
 {"softpenalty",0,NULL,30},
+{"norealign",0,NULL,31},
 {"help",0,NULL,'h'},
 {"output",1,NULL,'o'},
 {"genome",1,NULL,'g'},
@@ -149,6 +151,7 @@ void Parse_Command_line(int argc, char* argv[],unsigned & MAXCOUNT,FMFILES & F,B
 " --splitout \t\t split output of each thread..\n"
 " --concthreshold \t\t Threshold [1-100] to determine switch between conc/disc.Lower will be more aggro towards concordance..\n"
 " --lengthcutoff \t\t number of matching bases to switch between conc/disc.Lower will be more aggro towards concordance..\n"
+" --norealign \t\t do not re-align for sharp clip..\n"
 ;
 	BP.INDELSIZE=8;BP.SCANMODE=SENSITIVE;MAX_SW=INT_MAX;
 	match = 2;
@@ -301,6 +304,9 @@ void Parse_Command_line(int argc, char* argv[],unsigned & MAXCOUNT,FMFILES & F,B
 				break;
 			case 30://softpenalty
 				Hard_Penalty=false;
+				break;
+			case 31://norealign
+				REALN=false;
 				break;
 			case 'j':
 				REJECT_FILE=optarg;

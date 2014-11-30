@@ -14,6 +14,7 @@ extern int SCOREGAP;
 extern int SW_THRESHOLD;
 extern std::string RGID;
 extern bool Hard_Penalty;
+extern bool REALN;
 
 int Find_Cigar(char* Cigar,Hit_Info & H,char* Current_Tag,int StringLength,READ & R,int & Clip_H,int & Clip_T)
 {
@@ -118,8 +119,11 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 				H.SW_Score=A.SW_Score;
 			H.SW_Sub_Opt_Score=0;
 			HOld=H;
-			TCIG=NULL;
-			forced_align=true;
+			if(REALN)
+			{
+				TCIG=NULL;
+				forced_align=true;
+			}
 		}
 		else/*Should be bad Cigar*/
 		{

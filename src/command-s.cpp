@@ -1,8 +1,8 @@
 #include <getopt.h> 
 #include "string.h" 
-#include "command.h"
-#include "common.h"
-#include "global.h"
+#include "command-s.h"
+#include "common-s.h"
+#include "global-s.h"
 //{---------------------------- Command Line  -------------------------------------------------
 extern int Inter_MM;
 extern int Max_MM;

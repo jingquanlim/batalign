@@ -97,7 +97,7 @@
 		char OUTPUTFILE_DEFAULT[]="output.txt";
 		char LOGFILE[]="run.log";
 		char LOCATIONFILE_DEFAULT[]="location";
-		char OUTFILE[]="pairings.txt";
+		char OUTFILE[]="-";//pairings.txt";
 		char HITSFILE_DEF[]="hits.txt";
 
 		char SOLID;

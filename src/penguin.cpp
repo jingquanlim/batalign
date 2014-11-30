@@ -73,6 +73,7 @@ int INSERT=5;
 int DELETE=5;
 int INSERTSIZE=500;//INT_MAX;
 int STD=50;//INT_MAX;
+int REAL_STD;
 int SW_THRESHOLD=290;
 int READS_TO_ESTIMATE=100000;
 const int ScaleQ[]={0,1.5,1.75,2,3,4};
@@ -80,6 +81,7 @@ extern const Alignment Default_Alignment={0};
 const int ORGSTRINGLENGTH=2200; 
 bool PAIRED=FALSE;
 bool Hard_Penalty=true;
+bool REALN=true;
 //extern const int QUALITYCONVERSIONFACTOR=64;
 //extern const int QUALITYSCALEFACTOR=33;
 
@@ -1382,24 +1384,25 @@ int Head_Tail(BWT* revfmi,SARange* Head_Hits,SARange* Tail_Hits,int Insert,int M
 
 void Verbose(char *BWTFILE,char *OCCFILE,char *REVBWTINDEX,char *REVOCCFILE,char *PATTERNFILE,char *HITSFILE,char* LOCATIONFILE,char MAX_MISMATCHES,int Patternfile_Count,char* PATTERNFILE1,char FILETYPE,LEN & L,char FORCESOLID)
 {
+	static int Pass=0;
+
 	if (!MISC_VERB) return;
-	fprintf(stderr,"BAT ALIGN - Long ..\n");
-	fprintf(stderr,"+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n");
-	fprintf(stderr,"Using the genome files\n %s\t %s\n %s\t %s\n", BWTFILE,OCCFILE,REVBWTINDEX,REVOCCFILE); 
-	fprintf(stderr,"Location file: %s\n", LOCATIONFILE); 
-	fprintf(stderr,"Query File : %s \t\t Output file: %s\n",PATTERNFILE,HITSFILE);
-	if(Patternfile_Count) fprintf(stderr,"Mate File : %s \n ",PATTERNFILE1);
-	fprintf(stderr,"Length of Tags: %d\t", L.STRINGLENGTH);
-	fprintf(stderr,"Mismatches allowed : %d\n",MAX_MISMATCHES);
-	if (SOLID) 
+	if(!Pass)
 	{
-		if (FORCESOLID) fprintf (stderr,"DIBASE-SOLiD reads...\n");
-		else fprintf (stderr,"SOLiD reads...\n");
+		fprintf(stderr,"BAT ALIGN - Long ..\n");
+		fprintf(stderr,"+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n");
+		fprintf(stderr,"Using the genome files\n %s\t %s\n %s\t %s\n", BWTFILE,OCCFILE,REVBWTINDEX,REVOCCFILE); 
+		fprintf(stderr,"Location file: %s\n", LOCATIONFILE); 
+		fprintf(stderr,"Query File : %s \t\t Output file: %s\n",PATTERNFILE,HITSFILE);
+		if(Patternfile_Count) fprintf(stderr,"Mate File : %s \n ",PATTERNFILE1);
+		fprintf(stderr,"Length of Tags: %d\t", L.STRINGLENGTH);
+		fprintf(stderr,"Mismatches allowed : %d\n",MAX_MISMATCHES);
+		if (FILETYPE == FQ) fprintf(stderr,"FASTQ file..\n"); else fprintf(stderr,"FASTA file..\n");
+		if (UNIQ_HIT) fprintf(stderr,"Unique hit mode..\n");
+		if (PRIORITYMODE) fprintf(stderr,"Lowest mismatch mode..\n");
+		fprintf(stderr,"+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n");
 	}
-	if (FILETYPE == FQ) fprintf(stderr,"FASTQ file..\n"); else fprintf(stderr,"FASTA file..\n");
-	if (UNIQ_HIT) fprintf(stderr,"Unique hit mode..\n");
-	if (PRIORITYMODE) fprintf(stderr,"Lowest mismatch mode..\n");
-	fprintf(stderr,"+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n");
+	Pass++;
 }
 
 void Init(In_File & IN,FMFILES F,RQINDEX R,BATPARAMETERS & BP,char Solid,char Npolicy,LEN & L)
@@ -3540,34 +3543,37 @@ void Print_Pair(FILE* Single_File,Final_Hit & H,Final_Hit & T,READ & R1, READ & 
 		}
 		H.Flag|=Proper_Pair;T.Flag|=Proper_Pair;
 
-		Final_Hit Aux_Hit;
-		if(HP_Clip > CLIP_SAVE_LENGTH)
+		if(REALN)
 		{
-			if(Map_Clip(MF,MC,fwfmi,revfmi,H,R1,false,Aux_Hit))
+			Final_Hit Aux_Hit;
+			if(HP_Clip > CLIP_SAVE_LENGTH)
 			{
-				Print_Aux_Hit(Single_File,H,Aux_Hit,R1,HP_Clip,HS_Clip);
+				if(Map_Clip(MF,MC,fwfmi,revfmi,H,R1,false,Aux_Hit))
+				{
+					Print_Aux_Hit(Single_File,H,Aux_Hit,R1,HP_Clip,HS_Clip);
+				}
 			}
-		}
-		if(HS_Clip > CLIP_SAVE_LENGTH)
-		{
-			if(Map_Clip(MF,MC,fwfmi,revfmi,H,R1,true,Aux_Hit))
+			if(HS_Clip > CLIP_SAVE_LENGTH)
 			{
-				Print_Aux_Hit(Single_File,H,Aux_Hit,R1,HP_Clip,HS_Clip);
+				if(Map_Clip(MF,MC,fwfmi,revfmi,H,R1,true,Aux_Hit))
+				{
+					Print_Aux_Hit(Single_File,H,Aux_Hit,R1,HP_Clip,HS_Clip);
+				}
 			}
-		}
-		
-		if(TP_Clip > CLIP_SAVE_LENGTH)
-		{
-			if(Map_Clip(MF,MC,fwfmi,revfmi,T,R2,false,Aux_Hit))
+
+			if(TP_Clip > CLIP_SAVE_LENGTH)
 			{
-				Print_Aux_Hit(Single_File,T,Aux_Hit,R2,TP_Clip,TS_Clip);
+				if(Map_Clip(MF,MC,fwfmi,revfmi,T,R2,false,Aux_Hit))
+				{
+					Print_Aux_Hit(Single_File,T,Aux_Hit,R2,TP_Clip,TS_Clip);
+				}
 			}
-		}
-		if(TS_Clip > CLIP_SAVE_LENGTH)
-		{
-			if(Map_Clip(MF,MC,fwfmi,revfmi,T,R2,true,Aux_Hit))
+			if(TS_Clip > CLIP_SAVE_LENGTH)
 			{
-				Print_Aux_Hit(Single_File,T,Aux_Hit,R2,TP_Clip,TS_Clip);
+				if(Map_Clip(MF,MC,fwfmi,revfmi,T,R2,true,Aux_Hit))
+				{
+					Print_Aux_Hit(Single_File,T,Aux_Hit,R2,TP_Clip,TS_Clip);
+				}
 			}
 		}
 
@@ -3658,7 +3664,8 @@ bool Check_Proper_Pair(int S1,int S2,unsigned Loc1, unsigned Loc2,int Extra_Bit)
 		assert(S2=='-');
 		if(Loc1<=Loc2)
 		{
-			if(Loc2-Loc1<=INSERTSIZE+2*STD+Extra_Bit)
+			//if(Loc2-Loc1<=INSERTSIZE+2*STD+Extra_Bit)
+			if(Loc2-Loc1<=INSERTSIZE+2*REAL_STD+Extra_Bit)
 				return true;
 		}
 	}
@@ -3667,7 +3674,8 @@ bool Check_Proper_Pair(int S1,int S2,unsigned Loc1, unsigned Loc2,int Extra_Bit)
 		assert(S2=='+');
 		if(Loc1>=Loc2)
 		{
-			if(Loc1-Loc2<=INSERTSIZE+2*STD+Extra_Bit)
+			//if(Loc1-Loc2<=INSERTSIZE+2*STD+Extra_Bit)
+			if(Loc1-Loc2<=INSERTSIZE+2*REAL_STD+Extra_Bit)
 				return true;
 		}
 	}
@@ -3683,7 +3691,7 @@ void Estimate_Insert(int & INSERTSIZE,int & STD)
 	{
 		fprintf(stderr,"Variability of insert size is high: Assuming wild distribution..\n");
 		INSERTSIZE=1000;
-		STD=250;
+		REAL_STD=STD=250;
 		SW_STRING_BUFFER=2400;
 		return;
 
@@ -3731,11 +3739,12 @@ void Estimate_Insert(int & INSERTSIZE,int & STD)
 	}
 
 	int Standard_Deviation = int(sqrt (N/j));
+	REAL_STD=Standard_Deviation;
 	if(Standard_Deviation>STD)
 		STD=Standard_Deviation;
 	INSERTSIZE=int(Mean);
 
-	fprintf (stderr,"Mean Insert Size detected: %u\nStandard deviation: %u\n",INSERTSIZE,STD);
+	fprintf (stderr,"Mean Insert Size detected: %u\nStandard deviation: %u/%d\n",INSERTSIZE,STD,REAL_STD);
 }
 
 void Rescue_Clip(std::string S,int & P_Clip,int & S_Clip)

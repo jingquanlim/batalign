@@ -15,10 +15,10 @@
 
 
 
-pkgdatadir = $(datadir)/BatINDEL
-pkgincludedir = $(includedir)/BatINDEL
-pkglibdir = $(libdir)/BatINDEL
-pkglibexecdir = $(libexecdir)/BatINDEL
+pkgdatadir = $(datadir)/BatAlign
+pkgincludedir = $(includedir)/BatAlign
+pkglibdir = $(libdir)/BatAlign
+pkglibexecdir = $(libexecdir)/BatAlign
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 install_sh_DATA = $(install_sh) -c -m 644
 install_sh_PROGRAM = $(install_sh) -c
@@ -98,11 +98,11 @@ DIST_ARCHIVES = $(distdir).tar.gz
 GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /home/chandana/repo/batindel/missing --run aclocal-1.11
-AMTAR = ${SHELL} /home/chandana/repo/batindel/missing --run tar
-AUTOCONF = ${SHELL} /home/chandana/repo/batindel/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/chandana/repo/batindel/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/chandana/repo/batindel/missing --run automake-1.11
+ACLOCAL = ${SHELL} /home/Ken/batindel/batindel/missing --run aclocal-1.11
+AMTAR = ${SHELL} /home/Ken/batindel/batindel/missing --run tar
+AUTOCONF = ${SHELL} /home/Ken/batindel/batindel/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/Ken/batindel/batindel/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/Ken/batindel/batindel/missing --run automake-1.11
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -130,24 +130,24 @@ LDFLAGS =
 LIBOBJS = 
 LIBS = 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/chandana/repo/batindel/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/Ken/batindel/batindel/missing --run makeinfo
 MKDIR_P = /bin/mkdir -p
 OBJEXT = o
-PACKAGE = BatINDEL
+PACKAGE = BatAlign
 PACKAGE_BUGREPORT = bwtbatman@gmail.com
-PACKAGE_NAME = BatINDEL
-PACKAGE_STRING = BatINDEL 1.00(mmx)
-PACKAGE_TARNAME = batindel
+PACKAGE_NAME = BatAlign
+PACKAGE_STRING = BatAlign 1.00(mmx)
+PACKAGE_TARNAME = batalign
 PACKAGE_VERSION = 1.00(mmx)
 PATH_SEPARATOR = :
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
 VERSION = 1.00_mmx
-abs_builddir = /home/chandana/repo/batindel
-abs_srcdir = /home/chandana/repo/batindel
-abs_top_builddir = /home/chandana/repo/batindel
-abs_top_srcdir = /home/chandana/repo/batindel
+abs_builddir = /home/Ken/batindel/batindel
+abs_srcdir = /home/Ken/batindel/batindel
+abs_top_builddir = /home/Ken/batindel/batindel
+abs_top_srcdir = /home/Ken/batindel/batindel
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 am__include = include
@@ -167,7 +167,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/chandana/repo/batindel/install-sh
+install_sh = ${SHELL} /home/Ken/batindel/batindel/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -188,8 +188,7 @@ top_build_prefix =
 top_builddir = .
 top_srcdir = .
 AUTOMAKE_OPTIONS = foreign
-#SUBDIRS = src scripts 
-SUBDIRS = src  
+SUBDIRS = src scripts 
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -679,16 +678,18 @@ copy:
 	cp scripts/b2c.pl bin 
 	cp scripts/build_complement bin 
 	cp scripts/filter.pl bin
-	cp scripts/build_index bin 
+	cp scripts/build_indexX bin 
 	cp scripts/ann2loc.pl bin 
 	cp scripts/build_location.pl bin 
 	cp scripts/build_revcmp bin 
 	cp scripts/complement.pl bin
 	cp src/bwtformatdb bin 
 	cp src/reverse bin 
-	cp src/batman bin 
-	cp src/batdecode bin 
+	cp src/penguin bin 
+	cp src/batalign bin
+	cp src/batalignindex bin
 	cp src/filter bin
+	cp src/penguin-s bin 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -188,8 +188,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
-#SUBDIRS = src scripts 
-SUBDIRS = src  
+SUBDIRS = src scripts 
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -679,16 +678,18 @@ copy:
 	cp scripts/b2c.pl bin 
 	cp scripts/build_complement bin 
 	cp scripts/filter.pl bin
-	cp scripts/build_index bin 
+	cp scripts/build_indexX bin 
 	cp scripts/ann2loc.pl bin 
 	cp scripts/build_location.pl bin 
 	cp scripts/build_revcmp bin 
 	cp scripts/complement.pl bin
 	cp src/bwtformatdb bin 
 	cp src/reverse bin 
-	cp src/batman bin 
-	cp src/batdecode bin 
+	cp src/penguin bin 
+	cp src/batalign bin
+	cp src/batalignindex bin
 	cp src/filter bin
+	cp src/penguin-s bin 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
