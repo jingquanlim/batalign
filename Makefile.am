@@ -18,3 +18,4 @@ copy:
 	cp src/batalignindex bin
 	cp src/filter bin
 	cp src/penguin-s bin 
+	cp src/batalign bin 
