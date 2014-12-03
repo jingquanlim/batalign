@@ -35,7 +35,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = batalignindex$(EXEEXT) penguin$(EXEEXT) \
 	bwtformatdb$(EXEEXT) reverse$(EXEEXT) filter$(EXEEXT) \
-	penguin-s$(EXEEXT)
+	penguin-s$(EXEEXT) penguin-l$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -91,6 +91,19 @@ am_penguin_OBJECTS = print.$(OBJEXT) filters.$(OBJEXT) utils.$(OBJEXT) \
 	fastsw.$(OBJEXT)
 penguin_OBJECTS = $(am_penguin_OBJECTS)
 penguin_LDADD = $(LDADD)
+am_penguin_l_OBJECTS = print-l.$(OBJEXT) filters-l.$(OBJEXT) \
+	utils-l.$(OBJEXT) batlib-l.$(OBJEXT) rqindex-l.$(OBJEXT) \
+	penguin-l.$(OBJEXT) map-l.$(OBJEXT) bfix.$(OBJEXT) \
+	BWT-l.$(OBJEXT) MiscUtilities-l.$(OBJEXT) \
+	MemManager-l.$(OBJEXT) TextConverter-l.$(OBJEXT) \
+	r250-l.$(OBJEXT) QSufSort-l.$(OBJEXT) ssw-l.$(OBJEXT) \
+	command-l.$(OBJEXT) swroutines-l.$(OBJEXT) \
+	iniparser-l.$(OBJEXT) inistrlib-l.$(OBJEXT) \
+	dictionary-l.$(OBJEXT) DNACount-l.$(OBJEXT) Timing-l.$(OBJEXT) \
+	Socket-l.$(OBJEXT) HSP-l.$(OBJEXT) HSPstatistic-l.$(OBJEXT) \
+	karlin-l.$(OBJEXT) fastsw-l.$(OBJEXT)
+penguin_l_OBJECTS = $(am_penguin_l_OBJECTS)
+penguin_l_LDADD = $(LDADD)
 am_penguin_s_OBJECTS = print-s.$(OBJEXT) filters-s.$(OBJEXT) \
 	utils-s.$(OBJEXT) batlib-s.$(OBJEXT) rqindex-s.$(OBJEXT) \
 	penguin-s.$(OBJEXT) map-s.$(OBJEXT) bfix.$(OBJEXT) \
@@ -122,10 +135,10 @@ CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
 SOURCES = $(libz_a_SOURCES) $(batalignindex_SOURCES) \
 	$(bwtformatdb_SOURCES) $(filter_SOURCES) $(penguin_SOURCES) \
-	$(penguin_s_SOURCES) $(reverse_SOURCES)
+	$(penguin_l_SOURCES) $(penguin_s_SOURCES) $(reverse_SOURCES)
 DIST_SOURCES = $(libz_a_SOURCES) $(batalignindex_SOURCES) \
 	$(bwtformatdb_SOURCES) $(filter_SOURCES) $(penguin_SOURCES) \
-	$(penguin_s_SOURCES) $(reverse_SOURCES)
+	$(penguin_l_SOURCES) $(penguin_s_SOURCES) $(reverse_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -253,6 +266,13 @@ penguin_s_SOURCES = print-s.cpp filters-s.cpp utils-s.cpp batlib-s.cpp rqindex-s
  BWTConstruct-s.h QSufSort-s.h r250-s.h dictionary-s.h inistrlib-s.h iniparser-s.h Timing-s.h Socket-s.h karlin-s.h\
  bfix.h rqindex-s.h utils-s.h batlib-s.h common-s.h map-s.h fastsw-s.h
 
+penguin_l_SOURCES = print-l.cpp filters-l.cpp utils-l.cpp batlib-l.cpp rqindex-l.cpp penguin-l.cpp map-l.cpp ssw-l.h command-l.h global-l.h swroutines-l.h kseq-l.h\
+ bfix.cpp BWT-l.c MiscUtilities-l.c MemManager-l.c TextConverter-l.c r250-l.c QSufSort-l.c ssw-l.c command-l.cpp swroutines-l.cpp\
+ iniparser-l.c inistrlib-l.c dictionary-l.c DNACount-l.c Timing-l.c Socket-l.c HSP-l.c HSPstatistic-l.c karlin-l.c fastsw-l.cpp\
+ print-l.h filters-l.h BWT-l.h TypeNLimit-l.h MemManager-l.h TextConverter-l.h HSP-l.h MiscUtilities-l.h DNACount-l.h r250-l.h HSPstatistic-l.h\
+ BWTConstruct-l.h QSufSort-l.h r250-l.h dictionary-l.h inistrlib-l.h iniparser-l.h Timing-l.h Socket-l.h karlin-l.h\
+ bfix-l.h rqindex-l.h utils-l.h batlib-l.h common-l.h map-l.h fastsw-l.h
+
 reverse_SOURCES = reverse.cpp 
 filter_SOURCES = filter.cpp 
 all: all-am
@@ -345,6 +365,9 @@ filter$(EXEEXT): $(filter_OBJECTS) $(filter_DEPENDENCIES)
 penguin$(EXEEXT): $(penguin_OBJECTS) $(penguin_DEPENDENCIES) 
 	@rm -f penguin$(EXEEXT)
 	$(CXXLINK) $(penguin_OBJECTS) $(penguin_LDADD) $(LIBS)
+penguin-l$(EXEEXT): $(penguin_l_OBJECTS) $(penguin_l_DEPENDENCIES) 
+	@rm -f penguin-l$(EXEEXT)
+	$(CXXLINK) $(penguin_l_OBJECTS) $(penguin_l_LDADD) $(LIBS)
 penguin-s$(EXEEXT): $(penguin_s_OBJECTS) $(penguin_s_DEPENDENCIES) 
 	@rm -f penguin-s$(EXEEXT)
 	$(CXXLINK) $(penguin_s_OBJECTS) $(penguin_s_LDADD) $(LIBS)
@@ -358,42 +381,57 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BWT-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BWT-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BWT.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BWTConstruct.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DNACount-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DNACount-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DNACount.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HSP-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HSP-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HSP.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HSPstatistic-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HSPstatistic-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HSPstatistic.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MemManager-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MemManager-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MemManager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MiscUtilities-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MiscUtilities-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MiscUtilities.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QSufSort-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QSufSort-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QSufSort.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Socket-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Socket-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Socket.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TextConverter-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TextConverter-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TextConverter.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Timing-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Timing-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Timing.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/adler32.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/batlib-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/batlib-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/batlib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bfix.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bwtformatdb.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compress.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crc32.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deflate.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dictionary-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dictionary-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dictionary.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fastsw-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fastsw-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fastsw.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filters-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filters-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filters.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gzio.Po@am__quote@
@@ -402,29 +440,40 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inffast.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inflate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inftrees.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/iniparser-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/iniparser-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/iniparser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inistrlib-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inistrlib-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inistrlib.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/karlin-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/karlin-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/karlin.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/map-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/map-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/map.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/penguin-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/penguin-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/penguin.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/print-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/print-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/print.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/r250-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/r250-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/r250.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/reverse.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rqindex-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rqindex-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rqindex.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ssw-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ssw-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ssw.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/swroutines-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/swroutines-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/swroutines.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trees.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/uncompr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils-l.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils-s.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zutil.Po@am__quote@

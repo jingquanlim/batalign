@@ -1,5 +1,5 @@
-#include "common.h"
-#include "rqindex.h"
+#include "common-s.h"
+#include "rqindex-s.h"
 #ifdef __MAIN_CODE__
 	#ifndef __MAIN_INSERTED__
 	#define __MAIN_INSERTED__
@@ -94,10 +94,10 @@
 		char SAFILE_DEFAULT[] ="genome.sa";
 		char BINFILE_DEFAULT[] = "genome.bin";//"genome.bwt";// 
 		char INPUTFILE_DEFAULT[]="hits.txt";
-		//char OUTPUTFILE_DEFAULT[]="output.txt";
+		char OUTPUTFILE_DEFAULT[]="output.txt";
 		char LOGFILE[]="run.log";
 		char LOCATIONFILE_DEFAULT[]="location";
-		char OUTFILE[]="-";//pairings.txt";
+		char OUTFILE[]="-";//"pairings.txt";
 		char HITSFILE_DEF[]="hits.txt";
 
 		char SOLID;
@@ -128,7 +128,6 @@
 		#endif
 		int32_t match, mismatch, gap_open, gap_extension, path, n, filter;
 		int8_t* mata;
-		int8_t* mata_SC;
 	#endif
 #else 
 #ifndef __GLOBAL_VAR__
@@ -225,7 +224,7 @@ extern char REVSAFILE_DEFAULT[];
 extern char SAFILE_DEFAULT[];
 extern char BINFILE_DEFAULT[];//"genome.bwt";// 
 extern char INPUTFILE_DEFAULT[];
-//extern char OUTPUTFILE_DEFAULT[];
+extern char OUTPUTFILE_DEFAULT[];
 extern char LOGFILE[];
 extern char LOCATIONFILE_DEFAULT[];
 extern char OUTFILE[];
@@ -259,7 +258,6 @@ extern char* DISC_HIT_BUFFER_ORG;
 #endif
 extern int32_t match, mismatch, gap_open, gap_extension, path, n, filter;
 extern int8_t* mata;
-extern int8_t* mata_SC;
 //}---------------------------- GLOBAL VARIABLES -------------------------------------------------
 #endif
 #endif

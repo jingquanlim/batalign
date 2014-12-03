@@ -9,7 +9,7 @@ libz_a_SOURCES = adler32.c compress.c crc32.c gzio.c uncompr.c deflate.c trees.c
        zutil.c inflate.c infback.c inftrees.c inffast.c\
        zlib.h zconf.h crc32.h  deflate.h zutil.h inftrees.h inflate.h inffast.h trees.h inffixed.h
 
-bin_PROGRAMS = batalignindex penguin bwtformatdb reverse filter penguin-s 
+bin_PROGRAMS = batalignindex penguin bwtformatdb reverse filter penguin-s penguin-l 
 batalignindex_SOURCES= bfix.cpp index.cpp BWT.c MiscUtilities.c MemManager.c TextConverter.c r250.c QSufSort.c\
  iniparser.c inistrlib.c dictionary.c DNACount.c Timing.c Socket.c HSP.c HSPstatistic.c karlin.c\
  BWT.h TypeNLimit.h MemManager.h TextConverter.h HSP.h MiscUtilities.h DNACount.h r250.h HSPstatistic.h\
@@ -31,6 +31,12 @@ penguin_s_SOURCES = print-s.cpp filters-s.cpp utils-s.cpp batlib-s.cpp rqindex-s
  print-s.h filters-s.h BWT-s.h TypeNLimit-s.h MemManager-s.h TextConverter-s.h HSP-s.h MiscUtilities-s.h DNACount-s.h r250-s.h HSPstatistic-s.h\
  BWTConstruct-s.h QSufSort-s.h r250-s.h dictionary-s.h inistrlib-s.h iniparser-s.h Timing-s.h Socket-s.h karlin-s.h\
  bfix.h rqindex-s.h utils-s.h batlib-s.h common-s.h map-s.h fastsw-s.h
+penguin_l_SOURCES = print-l.cpp filters-l.cpp utils-l.cpp batlib-l.cpp rqindex-l.cpp penguin-l.cpp map-l.cpp ssw-l.h command-l.h global-l.h swroutines-l.h kseq-l.h\
+ bfix.cpp BWT-l.c MiscUtilities-l.c MemManager-l.c TextConverter-l.c r250-l.c QSufSort-l.c ssw-l.c command-l.cpp swroutines-l.cpp\
+ iniparser-l.c inistrlib-l.c dictionary-l.c DNACount-l.c Timing-l.c Socket-l.c HSP-l.c HSPstatistic-l.c karlin-l.c fastsw-l.cpp\
+ print-l.h filters-l.h BWT-l.h TypeNLimit-l.h MemManager-l.h TextConverter-l.h HSP-l.h MiscUtilities-l.h DNACount-l.h r250-l.h HSPstatistic-l.h\
+ BWTConstruct-l.h QSufSort-l.h r250-l.h dictionary-l.h inistrlib-l.h iniparser-l.h Timing-l.h Socket-l.h karlin-l.h\
+ bfix-l.h rqindex-l.h utils-l.h batlib-l.h common-l.h map-l.h fastsw-l.h
 reverse_SOURCES = reverse.cpp 
 filter_SOURCES = filter.cpp 
 #batman_SOURCES= batman.cpp BWT.c BWTConstruct.c MiscUtilities.c MemManager.c TextConverter.c r250.c QSufSort.c\

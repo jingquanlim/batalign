@@ -35,7 +35,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = batalignindex$(EXEEXT) penguin$(EXEEXT) \
 	bwtformatdb$(EXEEXT) reverse$(EXEEXT) filter$(EXEEXT) \
-	penguin-s$(EXEEXT)
+	penguin-s$(EXEEXT) penguin-l$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -91,6 +91,19 @@ am_penguin_OBJECTS = print.$(OBJEXT) filters.$(OBJEXT) utils.$(OBJEXT) \
 	fastsw.$(OBJEXT)
 penguin_OBJECTS = $(am_penguin_OBJECTS)
 penguin_LDADD = $(LDADD)
+am_penguin_l_OBJECTS = print-l.$(OBJEXT) filters-l.$(OBJEXT) \
+	utils-l.$(OBJEXT) batlib-l.$(OBJEXT) rqindex-l.$(OBJEXT) \
+	penguin-l.$(OBJEXT) map-l.$(OBJEXT) bfix.$(OBJEXT) \
+	BWT-l.$(OBJEXT) MiscUtilities-l.$(OBJEXT) \
+	MemManager-l.$(OBJEXT) TextConverter-l.$(OBJEXT) \
+	r250-l.$(OBJEXT) QSufSort-l.$(OBJEXT) ssw-l.$(OBJEXT) \
+	command-l.$(OBJEXT) swroutines-l.$(OBJEXT) \
+	iniparser-l.$(OBJEXT) inistrlib-l.$(OBJEXT) \
+	dictionary-l.$(OBJEXT) DNACount-l.$(OBJEXT) Timing-l.$(OBJEXT) \
+	Socket-l.$(OBJEXT) HSP-l.$(OBJEXT) HSPstatistic-l.$(OBJEXT) \
+	karlin-l.$(OBJEXT) fastsw-l.$(OBJEXT)
+penguin_l_OBJECTS = $(am_penguin_l_OBJECTS)
+penguin_l_LDADD = $(LDADD)
 am_penguin_s_OBJECTS = print-s.$(OBJEXT) filters-s.$(OBJEXT) \
 	utils-s.$(OBJEXT) batlib-s.$(OBJEXT) rqindex-s.$(OBJEXT) \
 	penguin-s.$(OBJEXT) map-s.$(OBJEXT) bfix.$(OBJEXT) \
@@ -122,10 +135,10 @@ CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
 SOURCES = $(libz_a_SOURCES) $(batalignindex_SOURCES) \
 	$(bwtformatdb_SOURCES) $(filter_SOURCES) $(penguin_SOURCES) \
-	$(penguin_s_SOURCES) $(reverse_SOURCES)
+	$(penguin_l_SOURCES) $(penguin_s_SOURCES) $(reverse_SOURCES)
 DIST_SOURCES = $(libz_a_SOURCES) $(batalignindex_SOURCES) \
 	$(bwtformatdb_SOURCES) $(filter_SOURCES) $(penguin_SOURCES) \
-	$(penguin_s_SOURCES) $(reverse_SOURCES)
+	$(penguin_l_SOURCES) $(penguin_s_SOURCES) $(reverse_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -253,6 +266,13 @@ penguin_s_SOURCES = print-s.cpp filters-s.cpp utils-s.cpp batlib-s.cpp rqindex-s
  BWTConstruct-s.h QSufSort-s.h r250-s.h dictionary-s.h inistrlib-s.h iniparser-s.h Timing-s.h Socket-s.h karlin-s.h\
  bfix.h rqindex-s.h utils-s.h batlib-s.h common-s.h map-s.h fastsw-s.h
 
+penguin_l_SOURCES = print-l.cpp filters-l.cpp utils-l.cpp batlib-l.cpp rqindex-l.cpp penguin-l.cpp map-l.cpp ssw-l.h command-l.h global-l.h swroutines-l.h kseq-l.h\
+ bfix.cpp BWT-l.c MiscUtilities-l.c MemManager-l.c TextConverter-l.c r250-l.c QSufSort-l.c ssw-l.c command-l.cpp swroutines-l.cpp\
+ iniparser-l.c inistrlib-l.c dictionary-l.c DNACount-l.c Timing-l.c Socket-l.c HSP-l.c HSPstatistic-l.c karlin-l.c fastsw-l.cpp\
+ print-l.h filters-l.h BWT-l.h TypeNLimit-l.h MemManager-l.h TextConverter-l.h HSP-l.h MiscUtilities-l.h DNACount-l.h r250-l.h HSPstatistic-l.h\
+ BWTConstruct-l.h QSufSort-l.h r250-l.h dictionary-l.h inistrlib-l.h iniparser-l.h Timing-l.h Socket-l.h karlin-l.h\
+ bfix-l.h rqindex-l.h utils-l.h batlib-l.h common-l.h map-l.h fastsw-l.h
+
 reverse_SOURCES = reverse.cpp 
 filter_SOURCES = filter.cpp 
 all: all-am
@@ -345,6 +365,9 @@ filter$(EXEEXT): $(filter_OBJECTS) $(filter_DEPENDENCIES)
 penguin$(EXEEXT): $(penguin_OBJECTS) $(penguin_DEPENDENCIES) 
 	@rm -f penguin$(EXEEXT)
 	$(CXXLINK) $(penguin_OBJECTS) $(penguin_LDADD) $(LIBS)
+penguin-l$(EXEEXT): $(penguin_l_OBJECTS) $(penguin_l_DEPENDENCIES) 
+	@rm -f penguin-l$(EXEEXT)
+	$(CXXLINK) $(penguin_l_OBJECTS) $(penguin_l_LDADD) $(LIBS)
 penguin-s$(EXEEXT): $(penguin_s_OBJECTS) $(penguin_s_DEPENDENCIES) 
 	@rm -f penguin-s$(EXEEXT)
 	$(CXXLINK) $(penguin_s_OBJECTS) $(penguin_s_LDADD) $(LIBS)
@@ -358,42 +381,57 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+include ./$(DEPDIR)/BWT-l.Po
 include ./$(DEPDIR)/BWT-s.Po
 include ./$(DEPDIR)/BWT.Po
 include ./$(DEPDIR)/BWTConstruct.Po
+include ./$(DEPDIR)/DNACount-l.Po
 include ./$(DEPDIR)/DNACount-s.Po
 include ./$(DEPDIR)/DNACount.Po
+include ./$(DEPDIR)/HSP-l.Po
 include ./$(DEPDIR)/HSP-s.Po
 include ./$(DEPDIR)/HSP.Po
+include ./$(DEPDIR)/HSPstatistic-l.Po
 include ./$(DEPDIR)/HSPstatistic-s.Po
 include ./$(DEPDIR)/HSPstatistic.Po
+include ./$(DEPDIR)/MemManager-l.Po
 include ./$(DEPDIR)/MemManager-s.Po
 include ./$(DEPDIR)/MemManager.Po
+include ./$(DEPDIR)/MiscUtilities-l.Po
 include ./$(DEPDIR)/MiscUtilities-s.Po
 include ./$(DEPDIR)/MiscUtilities.Po
+include ./$(DEPDIR)/QSufSort-l.Po
 include ./$(DEPDIR)/QSufSort-s.Po
 include ./$(DEPDIR)/QSufSort.Po
+include ./$(DEPDIR)/Socket-l.Po
 include ./$(DEPDIR)/Socket-s.Po
 include ./$(DEPDIR)/Socket.Po
+include ./$(DEPDIR)/TextConverter-l.Po
 include ./$(DEPDIR)/TextConverter-s.Po
 include ./$(DEPDIR)/TextConverter.Po
+include ./$(DEPDIR)/Timing-l.Po
 include ./$(DEPDIR)/Timing-s.Po
 include ./$(DEPDIR)/Timing.Po
 include ./$(DEPDIR)/adler32.Po
+include ./$(DEPDIR)/batlib-l.Po
 include ./$(DEPDIR)/batlib-s.Po
 include ./$(DEPDIR)/batlib.Po
 include ./$(DEPDIR)/bfix.Po
 include ./$(DEPDIR)/bwtformatdb.Po
+include ./$(DEPDIR)/command-l.Po
 include ./$(DEPDIR)/command-s.Po
 include ./$(DEPDIR)/command.Po
 include ./$(DEPDIR)/compress.Po
 include ./$(DEPDIR)/crc32.Po
 include ./$(DEPDIR)/deflate.Po
+include ./$(DEPDIR)/dictionary-l.Po
 include ./$(DEPDIR)/dictionary-s.Po
 include ./$(DEPDIR)/dictionary.Po
+include ./$(DEPDIR)/fastsw-l.Po
 include ./$(DEPDIR)/fastsw-s.Po
 include ./$(DEPDIR)/fastsw.Po
 include ./$(DEPDIR)/filter.Po
+include ./$(DEPDIR)/filters-l.Po
 include ./$(DEPDIR)/filters-s.Po
 include ./$(DEPDIR)/filters.Po
 include ./$(DEPDIR)/gzio.Po
@@ -402,29 +440,40 @@ include ./$(DEPDIR)/infback.Po
 include ./$(DEPDIR)/inffast.Po
 include ./$(DEPDIR)/inflate.Po
 include ./$(DEPDIR)/inftrees.Po
+include ./$(DEPDIR)/iniparser-l.Po
 include ./$(DEPDIR)/iniparser-s.Po
 include ./$(DEPDIR)/iniparser.Po
+include ./$(DEPDIR)/inistrlib-l.Po
 include ./$(DEPDIR)/inistrlib-s.Po
 include ./$(DEPDIR)/inistrlib.Po
+include ./$(DEPDIR)/karlin-l.Po
 include ./$(DEPDIR)/karlin-s.Po
 include ./$(DEPDIR)/karlin.Po
+include ./$(DEPDIR)/map-l.Po
 include ./$(DEPDIR)/map-s.Po
 include ./$(DEPDIR)/map.Po
+include ./$(DEPDIR)/penguin-l.Po
 include ./$(DEPDIR)/penguin-s.Po
 include ./$(DEPDIR)/penguin.Po
+include ./$(DEPDIR)/print-l.Po
 include ./$(DEPDIR)/print-s.Po
 include ./$(DEPDIR)/print.Po
+include ./$(DEPDIR)/r250-l.Po
 include ./$(DEPDIR)/r250-s.Po
 include ./$(DEPDIR)/r250.Po
 include ./$(DEPDIR)/reverse.Po
+include ./$(DEPDIR)/rqindex-l.Po
 include ./$(DEPDIR)/rqindex-s.Po
 include ./$(DEPDIR)/rqindex.Po
+include ./$(DEPDIR)/ssw-l.Po
 include ./$(DEPDIR)/ssw-s.Po
 include ./$(DEPDIR)/ssw.Po
+include ./$(DEPDIR)/swroutines-l.Po
 include ./$(DEPDIR)/swroutines-s.Po
 include ./$(DEPDIR)/swroutines.Po
 include ./$(DEPDIR)/trees.Po
 include ./$(DEPDIR)/uncompr.Po
+include ./$(DEPDIR)/utils-l.Po
 include ./$(DEPDIR)/utils-s.Po
 include ./$(DEPDIR)/utils.Po
 include ./$(DEPDIR)/zutil.Po

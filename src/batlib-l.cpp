@@ -11,7 +11,7 @@
 #include <queue>
 #include <ctype.h>
 
-#include "batlib-s.h"
+#include "batlib-l.h"
 extern int LEAST_MIS;
 extern unsigned Genome_Count;
 extern int NCOUNT;
@@ -29,7 +29,6 @@ extern char Char_To_CodeC[];
 extern char Char_To_Code[];
 extern BWT *revfmi,*fwfmi;
 extern unsigned Conversion_Factor;
-extern LEN GlobL;
 extern char* LOG_SUCCESS_FILE;
 extern FILE* Log_SFile;
 
