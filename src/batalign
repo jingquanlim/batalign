@@ -5,7 +5,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ $FILECOUNT -eq 2 ]
 then
-	echo Launching in Paired mode
 	$DIR/penguin $CMDLINE
 else
 	while [[ $# > 1 ]]
@@ -23,10 +22,8 @@ else
 	Seq_Length=${#Sequence}
 	if [ $Seq_Length -ge 149 ]
 	then
-		echo Launching in Long mode
 		$DIR/penguin-l $CMDLINE
 	else
-		echo Launching in Short mode
 		$DIR/penguin-s $CMDLINE
 	fi
 fi
