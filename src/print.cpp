@@ -182,6 +182,7 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 				Read2Bin(Real_String,R.Tag_Copy,R.Real_Len);
 				H.Loc-=(R.Real_Len-StringLength)+INDELGAP-1;
 				Skip=Find_Cigar(CIG,H,Real_String,R.Real_Len,R,Clip_H,Clip_T);
+				A.Mismatch=H.Mismatch;
 				if(forced_align)
 				{
 					H.SW_Score=HOld.SW_Score;H.SW_Sub_Opt_Score=HOld.SW_Sub_Opt_Score;
