@@ -15,6 +15,7 @@ extern int SW_THRESHOLD;
 extern std::string RGID;
 extern bool Hard_Penalty;
 extern bool REALN;
+extern int match_SC;
 
 int Find_Cigar(char* Cigar,Hit_Info & H,char* Current_Tag,int StringLength,READ & R,int & Clip_H,int & Clip_T)
 {
@@ -108,6 +109,7 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 	Hit_Info HOld=H;bool forced_align=false;//Re-alignment forced..
 	//int Real_Len=0;
 	int Clip_H=TClip_H,Clip_T=TClip_T;
+	int Clip_Realn_H=0,Clip_Realn_T=0;
 	bool TCIG_blank=true;
 	if(TCIG)
 	{
@@ -152,7 +154,8 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 				Skip=Find_Cigar(CIG,H,Real_String,R.Real_Len,R,Clip_H,Clip_T);
 				if(forced_align)
 				{
-					H.SW_Score=HOld.SW_Score;H.SW_Sub_Opt_Score=HOld.SW_Sub_Opt_Score;
+					//H.SW_Score=HOld.SW_Score;
+					H.SW_Sub_Opt_Score=HOld.SW_Sub_Opt_Score;
 					if(!Hard_Penalty && (Clip_T+Clip_H>0))
 					{
 						Skip_Penalty=false;
@@ -161,6 +164,7 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 					{
 						H.BQScore=HOld.BQScore;
 					}
+					Clip_Realn_T=Clip_T;Clip_Realn_H=Clip_H;
 					Clip_H=TClip_H;Clip_T=TClip_T;
 					H.Score= HOld.Score;
 					H.QScore=HOld.QScore;
@@ -185,7 +189,8 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 				A.Mismatch=H.Mismatch;
 				if(forced_align)
 				{
-					H.SW_Score=HOld.SW_Score;H.SW_Sub_Opt_Score=HOld.SW_Sub_Opt_Score;
+					//H.SW_Score=HOld.SW_Score;
+					H.SW_Sub_Opt_Score=HOld.SW_Sub_Opt_Score;
 					if(!Hard_Penalty && (Clip_T+Clip_H>0))
 					{
 						Skip_Penalty=true;
@@ -194,6 +199,7 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 					{
 						H.BQScore=HOld.BQScore;
 					}
+					Clip_Realn_T=Clip_T;Clip_Realn_H=Clip_H;
 					Clip_H=TClip_H;Clip_T=TClip_T;
 					H.Score= HOld.Score;
 					H.QScore=HOld.QScore;
@@ -231,7 +237,18 @@ void Print_Sam(Final_Hit & Printed_Hit,READ & R,Hit_Info & H,int StringLength,in
 		Quality_Score=Calc_MapQ(H,A,Clip_H+Clip_T);
 		if(Quality_Score==1)
 		{
-			//if(A.SW_Score < 290)
+			int SW_THRESHOLD;
+			if(Clip_Realn_H+Clip_Realn_T)//Realignment clips ..
+			{
+				assert(R.Real_Len-Clip_Realn_T-Clip_Realn_H>0);
+				SW_THRESHOLD=80*(R.Real_Len-Clip_Realn_H-Clip_Realn_T)*match_SC/100;
+				A.SW_Score=H.SW_Score;
+			}
+			else
+			{
+				SW_THRESHOLD=80*(R.Real_Len-Clip_H-Clip_T)*match/100;
+			}
+
 			if(A.SW_Score < SW_THRESHOLD)
 				Quality_Score=0;
 			if(R.NCount >std::max(NCOUNT,int(5*StringLength/100)))

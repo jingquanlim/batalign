@@ -206,6 +206,8 @@ int gap_openP,gap_extensionP;
 int MAX_PER_LIST=60;
 int SCOREGAP=20;
 std::string RGID;
+
+int match_SC=1;
 //{---------------------------- GLOBAL VARIABLES -------------------------------------------------
 
 
@@ -222,7 +224,7 @@ int main(int argc, char* argv[])
 	Read_INI(NULL,MAXCOUNT,FMFiles,BP);
 	Parse_Command_line(argc,argv,MAXCOUNT,FMFiles,BP);	
 	init_SSW();Build_Pow10();
-	init_SSW_Clip(1 /*match*/,3 /*mismatch*/,11 /*gap_open*/,4 /*gap_extension*/);
+	init_SSW_Clip(match_SC /*match*/,3 /*mismatch*/,11 /*gap_open*/,4 /*gap_extension*/);
 	if(CONFIG_FILE) Read_INI(CONFIG_FILE,MAXCOUNT,FMFiles,BP);
 	if (MISC_VERB) fprintf(stderr,"BatINDEL V 1.00\n");
 	if (BP.MAX_MISMATCHES != INT_MAX)
