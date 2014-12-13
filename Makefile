@@ -690,6 +690,7 @@ copy:
 	cp src/batalignindex bin
 	cp src/filter bin
 	cp src/penguin-s bin 
+	cp src/penguin-l bin 
 	cp src/batalign bin 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
