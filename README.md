@@ -1,5 +1,3 @@
-For reviewers: This site is updated with more instructions to build the index needed for Batalign to run on. Below, you can also find the dependencies and OS which we have tested Batalign on. Thank you for trying this tool.<br><br>
-
 "BatAlign: An incremental method for accurate gapped alignment".
 <br>
 This is a README file for the usage of Batalign.
