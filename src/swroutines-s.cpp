@@ -228,7 +228,7 @@ int Do_SW(BWT* revfmi,SARange* Head_Hits,char* Pattern,int Flank_Size,int String
 
 void Get_Bases (unsigned Location,int StringLength,char* Org_String) 
 {
-	if (--Location<0) Location=0;
+	if ((Location) && (--Location<0)) Location=0;
 	assert (StringLength<SW_STRING_BUFFER);
 	{
 		for (int i=0;i<=StringLength;i++)
